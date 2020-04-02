@@ -1,0 +1,28 @@
+/*
+ Theme Name:   Vantage Child
+ Theme URI:    http://www.kinergetics.net/vantage-child/
+ Description:  Vantage Child Theme
+ Author:       Kevin Kelm
+ Author URI:   http://www.kinergetics.net
+ Template:     vantage
+ Version:      1.0.0
+ License:      GNU General Public License v2 or later
+ License URI:  http://www.gnu.org/licenses/gpl-2.0.html
+ Tags:         custom-menu, custom-header, custom-background
+ Text Domain:  vantage-child
+*/
+
+.support-text, .btn {
+	color: #ffffff!important;
+    background: #2995bc;
+    border: 1px solid #008abc;
+    border-radius: 0px;
+    font-weight: 500;
+    font-size: 1.15em;
+    padding: 15px 30px;
+    display: inline-block;
+}
+
+.support-text > a {
+	color: #ffffff;
+}

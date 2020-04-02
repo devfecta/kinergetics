@@ -1,0 +1,10 @@
+<?php
+// datastore=auditlogs;
+// created_on=1509062760;
+// updated_on=1509062760;
+exit(0);
+?>
+response:{"status":1,"action":"get_logs","request_time":1509062760,"verbose":0,"output":["2017-10-26 20:00:45 kkelm@outlook.com : INFO: Authentication key added and plugin enabled"],"total_entries":1,"output_data":[{"event":"notice","date":"2017-10-27","time":"00:00:45","datetime":"2017-10-27 00:00:45","timestamp":1509062445,"account":"kkelm@outlook.com","username":"system","remote_addr":"127.0.0.1","message":"INFO: Authentication key added and plugin enabled","file_list":false,"file_list_count":0}]}
+response:{"status":1,"action":"get_logs","request_time":1509063566,"verbose":0,"output":["2017-10-26 20:00:45 kkelm@outlook.com : INFO: Authentication key added and plugin enabled"],"total_entries":1,"output_data":[{"event":"notice","date":"2017-10-27","time":"00:00:45","datetime":"2017-10-27 00:00:45","timestamp":1509062445,"account":"kkelm@outlook.com","username":"system","remote_addr":"127.0.0.1","message":"INFO: Authentication key added and plugin enabled","file_list":false,"file_list_count":0}]}
+response:{"status":1,"action":"get_logs","request_time":1509063728,"verbose":0,"output":["2017-10-26 20:00:45 kkelm@outlook.com : INFO: Authentication key added and plugin enabled"],"total_entries":1,"output_data":[{"event":"notice","date":"2017-10-27","time":"00:00:45","datetime":"2017-10-27 00:00:45","timestamp":1509062445,"account":"kkelm@outlook.com","username":"system","remote_addr":"127.0.0.1","message":"INFO: Authentication key added and plugin enabled","file_list":false,"file_list_count":0}]}
+response:{"status":1,"action":"get_logs","request_time":1510176807,"verbose":0,"output":["2017-10-26 20:00:45 kkelm@outlook.com : INFO: Authentication key added and plugin enabled"],"total_entries":1,"output_data":[{"event":"notice","date":"2017-10-27","time":"00:00:45","datetime":"2017-10-27 00:00:45","timestamp":1509062445,"account":"kkelm@outlook.com","username":"system","remote_addr":"127.0.0.1","message":"INFO: Authentication key added and plugin enabled","file_list":false,"file_list_count":0}]}
