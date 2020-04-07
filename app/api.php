@@ -32,8 +32,14 @@ switch ($_SERVER['REQUEST_METHOD']) {
                             break;
                         case "login":
                             // Return JSON of the registrants
-                            echo $User->login($_POST);
-                            exit();
+                            $result = json_decode($User->login($_POST), false);
+                            if ($result->authenticated) {
+                                $_SESSION['userId'] = $result->id;
+                                header("Location: index.php");
+                            }
+                            else {
+                                header("Location: login.php");
+                            }
                             break;
                         default:
                             echo json_encode(array("error" => 'METHOD ERROR: The '.$_GET['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);

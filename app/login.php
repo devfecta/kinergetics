@@ -35,9 +35,9 @@
         <img class="mb-4" src="images/Kinergetics-Logo.png" alt="Kinergetic, LLC" class="w-100" />
         <h1 class="h3 mb-3 font-weight-normal">Sign In</h1>
         <label for="username" class="sr-only">Username</label>
-        <input type="text" id="username" name="username" class="form-control" placeholder="Username" required autofocus>
+        <input type="text" id="username" name="username" class="form-control" placeholder="Username" value="test" required autofocus>
         <label for="password" class="sr-only">Password</label>
-        <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
+        <input type="password" id="password" name="password" class="form-control" placeholder="Password" value="123abc" required>
         <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
         <p class="mt-5 mb-3 text-muted">Kinergetics &copy; <?php echo date('Y'); ?></p>
     </form>

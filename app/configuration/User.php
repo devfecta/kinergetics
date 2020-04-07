@@ -16,24 +16,18 @@
     
                 $connection = Configuration::openConnection();
 
-                // Get Billing Business Information
                 $statement = $connection->prepare("SELECT * FROM `energy_matrix`.`users` WHERE `username`=:username1");
 
-                return json_encode('{'.$statement.'}', JSON_PRETTY_PRINT);
-                
                 $statement->bindParam(":username1", $data->username, PDO::PARAM_STR);
 
-                return json_encode('{'.$data->username.'}', JSON_PRETTY_PRINT);
-                
                 $statement->execute();
-
-                
     
                 if ($statement->rowCount() > 0) {
                     $result = $statement->fetch(PDO::FETCH_ASSOC);
     
                     $userInfo['id'] = $result['id'];
                     $userInfo['company'] = $result['company'];
+
                     $userInfo['authenticated'] = password_verify($data->password, $result['password']);
     
                 }
