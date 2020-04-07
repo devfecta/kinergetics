@@ -1,3 +1,11 @@
+<?php
+    ob_start();
+    session_start();
+
+    if (session_id() && !isset($_SESSION['userId'])) {
+        header("Location: login.php");
+    }
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,4 +18,4 @@
 </head>
 <body>
 	<header></header>
-	<main>
+	<main class="text-center">
