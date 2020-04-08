@@ -16,23 +16,28 @@
 
 </style>
 
-
-
 <section>
-
-	<label for="startDate">Sensor:</label>
-    <select name="sensor" id="sensor">
-		<?php
-			$sensor = new Sensor();
-			echo $sensor->getSensors();
-		?>
-	</select>
-	<label for="startDate">Start Date:</label>
-    <input type="date" name="startDate" id="startDate" value="2018-12-13" min="2018-01-01" max="2018-12-31" />
-	<label for="endDate">End Date:</label>
-	<input type="date" name="endDate" id="endDate" value="2018-12-14" min="2018-01-01" max="2018-12-31" />
-    <input type="hidden" name="user" id="user" value="<?php echo $_SESSION['userId']; ?>" />
-	<button type="button" id="getData">Get Data</button>
+    <form id="searchForm">
+        <label for="startDate">Sensor:</label>
+        <select name="sensor" id="sensor">
+            <?php
+                $sensor = new Sensor();
+                echo $sensor->getSensors();
+            ?>
+        </select>
+        <label for="dataType">Data Type:</label>
+        <select name="dataType" id="dataType">
+            <option value="flowRate">Flow Rate</option>
+            <option value="totalVolume">Total Volume</option>
+            <option value="steam">Steam</option>
+        </select>
+        <label for="startDate">Start Date:</label>
+        <input type="date" name="startDate" id="startDate" value="2018-12-13" min="2018-01-01" max="2018-12-31" />
+        <label for="endDate">End Date:</label>
+        <input type="date" name="endDate" id="endDate" value="2018-12-14" min="2018-01-01" max="2018-12-31" />
+        <input type="hidden" name="user" id="user" value="<?php echo $_SESSION['userId']; ?>" />
+        <button type="button" id="getData">Get Data</button>
+    </form>
 
     <div id="container" style="width: 75%;">
 		<canvas id="canvas"></canvas>

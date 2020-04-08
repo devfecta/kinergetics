@@ -13,8 +13,9 @@ require_once('configuration/User.php');
 $registration = null;
 $encodedJSON = null;
 
-//echo json_encode(array("type" => "API Call", "request-method" => $_SERVER['REQUEST_METHOD'], "post" => $_POST, "get" => $_GET));
-//exit();
+echo json_encode(array("type" => "API Call", "request-method" => $_SERVER['REQUEST_METHOD'], "post" => $_POST, "get" => $_GET));
+//echo json_encode(array("test" => $json->sensor), JSON_PRETTY_PRINT);
+exit();
 
 switch ($_SERVER['REQUEST_METHOD']) {
     case "POST":
@@ -86,26 +87,28 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     break;
                 default:
                     break;
-
             }
         } else {
-
             //echo json_encode(array("error" => 'POST ERROR: Form type not set.\n'), JSON_PRETTY_PRINT);
-        
         }
 
         break;
     case "GET":
-    //echo "REQUEST_METHOD Get";
+        //echo "REQUEST_METHOD Get";
         // Reads
         if (isset($_GET['class'])) {
             switch ($_GET['class']) {
-                case "Membership":
-                    $Membership = new Membership();
+                case "FlowMeter":
+                    $FlowMeter = new FlowMeter();
                     switch ($_GET['method']) {
-                        case "getRegistrants":
-                            //echo $_GET['formData'];
-                            echo $Membership->getRegistrants($_GET['formData']);
+                        case "flowRate":
+                            echo $FlowMeter->getFlowRate($_GET['formData']);
+                            break;
+                        case "totalVolume":
+                            echo $FlowMeter->getTotalVolume($_GET['formData']);
+                            break;
+                        case "steam":
+                            echo $FlowMeter->getSteam($_GET['formData']);
                             break;
                         default:
                             echo json_encode(array("error" => 'GET METHOD ERROR: The '.$_GET['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);

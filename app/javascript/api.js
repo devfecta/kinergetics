@@ -1,6 +1,10 @@
 const init = () => {
-    let submitButton = document.querySelector('#getData');
-    submitButton.addEventListener("click", getData);
+
+    
+
+    let searchButton = document.querySelector("#getData");
+    searchButton.addEventListener("click", getData);
+    
 
     /*
     var ctx = document.getElementById('canvas').getContext('2d');
@@ -31,6 +35,28 @@ const init = () => {
 
 const getData = async () => {
 
+    let searchForm = document.querySelector("#searchForm");
+
+    const json = {};
+
+    let formData = new FormData(searchForm);
+
+    formData.forEach((entry, index) => {
+        json[index] = entry;
+    })
+
+    console.log(json);
+
+    let chartData = await callApi(json);
+
+    console.log(chartData);
+
+    return false;
+/*
+    const formData = new FormData(searchEntries.target);
+
+    console.log(formData);
+
     let user = document.querySelector('#user').value;
     let sensor = document.querySelector('#sensor').value;
     let dataType = document.querySelector('#dataType').value;
@@ -44,7 +70,7 @@ const getData = async () => {
     let chartData = await callApi(user, sensor, dataType, startDate, endDate);
 
     console.log(chartData);
-
+*/
     /*
     let coordinates = await getCoordinates(document.querySelector('#startDate').value);
     console.log(coordinates);
@@ -53,7 +79,24 @@ const getData = async () => {
     */
 }
 
-const callApi = async (user, sensor, dataType, startDate, endDate) => {
+const callApi = async (formData) => {
+
+    console.log(formData);
+
+    let url = `http://localhost/app/api.php`;
+
+    return await fetch(url, {
+        method: 'POST',
+        body: JSON.stringify(formData),
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+        
+    })
+    .then(response => response.json())
+    .then(data => console.log(data));
+
+    /*
     console.log("API Call");
     let url = `http://localhost/app/api.php?`;
     let params = 'user=' + user;
@@ -66,6 +109,7 @@ const callApi = async (user, sensor, dataType, startDate, endDate) => {
     return await fetch(url)
         .then(response => response.json())
         .then(data => console.log(data));
+    */
 }
 
 window.onload = init;
