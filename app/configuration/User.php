@@ -42,7 +42,7 @@
             catch (PDOException $pdo) {
 
                 
-                return "PDO Error: " . $e->getMessage();
+                return "PDO Error: " . $pdo->getMessage();
             }
             catch (Exception $e) {
 

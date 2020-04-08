@@ -13,10 +13,11 @@ require_once('configuration/User.php');
 $registration = null;
 $encodedJSON = null;
 
-switch ($_SERVER['REQUEST_METHOD']) {
-    case "POST":
 //echo json_encode(array("type" => "API Call", "request-method" => $_SERVER['REQUEST_METHOD'], "post" => $_POST, "get" => $_GET));
 //exit();
+
+switch ($_SERVER['REQUEST_METHOD']) {
+    case "POST":
     //echo "REQUEST_METHOD Post";
         header('Content-Type: application/json; charset=utf-8');
         //$post = json_decode($_POST, false);
