@@ -16,7 +16,7 @@
     
                 $connection = Configuration::openConnection();
 
-                $statement = $connection->prepare("SELECT * FROM `energy_matrix`.`users` WHERE `username`=:username1");
+                $statement = $connection->prepare("SELECT * FROM `users` WHERE `username`=:username1");
 
                 $statement->bindParam(":username1", $data->username, PDO::PARAM_STR);
 
@@ -32,8 +32,6 @@
     
                 }
 
-                
-                
                 Configuration::closeConnection();
     
                 return json_encode($userInfo, JSON_PRETTY_PRINT);

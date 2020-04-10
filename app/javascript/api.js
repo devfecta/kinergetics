@@ -1,11 +1,10 @@
-const init = () => {
+let ctx = document.querySelector('canvas');
 
-    
+const init = () => {
 
     let searchButton = document.querySelector("#getData");
     searchButton.addEventListener("click", getData);
     
-
     /*
     var ctx = document.getElementById('canvas').getContext('2d');
     window.myHorizontalBar = new Chart(ctx, {
@@ -40,61 +39,86 @@ const getData = async () => {
     const json = {};
 
     let formData = new FormData(searchForm);
-
+    
     formData.forEach((entry, index) => {
         json[index] = entry;
     })
 
-    console.log(json);
-
+    //console.log(json);
+    
     let chartData = await callApi(json);
 
-    console.log(chartData);
+    console.log(chartData.length);
+
+    let labelsData = [];
+    let steamData = [];
+    let barBackgroundColor = [];
+    let barBorderColor = [];
+
+    chartData.forEach(data => {
+        let date = new Date(data.date_time).toLocaleDateString();
+        labelsData = [...labelsData, date];
+        steamData = [...steamData, data.steam];
+        barBackgroundColor = [...barBackgroundColor, 'rgba(255, 99, 132, 0.2)'];
+        barBorderColor = [...barBorderColor, 'rgba(255, 99, 132, 0.7)'];
+    });
+
+/*
+data_point: "1"
+date_time: "2018-12-12 08:45:24"
+error: "0"
+feedwater: "0"
+flow_rate: "1.02"
+id: "1"
+report_id: "1"
+steam: "499.80"
+time_lapse: "0.02"
+total_volume: "96.00"
+*/
+
+    let myChart = new Chart(ctx, {
+        type: 'horizontalBar',
+        data: {
+            labels: labelsData,
+            datasets: [{
+                label: '# of Votes',
+                data: steamData,
+                backgroundColor: barBackgroundColor,
+                borderColor: barBorderColor,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+
+
 
     return false;
-/*
-    const formData = new FormData(searchEntries.target);
-
-    console.log(formData);
-
-    let user = document.querySelector('#user').value;
-    let sensor = document.querySelector('#sensor').value;
-    let dataType = document.querySelector('#dataType').value;
-    let startDate = document.querySelector('#startDate').value;
-    let endDate = document.querySelector('#endDate').value;
-    
-
-    console.log(startDate);
-    console.log(endDate);
-
-    let chartData = await callApi(user, sensor, dataType, startDate, endDate);
-
-    console.log(chartData);
-*/
-    /*
-    let coordinates = await getCoordinates(document.querySelector('#startDate').value);
-    console.log(coordinates);
-    let weatherData = await getWeather(coordinates);
-    console.log(weatherData);
-    */
 }
 
 const callApi = async (formData) => {
 
     console.log(formData);
 
-    let url = `http://localhost/app/api.php`;
+    let url = "http://localhost/app/api.php";
 
     return await fetch(url, {
         method: 'POST',
-        body: JSON.stringify(formData),
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        }
-        
+        body: new URLSearchParams(formData),
+        headers: new Headers({
+            'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        })
     })
     .then(response => response.json())
-    .then(data => console.log(data));
+    .then(data => data);
 
     /*
     console.log("API Call");
@@ -111,5 +135,7 @@ const callApi = async (formData) => {
         .then(data => console.log(data));
     */
 }
+
+
 
 window.onload = init;

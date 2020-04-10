@@ -13,9 +13,12 @@ require_once('configuration/User.php');
 $registration = null;
 $encodedJSON = null;
 
-echo json_encode(array("type" => "API Call", "request-method" => $_SERVER['REQUEST_METHOD'], "post" => $_POST, "get" => $_GET));
-//echo json_encode(array("test" => $json->sensor), JSON_PRETTY_PRINT);
-exit();
+require_once("configuration/FlowMeter.php");
+
+//echo json_encode(array("type" => "API Call", "request-method" => $_SERVER['REQUEST_METHOD'], "post" => $_POST, "get" => $_GET));
+////$test = json_encode($_POST, false);
+////echo json_encode(array("type" => $_POST["sensor"]));
+//exit();
 
 switch ($_SERVER['REQUEST_METHOD']) {
     case "POST":
@@ -23,7 +26,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
         header('Content-Type: application/json; charset=utf-8');
         //$post = json_decode($_POST, false);
         // Creates
-        if (isset($_GET['class'])) {
+
+        
+        if (isset($_GET['class']) && !empty($_GET['class'])) {
             switch ($_GET['class']) {
                 case "User":
                     $User = new User();
@@ -48,8 +53,42 @@ switch ($_SERVER['REQUEST_METHOD']) {
                             break;
                     }
                     break;
+
+                
+
                 default;
                     echo json_encode(array("error" => 'CLASS ERROR: The '.$_GET['class'].' class does not exist.\n'), JSON_PRETTY_PRINT);
+                    break;
+            }
+        }
+
+        
+
+        if (isset($_POST["sensor"])) {
+            switch ($_POST["sensor"]) {
+                case "1":
+                    $FlowMeter = new FlowMeter();
+                    switch ($_POST['dataType']) {
+                        case "flowRate":
+
+                            //echo json_encode(array("error" => $FlowMeter->getFlowRate($_POST)));
+                            //exit();
+
+                            echo $FlowMeter->getFlowRate($_POST);
+                            break;
+                        case "totalVolume":
+                            echo $FlowMeter->getTotalVolume($_POST);
+                            break;
+                        case "steam":
+                            echo $FlowMeter->getSteam($_POST);
+                            break;
+                        default:
+                            echo json_encode(array("error" => 'GET METHOD ERROR: The '.$_GET['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
+                            break;
+                    }
+                    break;
+                default;
+                    echo json_encode(array("error" => 'CLASS ERROR: The '.$_POST["sensor"].' class does not exist.\n'), JSON_PRETTY_PRINT);
                     break;
             }
         }

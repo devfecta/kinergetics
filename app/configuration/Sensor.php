@@ -17,7 +17,7 @@ class Sensor {
             if ($statement->rowCount() > 0) {
                 $results = $statement->fetchAll(PDO::FETCH_ASSOC);
                 foreach ($results as &$result) {
-                    $options .= '<option value="'.str_replace(' ', '', $result['sensor']).'">'.$result['sensor'].'</option>';
+                    $options .= '<option value="'.$result['id'].'">'.$result['sensor'].'</option>';
                 }
             }
 
