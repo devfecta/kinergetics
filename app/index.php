@@ -16,12 +16,12 @@
 
 <section class="container-fluid row">
     <div class="col-md-12">
-        <h1>Energy Matrix</h1>
+        <h1><?php echo $_SESSION['company']; ?> - Energy Matrix</h1>
     </div>
     
     <div class="col-md-3">
         <h2 class="text-left">Steam</h2>
-        <form id="steamForm" method="post">
+        <form id="searchForm" method="post">
             <div class="form-group row mx-2">
                 <label for="startDate">Start Date: </label>
                     <input type="date" class="form-control" id="startDate" name="startDate" 
@@ -47,13 +47,19 @@
             </div>
             <div class="form-group row mx-2">
                 <input type="hidden" name="user" id="user" value="<?php echo $_SESSION['userId']; ?>" />
-                <button type="button" class="btn btn-primary w-100" id="getSteamData">Get Data</button>
+                <button type="button" class="btn btn-primary w-100" id="getData">Get Data</button>
             </div>
         </form>
 
     </div>
     <div class="col-md-9">
+
+        <canvas id="flowRateCanvas"></canvas>
+
+        <canvas id="totalVolumeCanvas"></canvas>
+
         <canvas id="steamCanvas"></canvas>
+
     </div>    
 
 </section>

@@ -2,21 +2,18 @@
 
 const init = () => {
 
-    let searchButton = document.querySelector("#getSteamData");
-    searchButton.addEventListener("click", getSteamData);
+    let searchButton = document.querySelector("#getData");
+    searchButton.addEventListener("click", getData);
+
+    //let searchButton = document.querySelector("#getSteamData");
+    //searchButton.addEventListener("click", getSteamData);
 
 }
 
+const getData = async () => {
 
-const getSteamData = async () => {
-
-    let chartData = {};
-    chartData.canvas = document.querySelector('#steamCanvas');
-
-    chartData.canvas.innerHTML = "";
-    chartData.chartTitle = "Steam Data";
     // Select form
-    let searchForm = document.querySelector("#steamForm");
+    let searchForm = document.querySelector("#searchForm");
 
     // Convert form data to JSON
     const json = {};
@@ -27,56 +24,11 @@ const getSteamData = async () => {
         json[index] = entry;
     });
     //console.log(json);
-    /*
-        dataType: "steam"
-        device: "flowMeter"
-        endDate: "2020-04-11"
-        endTime: "12:04"
-        startDate: "2019-04-11"
-        startTime: "12:04"
-        user: "1"
-    */
-    
-    let responseJSON = await callApi(json);
-    console.log(responseJSON);
 
-    if(responseJSON.error) {
-        alert("No Records Found");
-        return false;
-    }
-
-    chartData.unit = 'LB/Hr';
-    // Line Formatting
-    chartData.labelsData = [];
-    chartData.data = [];
-    chartData.barBackgroundColor = [];
-    chartData.barBorderColor = [];
-    total = 0;
-
-    responseJSON.forEach(data => {
-        let date = new Date(data.date_time);
-        chartData.labelsData = [...chartData.labelsData, date.getFullYear() +"-"+ date.getMonth() +"-"+ date.getDate() +"\n"+ date.getHours() +":"+ date.getMinutes()];
-        chartData.data = [...chartData.data, data.steam];
-        chartData.barBackgroundColor = [...chartData.barBackgroundColor, 'rgba(70, 50, 150, 0.2)'];
-        chartData.barBorderColor = [...chartData.barBorderColor, 'rgba(70, 50, 150, 0.7)'];
-        total += Number(data.steam);
-    });
-    // Average Line Formatting
-    chartData.average = [];
-    chartData.averageBackgroundColor = [];
-    chartData.averageBorderColor = [];
-
-    let averageTotal = parseFloat(total / responseJSON.length).toFixed(2);
-
-    responseJSON.forEach(data => {
-        chartData.average = [...chartData.average, averageTotal];
-        chartData.averageBackgroundColor = [...chartData.averageBackgroundColor, 'rgba(175, 175, 175, 0.2)'];
-        chartData.averageBorderColor = [...chartData.averageBorderColor, 'rgba(175, 175, 175, 0.7)'];
-    });
-
-    console.log(chartData);
-    
-    buildChart(chartData);
+    getFlowRateData(json);
+    getTotalVolumeData(json);
+    getSteamData(json);
+}
 
 /*
 data_point: "1"
@@ -90,6 +42,128 @@ steam: "499.80"
 time_lapse: "0.02"
 total_volume: "96.00"
 */
+
+const getFlowRateData = async (formJSON) => {
+
+    let chartData = {};
+    chartData.canvas = document.querySelector('#flowRateCanvas');
+
+    chartData.canvas.innerHTML = "";
+    chartData.chartTitle = "Flow Rate Data";
+    
+    let responseJSON = await callApi(formJSON);
+    console.log(responseJSON);
+
+    if(responseJSON.error) {
+        alert("No Records Found");
+        return false;
+    }
+
+    chartData.unit = 'GPM';
+    chartData.label = 'Flow Rate (GPM)',
+    // Line Formatting
+    //chartData.flow = {labelsData : []}
+    chartData.labelsData = [];
+    chartData.data = [];
+    chartData.barBackgroundColor = [];
+    chartData.barBorderColor = [];
+
+    responseJSON.forEach(data => {
+        let date = new Date(data.date_time);
+        chartData.labelsData = [...chartData.labelsData, date.getHours() +":"+ date.getMinutes()];
+        chartData.data = [...chartData.data, data.flow_rate];
+        chartData.barBackgroundColor = [...chartData.barBackgroundColor, 'rgba(50, 100, 150, 0.2)'];
+        chartData.barBorderColor = [...chartData.barBorderColor, 'rgba(50, 100, 150, 0.7)'];
+    });
+    
+    buildChart(chartData);
+    
+}
+
+const getTotalVolumeData = async (formJSON) => {
+
+    let chartData = {};
+    chartData.canvas = document.querySelector('#totalVolumeCanvas');
+
+    chartData.canvas.innerHTML = "";
+    chartData.chartTitle = "Total Volume Data";
+    
+    let responseJSON = await callApi(formJSON);
+    console.log(responseJSON);
+
+    if(responseJSON.error) {
+        alert("No Records Found");
+        return false;
+    }
+
+    chartData.unit = 'Gallons';
+    chartData.label = 'Total Volume (Gallons)',
+    // Line Formatting
+    chartData.labelsData = [];
+    chartData.data = [];
+    chartData.barBackgroundColor = [];
+    chartData.barBorderColor = [];
+
+    responseJSON.forEach(data => {
+        let date = new Date(data.date_time);
+        chartData.labelsData = [...chartData.labelsData, date.getHours() +":"+ date.getMinutes()];
+        chartData.data = [...chartData.data, data.total_volume];
+        chartData.barBackgroundColor = [...chartData.barBackgroundColor, 'rgba(100, 100, 50, 0.2)'];
+        chartData.barBorderColor = [...chartData.barBorderColor, 'rgba(100, 100, 50, 0.7)'];
+    });
+    
+    buildChart(chartData);
+    
+}
+
+const getSteamData = async (formJSON) => {
+
+    let chartData = {};
+    chartData.canvas = document.querySelector('#steamCanvas');
+
+    chartData.canvas.innerHTML = "";
+    chartData.chartTitle = "Steam Data";
+    
+    let responseJSON = await callApi(formJSON);
+    console.log(responseJSON);
+
+    if(responseJSON.error) {
+        alert("No Records Found");
+        return false;
+    }
+
+    chartData.unit = 'LB/Hr';
+    chartData.label = 'Steam (LB/Hr)',
+    // Line Formatting
+    chartData.labelsData = [];
+    chartData.data = [];
+    chartData.barBackgroundColor = [];
+    chartData.barBorderColor = [];
+
+    responseJSON.forEach(data => {
+        let date = new Date(data.date_time);
+        chartData.labelsData = [...chartData.labelsData, date.getHours() +":"+ date.getMinutes()];
+        chartData.data = [...chartData.data, data.steam];
+        chartData.barBackgroundColor = [...chartData.barBackgroundColor, 'rgba(70, 50, 150, 0.2)'];
+        chartData.barBorderColor = [...chartData.barBorderColor, 'rgba(70, 50, 150, 0.7)'];
+    });
+    /*
+    // Average Line Formatting
+    chartData.average = [];
+    chartData.averageBackgroundColor = [];
+    chartData.averageBorderColor = [];
+
+    let averageTotal = parseFloat(total / responseJSON.length).toFixed(2);
+
+    responseJSON.forEach(data => {
+        chartData.average = [...chartData.average, averageTotal];
+        chartData.averageBackgroundColor = [...chartData.averageBackgroundColor, 'rgba(175, 175, 175, 0.2)'];
+        chartData.averageBorderColor = [...chartData.averageBorderColor, 'rgba(175, 175, 175, 0.7)'];
+    });
+    */
+    //console.log(chartData);
+    
+    buildChart(chartData);
     
 }
 
@@ -100,20 +174,86 @@ const buildChart = (chartData) => {
         data: {
             labels: chartData.labelsData,
             datasets: [{
-                label: chartData.data.length + ' Data Points',
+                label: chartData.label,
                 data: chartData.data,
                 backgroundColor: chartData.barBackgroundColor,
                 borderColor: chartData.barBorderColor,
                 borderWidth: 1,
                 fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: chartData.chartTitle
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            },
+            scales: {
+                xAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Time'
+                    }
+                }],
+                yAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: chartData.unit
+                    }
+                }]
+            }
+            /*
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+            */
+        }
+    });
+
+}
+
+
+
+
+const buildCharts = (chartData) => {
+
+    let myChart = new Chart(chartData.canvas, {
+        type: 'line',
+        data: {
+            labels: chartData.labelsData,
+            datasets: [{
+                label: chartData.label,
+                data: chartData.steam.data,
+                backgroundColor: chartData.steam.barBackgroundColor,
+                borderColor: chartData.steam.barBorderColor,
+                borderWidth: 1,
+                fill: true
             },
             {
+                label: 'Flow Rate (GPM)',
+                data: chartData.flow.data,
+                backgroundColor: chartData.flow.barBackgroundColor,
+                borderColor: chartData.flow.barBorderColor,
+                borderWidth: 1,
+                fill: true
+                /*
                 label: 'Average ' + chartData.unit,
                 data: chartData.average,
                 backgroundColor: chartData.averageBackgroundColor,
                 borderColor: chartData.averageBorderColor,
                 borderWidth: 1,
                 fill: true
+                */
             }
             ]
         },
@@ -132,7 +272,7 @@ const buildChart = (chartData) => {
                     display: true,
                     scaleLabel: {
                         display: true,
-                        labelString: 'Date-Time'
+                        labelString: 'Time'
                     }
                 }],
                 yAxes: [{

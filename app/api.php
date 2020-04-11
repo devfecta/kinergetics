@@ -42,6 +42,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                             $result = json_decode($User->login($_POST), false);
                             if ($result->authenticated) {
                                 $_SESSION['userId'] = $result->id;
+                                $_SESSION['company'] = $result->company;
                                 header("Location: index.php");
                             }
                             else {
@@ -53,9 +54,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
                             break;
                     }
                     break;
-
-                
-
                 default;
                     echo json_encode(array("error" => 'CLASS ERROR: The '.$_GET['class'].' class does not exist.\n'), JSON_PRETTY_PRINT);
                     break;
