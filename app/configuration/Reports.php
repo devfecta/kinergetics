@@ -1,15 +1,22 @@
 <?php
 
-class FlowMeter {
+class Reports {
 
     public function __construct() {}
 
-    public function getFlowRate($formData) {
+    public function getSteamData($formData) {
 
         try {
             $connection = Configuration::openConnection();
-            $statement = $connection->prepare("SELECT * FROM `reports` WHERE `sensor_id`=:sensor");
-            $statement->bindParam(":sensor", $formData['sensor'], PDO::PARAM_STR);
+
+            $statement = $connection->prepare("SELECT * FROM `devices` WHERE `tag`=:device");
+            $statement->bindParam(":device", $formData['device'], PDO::PARAM_STR);
+            $statement->execute();
+            $device = $statement->fetch(PDO::FETCH_ASSOC);
+
+            $statement = $connection->prepare("SELECT * FROM `reports` WHERE `user_id`=:user AND `device_id`=:device");
+            $statement->bindParam(":user", $formData['user'], PDO::PARAM_STR);
+            $statement->bindParam(":device", $device['id'], PDO::PARAM_STR);
             $statement->execute();
 
             if ($statement->rowCount() > 0) {
@@ -36,6 +43,8 @@ class FlowMeter {
             //return "PDO Error: " . $pdo->getMessage();
             return json_encode(array('error'=> $pdo->getMessage()), JSON_PRETTY_PRINT);
         }
+
+        return json_encode(array('error'=> "No Records Found"), JSON_PRETTY_PRINT);
         
     }
 

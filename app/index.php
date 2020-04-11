@@ -14,49 +14,47 @@
 
 </style>
 
-<section>
-    <form id="searchForm" method="post">
-        <label for="startDate">Sensor:</label>
-        <select name="sensor" id="sensor">
-            <?php
-                $sensor = new Sensor();
-                echo $sensor->getSensors();
-            ?>
-        </select>
-        <label for="dataType">Data Type:</label>
-        <select name="dataType" id="dataType">
-            <option value="flowRate">Flow Rate</option>
-            <option value="totalVolume">Total Volume</option>
-            <option value="steam">Steam</option>
-        </select>
-        <label for="startDate">Start Date:
-            <input type="date" id="startDate" name="startDate" 
-                value="<?php echo date("Y-m-d", strtotime('-1 years')); ?>"
-                min="<?php echo date("Y-m-d", strtotime('-5 years')); ?>" 
-                max="<?php echo date("Y-m-d"); ?>">
-            <input type="time" id="startTime" name="startTime"
-                value="<?php echo date("H:m"); ?>"
-                min="00:00" 
-                max="23:59">
-        </label>
-        <label for="endDate">End Date:
-            <input type="date" id="endDate" name="endDate" 
-                value="<?php echo date("Y-m-d"); ?>"
-                min="<?php echo date("Y-m-d", strtotime('-5 years')); ?>" 
-                max="<?php echo date("Y-m-d"); ?>">
-            <input type="time" id="endTime" name="endTime"
-                value="<?php echo date("H:m"); ?>"
-                min="00:00" 
-                max="23:59">
-        </label>
-        
-        <input type="hidden" name="user" id="user" value="<?php echo $_SESSION['userId']; ?>" />
-        <button type="button" id="getData">Get Data</button>
-    </form>
+<section class="container-fluid row">
+    <div class="col-md-12">
+        <h1>Energy Matrix</h1>
+    </div>
+    
+    <div class="col-md-3">
+        <h2 class="text-left">Steam</h2>
+        <form id="steamForm" method="post">
+            <div class="form-group row mx-2">
+                <label for="startDate">Start Date: </label>
+                    <input type="date" class="form-control" id="startDate" name="startDate" 
+                        value="<?php echo date("Y-m-d", strtotime('-1 years')); ?>"
+                        min="<?php echo date("Y-m-d", strtotime('-5 years')); ?>" 
+                        max="<?php echo date("Y-m-d"); ?>">
+                    <input type="time" class="form-control" id="startTime" name="startTime"
+                        value="<?php echo date("H:m"); ?>"
+                        min="00:00" 
+                        max="23:59">
+                
+            </div>
+            <div class="form-group row mx-2">
+                <label for="endDate">End Date: </label>
+                    <input type="date" class="form-control" id="endDate" name="endDate" 
+                        value="<?php echo date("Y-m-d"); ?>"
+                        min="<?php echo date("Y-m-d", strtotime('-5 years')); ?>" 
+                        max="<?php echo date("Y-m-d"); ?>">
+                    <input type="time" class="form-control" id="endTime" name="endTime"
+                        value="<?php echo date("H:m"); ?>"
+                        min="00:00" 
+                        max="23:59">
+            </div>
+            <div class="form-group row mx-2">
+                <input type="hidden" name="user" id="user" value="<?php echo $_SESSION['userId']; ?>" />
+                <button type="button" class="btn btn-primary w-100" id="getSteamData">Get Data</button>
+            </div>
+        </form>
 
-    <div id="container" style="width: 75%;">
-		<canvas id="canvas"></canvas>
-	</div>
+    </div>
+    <div class="col-md-9">
+        <canvas id="steamCanvas"></canvas>
+    </div>    
 
 </section>
 

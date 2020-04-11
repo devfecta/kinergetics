@@ -1,67 +1,82 @@
-let ctx = document.querySelector('canvas');
+//let steamCanvas = document.querySelector('#steamCanvas');
 
 const init = () => {
 
-    let searchButton = document.querySelector("#getData");
-    searchButton.addEventListener("click", getData);
-    
-    /*
-    var ctx = document.getElementById('canvas').getContext('2d');
-    window.myHorizontalBar = new Chart(ctx, {
-        type: 'horizontalBar',
-        data: horizontalBarChartData,
-        options: {
-            // Elements options apply to all of the options unless overridden in a dataset
-            // In this case, we are setting the border of each horizontal bar to be 2px wide
-            elements: {
-                rectangle: {
-                    borderWidth: 2,
-                }
-            },
-            responsive: true,
-            legend: {
-                position: 'right',
-            },
-            title: {
-                display: true,
-                text: 'Chart.js Horizontal Bar Chart'
-            }
-        }
-    });
-    */
+    let searchButton = document.querySelector("#getSteamData");
+    searchButton.addEventListener("click", getSteamData);
+
 }
 
 
-const getData = async () => {
+const getSteamData = async () => {
 
-    let searchForm = document.querySelector("#searchForm");
+    let chartData = {};
+    chartData.canvas = document.querySelector('#steamCanvas');
 
+    chartData.canvas.innerHTML = "";
+    chartData.chartTitle = "Steam Data";
+    // Select form
+    let searchForm = document.querySelector("#steamForm");
+
+    // Convert form data to JSON
     const json = {};
-
+    json.device = "flowMeter";
+    json.dataType = "steam";
     let formData = new FormData(searchForm);
-    
     formData.forEach((entry, index) => {
         json[index] = entry;
-    })
-
-    //console.log(json);
-    
-    let chartData = await callApi(json);
-
-    console.log(chartData.length);
-
-    let labelsData = [];
-    let steamData = [];
-    let barBackgroundColor = [];
-    let barBorderColor = [];
-
-    chartData.forEach(data => {
-        let date = new Date(data.date_time).toLocaleDateString();
-        labelsData = [...labelsData, date];
-        steamData = [...steamData, data.steam];
-        barBackgroundColor = [...barBackgroundColor, 'rgba(255, 99, 132, 0.2)'];
-        barBorderColor = [...barBorderColor, 'rgba(255, 99, 132, 0.7)'];
     });
+    //console.log(json);
+    /*
+        dataType: "steam"
+        device: "flowMeter"
+        endDate: "2020-04-11"
+        endTime: "12:04"
+        startDate: "2019-04-11"
+        startTime: "12:04"
+        user: "1"
+    */
+    
+    let responseJSON = await callApi(json);
+    console.log(responseJSON);
+
+    if(responseJSON.error) {
+        alert("No Records Found");
+        return false;
+    }
+
+    chartData.unit = 'LB/Hr';
+    // Line Formatting
+    chartData.labelsData = [];
+    chartData.data = [];
+    chartData.barBackgroundColor = [];
+    chartData.barBorderColor = [];
+    total = 0;
+
+    responseJSON.forEach(data => {
+        let date = new Date(data.date_time);
+        chartData.labelsData = [...chartData.labelsData, date.getFullYear() +"-"+ date.getMonth() +"-"+ date.getDate() +"\n"+ date.getHours() +":"+ date.getMinutes()];
+        chartData.data = [...chartData.data, data.steam];
+        chartData.barBackgroundColor = [...chartData.barBackgroundColor, 'rgba(70, 50, 150, 0.2)'];
+        chartData.barBorderColor = [...chartData.barBorderColor, 'rgba(70, 50, 150, 0.7)'];
+        total += Number(data.steam);
+    });
+    // Average Line Formatting
+    chartData.average = [];
+    chartData.averageBackgroundColor = [];
+    chartData.averageBorderColor = [];
+
+    let averageTotal = parseFloat(total / responseJSON.length).toFixed(2);
+
+    responseJSON.forEach(data => {
+        chartData.average = [...chartData.average, averageTotal];
+        chartData.averageBackgroundColor = [...chartData.averageBackgroundColor, 'rgba(175, 175, 175, 0.2)'];
+        chartData.averageBorderColor = [...chartData.averageBorderColor, 'rgba(175, 175, 175, 0.7)'];
+    });
+
+    console.log(chartData);
+    
+    buildChart(chartData);
 
 /*
 data_point: "1"
@@ -75,20 +90,60 @@ steam: "499.80"
 time_lapse: "0.02"
 total_volume: "96.00"
 */
+    
+}
 
-    let myChart = new Chart(ctx, {
-        type: 'horizontalBar',
+const buildChart = (chartData) => {
+
+    let myChart = new Chart(chartData.canvas, {
+        type: 'line',
         data: {
-            labels: labelsData,
+            labels: chartData.labelsData,
             datasets: [{
-                label: '# of Votes',
-                data: steamData,
-                backgroundColor: barBackgroundColor,
-                borderColor: barBorderColor,
-                borderWidth: 1
-            }]
+                label: chartData.data.length + ' Data Points',
+                data: chartData.data,
+                backgroundColor: chartData.barBackgroundColor,
+                borderColor: chartData.barBorderColor,
+                borderWidth: 1,
+                fill: true
+            },
+            {
+                label: 'Average ' + chartData.unit,
+                data: chartData.average,
+                backgroundColor: chartData.averageBackgroundColor,
+                borderColor: chartData.averageBorderColor,
+                borderWidth: 1,
+                fill: true
+            }
+            ]
         },
         options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: chartData.chartTitle
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            },
+            scales: {
+                xAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Date-Time'
+                    }
+                }],
+                yAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: chartData.unit
+                    }
+                }]
+            }
+            /*
             scales: {
                 yAxes: [{
                     ticks: {
@@ -96,17 +151,13 @@ total_volume: "96.00"
                     }
                 }]
             }
+            */
         }
     });
 
-
-
-    return false;
 }
 
 const callApi = async (formData) => {
-
-    console.log(formData);
 
     let url = "http://localhost/app/api.php";
 
@@ -120,20 +171,6 @@ const callApi = async (formData) => {
     .then(response => response.json())
     .then(data => data);
 
-    /*
-    console.log("API Call");
-    let url = `http://localhost/app/api.php?`;
-    let params = 'user=' + user;
-    params += '&class=' + sensor;
-    params += '&method=' + dataType;
-    params += '&startDate=' + startDate;
-    params += '&endDate=' + endDate;
-    url = url + params;
-    
-    return await fetch(url)
-        .then(response => response.json())
-        .then(data => console.log(data));
-    */
 }
 
 
