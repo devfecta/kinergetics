@@ -1,4 +1,6 @@
 <?php
+    ob_start();
+    session_start();
 	include("template/header.php");
 	require_once('configuration/Configuration.php');
 	require_once('configuration/Sensor.php');
@@ -13,6 +15,18 @@
     }
 
 </style>
+
+    <section class="container-fluid text-right">
+<?php
+    if ($_SESSION['type'] > 0) {
+?>
+        <a href="register.php" class="btn btn-lg btn-secondary m-1">Register an Account</a> 
+<?php
+    }
+?>
+        <a href="logout.php" class="btn btn-lg btn-secondary px-2 m-1">Logout</a> 
+    </section>
+
 
 <section class="container-fluid row">
     <div class="col-md-12">
@@ -68,4 +82,5 @@
 
 <?php
     include("template/footer.php");
+	ob_flush();
 ?>

@@ -35,7 +35,17 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     switch ($_GET['method']) {
                         case "register":
                             // Return JSON of the registrants
-                            echo $User->register($_POST);
+                            $result = json_decode($User->register($_POST), false);
+                            $_SESSION['company'] = $_POST['company'];
+                            $_SESSION['username'] = $_POST['username'];
+                            if (!$result->authenticated) {
+                                $_SESSION['message'] = "Could Not Register the Account";
+                                header("Location: register.php");
+                            }
+                            else {
+                                header("Location: index.php");
+                            }
+                            
                             break;
                         case "login":
                             // Return JSON of the registrants
@@ -43,6 +53,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                             if ($result->authenticated) {
                                 $_SESSION['userId'] = $result->id;
                                 $_SESSION['company'] = $result->company;
+                                $_SESSION['type'] = $result->type;
                                 header("Location: index.php");
                             }
                             else {

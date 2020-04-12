@@ -28,6 +28,7 @@ const getData = async () => {
     getFlowRateData(json);
     getTotalVolumeData(json);
     getSteamData(json);
+
 }
 
 /*
@@ -52,11 +53,11 @@ const getFlowRateData = async (formJSON) => {
     chartData.chartTitle = "Flow Rate Data";
     
     let responseJSON = await callApi(formJSON);
-    console.log(responseJSON);
+    //console.log(responseJSON);
 
     if(responseJSON.error) {
-        alert("No Records Found");
-        return false;
+        alert("No Flow RateRecords Found");
+        return true;
     }
 
     chartData.unit = 'GPM';
@@ -77,7 +78,7 @@ const getFlowRateData = async (formJSON) => {
     });
     
     buildChart(chartData);
-    
+    return false;
 }
 
 const getTotalVolumeData = async (formJSON) => {
@@ -89,11 +90,11 @@ const getTotalVolumeData = async (formJSON) => {
     chartData.chartTitle = "Total Volume Data";
     
     let responseJSON = await callApi(formJSON);
-    console.log(responseJSON);
+    //console.log(responseJSON);
 
     if(responseJSON.error) {
-        alert("No Records Found");
-        return false;
+        alert("No Total Volume Records Found");
+        return true;
     }
 
     chartData.unit = 'Gallons';
@@ -113,7 +114,7 @@ const getTotalVolumeData = async (formJSON) => {
     });
     
     buildChart(chartData);
-    
+    return false;
 }
 
 const getSteamData = async (formJSON) => {
@@ -125,11 +126,11 @@ const getSteamData = async (formJSON) => {
     chartData.chartTitle = "Steam Data";
     
     let responseJSON = await callApi(formJSON);
-    console.log(responseJSON);
+    //console.log(responseJSON);
 
     if(responseJSON.error) {
-        alert("No Records Found");
-        return false;
+        alert("No Steam Records Found");
+        return true;
     }
 
     chartData.unit = 'LB/Hr';
@@ -164,7 +165,7 @@ const getSteamData = async (formJSON) => {
     //console.log(chartData);
     
     buildChart(chartData);
-    
+    return false;
 }
 
 const buildChart = (chartData) => {

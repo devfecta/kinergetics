@@ -1,3 +1,10 @@
+<?php
+	ob_start();
+	session_start();
+	if (session_id() && !isset($_SESSION['userId']) && $_SESSION['type'] > 0) {
+        header("Location: login.php");
+    }
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,16 +38,19 @@
 </head>
 <body class="text-center">
 
-    <form action="api.php?class=User&method=login" class="form-signin needs-validation" method="post" enctype="application/x-www-form-urlencoded" novalidate>
+    <form action="api.php?class=User&method=register" class="form-signin needs-validation" method="post" enctype="application/x-www-form-urlencoded" novalidate>
         <img class="mb-4" src="images/Kinergetics-Logo.png" alt="Kinergetic, LLC" class="w-100" />
-        <h1 class="h3 mb-3 font-weight-normal">Sign In</h1>
+        <h1 class="h3 mb-3 font-weight-normal">Register</h1>
+        <label for="company" class="sr-only">Company Name</label>
+        <input type="text" id="company" name="company" class="mb-2 form-control" placeholder="Company Name" value="<?php echo $_SESSION['company']; ?>" required autofocus>
+		<div class="mb-2 invalid-feedback">Please Enter A Company Name</div>
         <label for="username" class="sr-only">Username</label>
-        <input type="text" id="username" name="username" class="mb-2 form-control" placeholder="Username" value="test" required autofocus>
-        <div class="invalid-feedback">Please Enter A Username</div>
+        <input type="text" id="username" name="username" class="mb-2 form-control" placeholder="Username" value="<?php echo $_SESSION['username']; ?>" required>
+		<div class="mb-2 invalid-feedback">Please Enter A Username</div>
         <label for="password" class="sr-only">Password</label>
-        <input type="password" id="password" name="password" class="mb-2 form-control" placeholder="Password" value="123abc" required>
+        <input type="text" id="password" name="password" class="mb-2 form-control" placeholder="Password" required>
         <div class="mb-2 invalid-feedback">Please Enter A Password</div>
-        <button class="btn btn-lg btn-primary btn-block mt-1" type="submit">Sign in</button>
+        <button class="btn btn-lg btn-primary btn-block mt-2" type="submit">Register</button>
         <p class="mt-5 mb-3 text-muted">Kinergetics &copy; <?php echo date('Y'); ?></p>
     </form>
 
@@ -69,3 +79,6 @@
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
 </body>
 </html>
+<?php
+	ob_flush();
+?>
