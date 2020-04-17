@@ -2,7 +2,7 @@
 
 class Reports {
 
-    public function __construct() {}
+    function __construct() {}
 
     public function getSteamData($formData) {
 

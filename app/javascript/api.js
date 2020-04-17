@@ -300,7 +300,7 @@ const buildCharts = (chartData) => {
 
 const callApi = async (formData) => {
 
-    let url = "http://localhost/app/api.php";
+    let url = "./api.php";
 
     return await fetch(url, {
         method: 'POST',

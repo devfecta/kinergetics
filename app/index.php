@@ -2,8 +2,8 @@
     ob_start();
     session_start();
 	include("template/header.php");
-	require_once('configuration/Configuration.php');
-	require_once('configuration/Sensor.php');
+	//require_once('configuration/Configuration.php');
+	//require_once('configuration/Sensor.php');
 ?>
 
 <style>
@@ -17,13 +17,13 @@
 </style>
 
     <section class="container-fluid text-right">
-<?php
-    if ($_SESSION['type'] > 0) {
-?>
-        <a href="register.php" class="btn btn-lg btn-secondary m-1">Register an Account</a> 
-<?php
-    }
-?>
+        <?php
+            if ($_SESSION['type'] > 0) {
+        ?>
+                <a href="register.php" class="btn btn-lg btn-secondary m-1">Register an Account</a> 
+        <?php
+            }
+        ?>
         <a href="logout.php" class="btn btn-lg btn-secondary px-2 m-1">Logout</a> 
     </section>
 
@@ -34,7 +34,6 @@
     </div>
     
     <div class="col-md-3">
-        <h2 class="text-left">Steam</h2>
         <form id="searchForm" method="post">
             <div class="form-group row mx-2">
                 <label for="startDate">Start Date: </label>

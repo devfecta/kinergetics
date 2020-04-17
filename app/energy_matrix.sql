@@ -26,7 +26,7 @@ CREATE TABLE `data` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `report_id` int(11) NOT NULL COMMENT '	',
   `data_point` int(5) NOT NULL DEFAULT '1',
-  `date_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `date_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `time_lapse` decimal(9,2) NOT NULL DEFAULT '0.00',
   `flow_rate` decimal(6,2) NOT NULL DEFAULT '0.00',
   `total_volume` decimal(9,2) NOT NULL DEFAULT '0.00',
@@ -83,8 +83,8 @@ CREATE TABLE `reports` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL DEFAULT '0',
   `device_id` int(11) NOT NULL DEFAULT '0',
-  `start_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `end_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `start_time` datetime NOT NULL DEFAULT '0000-00-00',
+  `end_time` datetime NOT NULL DEFAULT '0000-00-00',
   `interval` int(3) NOT NULL DEFAULT '0',
   `cyclic_flags` int(2) NOT NULL DEFAULT '0',
   `error_flags` int(5) NOT NULL DEFAULT '0',
@@ -138,4 +138,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-04-11 20:41:31
+-- Dump completed on 2020-04-16 11:45:02

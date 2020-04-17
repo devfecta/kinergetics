@@ -1,11 +1,11 @@
 <?php
-require_once("config.php");
+require("config.php");
 
 class Configuration extends PDO {
 
     private static $connection = null;
-
-    private function __construct() {
+    
+    function __construct() {
 
         try {
             // Establish MySQL connection using the PDO class.
@@ -14,6 +14,7 @@ class Configuration extends PDO {
         }
         catch (PDOException $e) {
             //echo "Could NOT Connect to Database";
+            echo json_encode(array("error" => $e));
         }
 
     }
@@ -26,7 +27,6 @@ class Configuration extends PDO {
             self::$connection = new Configuration();
             self::$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         }
-
         return self::$connection;
     }
     /**

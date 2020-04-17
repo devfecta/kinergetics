@@ -2,18 +2,19 @@
 /**
  * May be able to remove this in production
  */
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
+//header("Access-Control-Allow-Origin: *");
+//header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 ob_start();
 session_start();
-require_once('configuration/Configuration.php');
-require_once('configuration/User.php');
+
+require('configuration/Configuration.php');
+require('configuration/User.php');
 
 //$requestMethod = $_SERVER['REQUEST_METHOD'];
 $registration = null;
 $encodedJSON = null;
 
-require_once("configuration/Reports.php");
+require("configuration/Reports.php");
 
 //echo json_encode(array("type" => "API Call", "request-method" => $_SERVER['REQUEST_METHOD'], "post" => $_POST, "get" => $_GET));
 ////$test = json_encode($_POST, false);

@@ -2,8 +2,7 @@
 
     class User {
 
-        public function __construct() {}
-
+        function __construct() {}
 
         public function register($formData) {
             $data = json_decode(json_encode($formData), false);
