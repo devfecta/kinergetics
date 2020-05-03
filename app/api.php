@@ -9,12 +9,14 @@ session_start();
 
 require('configuration/Configuration.php');
 require('configuration/User.php');
+require('configuration/Device.php');
+require("configuration/Reports.php");
 
 //$requestMethod = $_SERVER['REQUEST_METHOD'];
 $registration = null;
 $encodedJSON = null;
 
-require("configuration/Reports.php");
+
 
 //echo json_encode(array("type" => "API Call", "request-method" => $_SERVER['REQUEST_METHOD'], "post" => $_POST, "get" => $_GET));
 ////$test = json_encode($_POST, false);
@@ -27,12 +29,10 @@ switch ($_SERVER['REQUEST_METHOD']) {
         header('Content-Type: application/json; charset=utf-8');
         //$post = json_decode($_POST, false);
         // Creates
-
-        
         if (isset($_GET['class']) && !empty($_GET['class'])) {
             switch ($_GET['class']) {
                 case "User":
-                    $User = new User();
+                    $User = new User(null);
                     switch ($_GET['method']) {
                         case "register":
                             // Return JSON of the registrants
@@ -64,6 +64,22 @@ switch ($_SERVER['REQUEST_METHOD']) {
                         default:
                             echo json_encode(array("error" => 'METHOD ERROR: The '.$_GET['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
                             break;
+                    }
+                    break;
+                case "Reports":
+                    $Reports = new Reports();
+                    switch ($_GET['method']) {
+                        case "createReport":
+                            $_SESSION['report'] = $Reports->createReport($_POST);
+                            header("Location: addDataPoint.php");
+                            break;
+                        case "addDataPoint":
+                            $_SESSION['dataPoint'] = $Reports->addDataPoint($_POST);
+                            header("Location: addDataPoint.php");
+                            break;
+                        default:
+                            echo json_encode(array("error" => 'METHOD ERROR: The '.$_GET['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
+                        break;
                     }
                     break;
                 default;

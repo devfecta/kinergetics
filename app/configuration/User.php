@@ -2,7 +2,76 @@
 
     class User {
 
-        function __construct() {}
+        private $id;
+        private $company;
+        private $username;
+        private $password;
+        private $type;
+
+        public function __construct($userId) {
+
+            if ($userId != null) {
+
+                try {
+
+                    $connection = Configuration::openConnection();
+
+                    $statement = $connection->prepare("SELECT * FROM users WHERE id=:id");
+                    $statement->bindParam(":id", $userId);
+                    $statement->execute();
+
+                    $results = $statement->fetch(PDO::FETCH_ASSOC);
+
+                    $this->setId($results['id']);
+                    $this->setCompany($results['company']);
+                    $this->setUsername($results['username']);
+                    $this->setPassword($results['password']);
+                    $this->setType($results['type']);
+
+                    Configuration::closeConnection();
+                }
+                catch (PDOException $e) {
+                    return "Error: " . $e->getMessage();
+                }
+
+            }
+
+        }
+
+        public function getId() {
+            return $this->id;
+        }
+        public function setId($id) {
+            $this->id = $id;
+        }
+
+        public function getCompany() {
+            return $this->company;
+        }
+        public function setCompany($company) {
+            $this->company = $company;
+        }
+
+        public function getUsername() {
+            return $this->username;
+        }
+        public function setUsername($username) {
+            $this->username = $username;
+        }
+
+        public function getPassword() {
+            return $this->password;
+        }
+        public function setPassword($password) {
+            $this->password = $password;
+        }
+
+        public function getType() {
+            return $this->type;
+        }
+        public function setType($type) {
+            $this->type = $type;
+        }
 
         public function register($formData) {
             $data = json_decode(json_encode($formData), false);

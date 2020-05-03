@@ -1,6 +1,6 @@
 <?php
     
-    define( 'DNS', 'mysql:host=localhost;dbname=energy_matrix' );
+    define( 'DNS', 'mysql:host=localhost;dbname=energy_matrix_template' );
     define( 'USERNAME', 'root' );
     define( 'PASSWORD', 'm3tallica' );
     /*

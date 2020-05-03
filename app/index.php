@@ -16,18 +16,6 @@
 
 </style>
 
-    <section class="container-fluid text-right">
-        <?php
-            if ($_SESSION['type'] > 0) {
-        ?>
-                <a href="register.php" class="btn btn-lg btn-secondary m-1">Register an Account</a> 
-        <?php
-            }
-        ?>
-        <a href="logout.php" class="btn btn-lg btn-secondary px-2 m-1">Logout</a> 
-    </section>
-
-
 <section class="container-fluid row">
     <div class="col-md-12">
         <h1><?php echo $_SESSION['company']; ?> - Energy Matrix</h1>

@@ -4,6 +4,28 @@ class Reports {
 
     function __construct() {}
 
+    public function createReport($formData) {
+
+        try {
+            $connection = Configuration::openConnection();
+
+            $statement = $connection->prepare("INSERT INTO reports (`user_id`, `device_id`) VALUES (:user, :device)");
+            $statement->bindParam(":user", $formData['company']);
+            $statement->bindParam(":device", $formData['device']);
+            $statement->execute();
+
+            $reportId = $connection->lastInsertId();
+
+            Configuration::closeConnection();
+
+            return json_encode(array('userId' => $formData['company'], 'deviceId' => $formData['device'], 'reportId' => $reportId), JSON_PRETTY_PRINT);
+        }
+        catch(PDOException $pdo) {
+            return json_encode(array('error'=> $pdo->getMessage()), JSON_PRETTY_PRINT);
+        }
+
+    }
+
     public function getSteamData($formData) {
 
         try {
@@ -90,6 +112,88 @@ class Reports {
 
         return json_encode(array('error'=> "No Records Found"), JSON_PRETTY_PRINT);
         
+    }
+
+    public function addDataPoint($formData) {
+        try {
+            $connection = Configuration::openConnection();
+
+            foreach ($formData as $key => $data) {
+                if (strlen($data) > 0) {}
+                else {
+                    $formData[$key] = 0;
+                }
+            }
+
+            $pointDate = $formData['pointDate']." ".$formData['pointTime']; 
+
+            $statement = $connection->prepare("INSERT INTO report_data (
+                `report_id`, 
+                `date_time`, 
+                `flow_rate`, 
+                `total_volume`, 
+                `fahrenheit`, 
+                `relative_humidity`, 
+                `current`, 
+                `voltage_detected`, 
+                `error`, 
+                `velocity_reading`, 
+                `velocity_low_limit`, 
+                `velocity_high_limit`, 
+                `velocity_ma_custom`, 
+                `pressure_reading`, 
+                `pressure_low_limit`, 
+                `pressure_high_limit`, 
+                `pressure_ma_custom`
+            ) 
+            VALUES (
+                :report_id, 
+                :date_time, 
+                :flow_rate, 
+                :total_volume, 
+                :fahrenheit, 
+                :relative_humidity, 
+                :current, 
+                :voltage_detected, 
+                :error, 
+                :velocity_reading, 
+                :velocity_low_limit, 
+                :velocity_high_limit, 
+                :velocity_ma_custom, 
+                :pressure_reading, 
+                :pressure_low_limit, 
+                :pressure_high_limit, 
+                :pressure_ma_custom
+            )");
+
+            $statement->bindParam(":report_id", $formData['reportId']);
+            $statement->bindParam(":date_time", $pointDate, PDO::PARAM_STR);
+            $statement->bindParam(":flow_rate", $formData['flowRate']);
+            $statement->bindParam(":total_volume", $formData['totalVolume']);
+            $statement->bindParam(":fahrenheit", $formData['fahrenheit']);
+            $statement->bindParam(":relative_humidity", $formData['relativeHumidity']);
+            $statement->bindParam(":current", $formData['current']);
+            $statement->bindParam(":voltage_detected", $formData['voltageDetected']);
+            $statement->bindParam(":error", $formData['errorCode']);
+            $statement->bindParam(":velocity_reading", $formData['velocityReading']);
+            $statement->bindParam(":velocity_low_limit", $formData['velocityLowLimit']);
+            $statement->bindParam(":velocity_high_limit", $formData['velocityHighLimit']);
+            $statement->bindParam(":velocity_ma_custom", $formData['velocityCustom']);
+            $statement->bindParam(":pressure_reading", $formData['pressureReading']);
+            $statement->bindParam(":pressure_low_limit", $formData['pressureLowLimit']);
+            $statement->bindParam(":pressure_high_limit", $formData['pressureHighLimit']);
+            $statement->bindParam(":pressure_ma_custom", $formData['pressureCustom']);
+            $statement->execute();
+
+            $dataPointId = $connection->lastInsertId();
+
+            Configuration::closeConnection();
+
+            return json_encode(array('dataPointId' => $dataPointId), JSON_PRETTY_PRINT);
+        }
+        catch(PDOException $pdo) {
+            return json_encode(array('error'=> $pdo->getMessage()), JSON_PRETTY_PRINT);
+        }
     }
 
 }
