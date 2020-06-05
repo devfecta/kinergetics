@@ -31,6 +31,30 @@ const getData = async () => {
 
 }
 
+const getMinMaxDates = () => {
+
+    const startDate = document.querySelector("#startDate");
+    const startTime = document.querySelector("#startTime");
+    
+    const endDate = document.querySelector("#endDate");
+    const endTime = document.querySelector("#endTime");
+
+    getApi("Reports", "getMinMaxDates", null)
+    .then(data => {
+        let minimumDate = new Date(data.minimum);
+        startDate.value = minimumDate.toISOString().slice(0,10);
+        startDate.min = minimumDate.setFullYear(minimumDate.getFullYear() - 5);
+        startTime.value = ("0" + minimumDate.getHours()).slice(-2) + ":" + ("0" + minimumDate.getMinutes()).slice(-2);
+
+        let maximumDate = new Date(data.maximum);
+        endDate.value = maximumDate.toISOString().slice(0,10);
+        endDate.min = maximumDate.setFullYear(maximumDate.getFullYear() - 5);
+        endTime.value = ("0" + maximumDate.getHours()).slice(-2) + ":" + ("0" + maximumDate.getMinutes()).slice(-2);
+
+    })
+    .catch(error => console.log(error));
+}
+
 /*
 data_point: "1"
 date_time: "2018-12-12 08:45:24"
@@ -310,7 +334,21 @@ const callApi = async (formData) => {
         })
     })
     .then(response => response.json())
-    .then(data => data);
+    .then(data => data)
+    .catch(error => console.log(error));
+
+}
+
+const getApi = async (className, methodName, parameters) => {
+
+    formData = 'class=' + className + '&method=' + methodName + '&=parameters=' + parameters;
+
+    let url = "./api.php";
+
+    return await fetch(url + "?" + formData)
+    .then(response => response.json())
+    .then(json => json)
+    .catch(error => console.log(error));
 
 }
 

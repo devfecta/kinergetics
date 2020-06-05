@@ -1,6 +1,6 @@
 <?php
 
-class Reports {
+class Database {
 
     function __construct() {}
 

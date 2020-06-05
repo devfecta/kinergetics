@@ -173,6 +173,16 @@ switch ($_SERVER['REQUEST_METHOD']) {
                             break;
                     }
                     break;
+                case "Reports":
+                    $Reports = new Reports();
+                    switch ($_GET['method']) {
+                        case "getMinMaxDates":
+                            //echo json_encode(array("error" => $_GET));
+                            //exit();
+                            echo $Reports->getMinMaxDates();
+                            break;
+                    }
+                    break;
                 default;
                     echo json_encode(array("error" => 'GET CLASS ERROR: The '.$_GET['class'].' class does not exist.\n'), JSON_PRETTY_PRINT);
                     break;

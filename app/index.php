@@ -26,7 +26,7 @@
             <div class="form-group row mx-2">
                 <label for="startDate">Start Date: </label>
                     <input type="date" class="form-control" id="startDate" name="startDate" 
-                        value="<?php echo date("Y-m-d", strtotime('-1 years')); ?>"
+                        value=""
                         min="<?php echo date("Y-m-d", strtotime('-5 years')); ?>" 
                         max="<?php echo date("Y-m-d"); ?>">
                     <input type="time" class="form-control" id="startTime" name="startTime"
@@ -38,7 +38,7 @@
             <div class="form-group row mx-2">
                 <label for="endDate">End Date: </label>
                     <input type="date" class="form-control" id="endDate" name="endDate" 
-                        value="<?php echo date("Y-m-d"); ?>"
+                        value=""
                         min="<?php echo date("Y-m-d", strtotime('-5 years')); ?>" 
                         max="<?php echo date("Y-m-d"); ?>">
                     <input type="time" class="form-control" id="endTime" name="endTime"
@@ -66,6 +66,10 @@
 </section>
 
 <script src="javascript/api.js"></script>
+
+<script>
+    getMinMaxDates();
+</script>
 
 <?php
     include("template/footer.php");
