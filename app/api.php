@@ -11,12 +11,11 @@ require('configuration/Configuration.php');
 require('configuration/User.php');
 require('configuration/Device.php');
 require("configuration/Reports.php");
+require("configuration/Devices.php");
 
 //$requestMethod = $_SERVER['REQUEST_METHOD'];
 $registration = null;
 $encodedJSON = null;
-
-
 
 //echo json_encode(array("type" => "API Call", "request-method" => $_SERVER['REQUEST_METHOD'], "post" => $_POST, "get" => $_GET));
 ////$test = json_encode($_POST, false);
@@ -77,6 +76,21 @@ switch ($_SERVER['REQUEST_METHOD']) {
                             $_SESSION['dataPoint'] = $Reports->addDataPoint($_POST);
                             header("Location: addDataPoint.php");
                             break;
+                        case "addDevice":
+                            echo $Reports->addDevice($_POST);
+                            break;
+                        default:
+                            echo json_encode(array("error" => 'METHOD ERROR: The '.$_GET['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
+                        break;
+                    }
+                    break;
+                case "Devices":
+                    $Devices = new Devices();
+                    switch ($_GET['method']) {
+                        case "addDevice":
+                            $_SESSION['device'] = $Devices->addDevice($_POST);
+                            header("Location: addDevice.php");
+                            break;
                         default:
                             echo json_encode(array("error" => 'METHOD ERROR: The '.$_GET['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
                         break;
@@ -88,6 +102,24 @@ switch ($_SERVER['REQUEST_METHOD']) {
             }
         }
 
+        if (isset($_POST["class"])) {
+            switch ($_POST['class']) {
+                case "Reports":
+                    $Reports = new Reports();
+                    switch ($_POST['method']) {
+                        case "getDeviceReportData":
+                            echo $Reports->getDeviceReportData($_POST);
+                            break;
+                        default:
+                            echo json_encode(array("error" => 'METHOD ERROR: The '.$_POST['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
+                            break;
+                    }
+                    break;
+                default;
+                    echo json_encode(array("error" => 'CLASS ERROR: The '.$_POST['class'].' class does not exist.\n'), JSON_PRETTY_PRINT);
+                    break;
+            }
+        }
         
 
         if (isset($_POST["dataType"])) {
@@ -111,45 +143,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     break;
             }
         }
-
-        if (isset($_REQUEST['formType'])) {
-
-            switch ($_REQUEST['formType']) {
-
-                case "Membership":
-
-                    $processOrder = new ProcessOrder();
-                    $registration = new Membership();
-
-                    //if (!isset($_SESSION['order']['id'])) {
-                        
-                        $_SESSION['order']['id'] = $processOrder->createOrder(session_id());
-                    //}
-
-                    /**
-                     * Creates a member but with the status of 0 (unregistered)
-                     */
-
-                    $data = json_decode(file_get_contents('php://input'), true);
-
-                    for ($index = 0; $index < sizeof($data); $index++) {
-                        foreach ($data[$index] as $key => $value) {
-                            $_POST[$key] = $value;
-                        }
-                        $lineItemInfo = json_decode($registration->register($_POST));
-                        $processOrder->addLineItem($_SESSION['order']['id'], $lineItemInfo);
-                        $response[] = $lineItemInfo;
-
-                    }
-                    echo json_encode($response);
-                    break;
-                default:
-                    break;
-            }
-        } else {
-            //echo json_encode(array("error" => 'POST ERROR: Form type not set.\n'), JSON_PRETTY_PRINT);
-        }
-
         break;
     case "GET":
         //echo "REQUEST_METHOD Get";

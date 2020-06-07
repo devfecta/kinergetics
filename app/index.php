@@ -27,7 +27,7 @@
                 <label for="startDate">Start Date: </label>
                     <input type="date" class="form-control" id="startDate" name="startDate" 
                         value=""
-                        min="<?php echo date("Y-m-d", strtotime('-5 years')); ?>" 
+                        min="" 
                         max="<?php echo date("Y-m-d"); ?>">
                     <input type="time" class="form-control" id="startTime" name="startTime"
                         value="<?php echo date("H:m"); ?>"
@@ -39,7 +39,7 @@
                 <label for="endDate">End Date: </label>
                     <input type="date" class="form-control" id="endDate" name="endDate" 
                         value=""
-                        min="<?php echo date("Y-m-d", strtotime('-5 years')); ?>" 
+                        min="" 
                         max="<?php echo date("Y-m-d"); ?>">
                     <input type="time" class="form-control" id="endTime" name="endTime"
                         value="<?php echo date("H:m"); ?>"

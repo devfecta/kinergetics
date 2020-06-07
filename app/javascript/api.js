@@ -17,8 +17,8 @@ const getData = async () => {
 
     // Convert form data to JSON
     const json = {};
-    json.device = "flowMeter";
-    json.dataType = "steam";
+    //json.device = "flowMeter";
+    //json.dataType = "steam";
     let formData = new FormData(searchForm);
     formData.forEach((entry, index) => {
         json[index] = entry;
@@ -26,8 +26,8 @@ const getData = async () => {
     //console.log(json);
 
     getFlowRateData(json);
-    getTotalVolumeData(json);
-    getSteamData(json);
+    //getTotalVolumeData(json);
+    //getSteamData(json);
 
 }
 
@@ -43,14 +43,15 @@ const getMinMaxDates = () => {
     .then(data => {
         let minimumDate = new Date(data.minimum);
         startDate.value = minimumDate.toISOString().slice(0,10);
-        startDate.min = minimumDate.setFullYear(minimumDate.getFullYear() - 5);
+        minimumDate.setFullYear(minimumDate.getFullYear() - 5);
+        startDate.min = minimumDate.toISOString().slice(0,10);
         startTime.value = ("0" + minimumDate.getHours()).slice(-2) + ":" + ("0" + minimumDate.getMinutes()).slice(-2);
 
         let maximumDate = new Date(data.maximum);
         endDate.value = maximumDate.toISOString().slice(0,10);
-        endDate.min = maximumDate.setFullYear(maximumDate.getFullYear() - 5);
+        maximumDate.setFullYear(maximumDate.getFullYear() - 5);
+        endDate.min = maximumDate.toISOString().slice(0,10);
         endTime.value = ("0" + maximumDate.getHours()).slice(-2) + ":" + ("0" + maximumDate.getMinutes()).slice(-2);
-
     })
     .catch(error => console.log(error));
 }
@@ -69,6 +70,10 @@ total_volume: "96.00"
 */
 
 const getFlowRateData = async (formJSON) => {
+    
+    formJSON.device = "flowMeter"; // Data type based on device.
+    formJSON.class = "Reports";
+    formJSON.method = "getDeviceReportData";
 
     let chartData = {};
     chartData.canvas = document.querySelector('#flowRateCanvas');
@@ -77,13 +82,14 @@ const getFlowRateData = async (formJSON) => {
     chartData.chartTitle = "Flow Rate Data";
     
     let responseJSON = await callApi(formJSON);
-    //console.log(responseJSON);
 
-    if(responseJSON.error) {
-        alert("No Flow RateRecords Found");
+    if(!responseJSON) {
+        alert("No Record Found");
         return true;
     }
-
+    /**
+     * Chart specific information.
+     */
     chartData.unit = 'GPM';
     chartData.label = 'Flow Rate (GPM)',
     // Line Formatting
@@ -324,6 +330,9 @@ const buildCharts = (chartData) => {
 
 const callApi = async (formData) => {
 
+    let params = new URLSearchParams(formData);
+    console.log(formData);
+
     let url = "./api.php";
 
     return await fetch(url, {
@@ -335,7 +344,7 @@ const callApi = async (formData) => {
     })
     .then(response => response.json())
     .then(data => data)
-    .catch(error => console.log(error));
+    .catch(error => console.log(error.toString()));
 
 }
 

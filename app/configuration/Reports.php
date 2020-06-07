@@ -26,6 +26,39 @@ class Reports {
 
     }
 
+    public function getDeviceReportData($formData) {
+
+        try {
+            $connection = Configuration::openConnection();
+
+            $startDate = $formData['startDate']." ".$formData['startTime'];                
+            $endDate = $formData['endDate']." ".$formData['endTime'];
+
+            $statement = $connection->prepare("SELECT * FROM `report_data` 
+            INNER JOIN `reports` ON `report_data`.`report_id`=`reports`.`id` 
+            INNER JOIN `devices` ON `devices`.`id`=`reports`.`device_id` 
+            WHERE `date_time` BETWEEN :startDate AND :endDate AND `reports`.`user_id`=:user AND `devices`.`tag`=:device
+            ORDER BY `date_time`");
+            $statement->bindParam(":startDate", $startDate, PDO::PARAM_STR);
+            $statement->bindParam(":endDate", $endDate, PDO::PARAM_STR);
+            $statement->bindParam(":device", $formData['device'], PDO::PARAM_STR);
+            $statement->bindParam(":user", $formData['user'], PDO::PARAM_STR);
+            $statement->execute();
+
+            $result = $statement->rowCount() > 0 ? $statement->fetchAll(PDO::FETCH_ASSOC) : false;
+
+        }
+        catch (PDOException $pdo) {
+            $result = array('error' => $pdo->getMessage());
+        }
+        finally {
+            Configuration::closeConnection();
+        }
+
+        return json_encode($result, JSON_PRETTY_PRINT);
+        
+    }
+    /*
     public function getSteamData($formData) {
 
         try {
@@ -47,7 +80,7 @@ class Reports {
                 $startDate = $formData['startDate']." ".$formData['startTime'];                
                 $endDate = $formData['endDate']." ".$formData['endTime'];
 
-                $statement = $connection->prepare("SELECT * FROM `data` WHERE `date_time` BETWEEN :startDate AND :endDate AND `report_id`=:report ORDER BY `date_time`");
+                $statement = $connection->prepare("SELECT * FROM `report_data` WHERE `date_time` BETWEEN :startDate AND :endDate AND `report_id`=:report ORDER BY `date_time`");
                 $statement->bindParam(":startDate", $startDate, PDO::PARAM_STR);
                 $statement->bindParam(":endDate", $endDate, PDO::PARAM_STR);
                 $statement->bindParam(":report", $report['id'], PDO::PARAM_STR);
@@ -75,44 +108,34 @@ class Reports {
         try {
             $connection = Configuration::openConnection();
 
-            $statement = $connection->prepare("SELECT * FROM `devices` WHERE `tag`=:device");
+            $startDate = $formData['startDate']." ".$formData['startTime'];                
+            $endDate = $formData['endDate']." ".$formData['endTime'];
+
+            $statement = $connection->prepare("SELECT * FROM `report_data` 
+            INNER JOIN `reports` ON `report_data`.`report_id`=`reports`.`id` 
+            INNER JOIN `devices` ON `devices`.`id`=`reports`.`device_id` 
+            WHERE `date_time` BETWEEN :startDate AND :endDate AND `reports`.`user_id`=:user AND `devices`.`tag`=:device
+            ORDER BY `date_time`");
+            $statement->bindParam(":startDate", $startDate, PDO::PARAM_STR);
+            $statement->bindParam(":endDate", $endDate, PDO::PARAM_STR);
             $statement->bindParam(":device", $formData['device'], PDO::PARAM_STR);
-            $statement->execute();
-            $device = $statement->fetch(PDO::FETCH_ASSOC);
-
-            $statement = $connection->prepare("SELECT * FROM `reports` WHERE `user_id`=:user AND `device_id`=:device");
             $statement->bindParam(":user", $formData['user'], PDO::PARAM_STR);
-            $statement->bindParam(":device", $device['id'], PDO::PARAM_STR);
             $statement->execute();
 
-            if ($statement->rowCount() > 0) {
-                $report = $statement->fetch(PDO::FETCH_ASSOC);
+            $result = $statement->rowCount() > 0 ? $statement->fetchAll(PDO::FETCH_ASSOC) : false;
 
-                $startDate = $formData['startDate']." ".$formData['startTime'];                
-                $endDate = $formData['endDate']." ".$formData['endTime'];
-
-                $statement = $connection->prepare("SELECT * FROM `data` WHERE `date_time` BETWEEN :startDate AND :endDate AND `report_id`=:report ORDER BY `date_time`");
-                $statement->bindParam(":startDate", $startDate, PDO::PARAM_STR);
-                $statement->bindParam(":endDate", $endDate, PDO::PARAM_STR);
-                $statement->bindParam(":report", $report['id'], PDO::PARAM_STR);
-                $statement->execute();
-
-                if ($statement->rowCount() > 0) {
-                    $data = $statement->fetchAll(PDO::FETCH_ASSOC);
-                    return json_encode($data, JSON_PRETTY_PRINT);
-                }
-            }
-
-            Configuration::closeConnection();
         }
         catch (PDOException $pdo) {
-            //return "PDO Error: " . $pdo->getMessage();
-            return json_encode(array('error'=> $pdo->getMessage()), JSON_PRETTY_PRINT);
+            $result = array('error' => $pdo->getMessage());
+        }
+        finally {
+            Configuration::closeConnection();
         }
 
-        return json_encode(array('error'=> "No Records Found"), JSON_PRETTY_PRINT);
+        return json_encode($result, JSON_PRETTY_PRINT);
         
     }
+    */
 
     public function addDataPoint($formData) {
         try {
@@ -187,13 +210,16 @@ class Reports {
 
             $dataPointId = $connection->lastInsertId();
 
-            Configuration::closeConnection();
-
-            return json_encode(array('dataPointId' => $dataPointId), JSON_PRETTY_PRINT);
+            $result['dataPointId'] = $dataPointId;
         }
         catch(PDOException $pdo) {
-            return json_encode(array('error'=> $pdo->getMessage()), JSON_PRETTY_PRINT);
+            $result['error'] =  $pdo->getMessage();
         }
+        finally {
+            Configuration::closeConnection();
+        }
+
+        return json_encode($result, JSON_PRETTY_PRINT);
     }
 
     public function getMinMaxDates() {

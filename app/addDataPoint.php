@@ -35,13 +35,15 @@
         <h1><?php echo $User->getCompany(); ?> - Energy Matrix</h1>
         <h2><?php echo $Device->getName(); ?> Device</h2>
 
-        <?php echo var_dump($dataPoint); ?>
-
-        <?php if (isset($dataPoint->dataPointId)) { ?>
-
-            <div class="alert alert-success" role="alert">Data Point Added</div>
-
-        <?php unset($_SESSION['dataPoint']); } ?>
+        <?php 
+            if (isset($dataPoint->dataPointId)) { 
+                echo '<div class="alert alert-success" role="alert">Data Point Added</div>';
+            } 
+            elseif (isset($dataPoint->error)) {
+                echo '<div class="alert alert-danger" role="alert">' . $dataPoint->error . '</div>';
+            }
+            unset($_SESSION['dataPoint']); 
+        ?>
     </div>
     
     <div class="col-md-12">
@@ -54,7 +56,7 @@
                 <div class="col-md-12 form-group">
                     <label for="pointDate">Timestamp: </label>
                     <input type="date" class="form-control" id="pointDate" name="pointDate" 
-                        value="<?php echo date("Y-m-d", strtotime('-1 years')); ?>"
+                        value="<?php echo date("Y-m-d"); ?>"
                         min="<?php echo date("Y-m-d", strtotime('-5 years')); ?>" 
                         max="<?php echo date("Y-m-d"); ?>">
                     <input type="time" class="form-control" id="pointTime" name="pointTime"
@@ -67,32 +69,32 @@
             <div class="row">
                 <div class="col-md-6 form-group">
                     <label for="flowRate">Flow Rate: </label>
-                    <input type="number" class="form-control" id="flowRate" name="flowRate" maxlength="7" />
+                    <input type="number" step="0.001" class="form-control" id="flowRate" name="flowRate" maxlength="7" />
                 </div>
                 <div class="col-md-6 form-group">
                     <label for="totalVolume">Total Volume: </label>
-                    <input type="number" class="form-control" id="totalVolume" name="totalVolume" maxlength="10" />
+                    <input type="number" step="0.001" class="form-control" id="totalVolume" name="totalVolume" maxlength="10" />
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-md-12 form-group">
                     <label for="fahrenheit">Fahrenheit: </label>
-                    <input type="number" class="form-control" id="fahrenheit" name="fahrenheit" maxlength="7" />
+                    <input type="number" step="0.001" class="form-control" id="fahrenheit" name="fahrenheit" maxlength="7" />
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-md-12 form-group">
                     <label for="relativeHumidity">Relative Humidity: </label>
-                    <input type="number" class="form-control" id="relativeHumidity" name="relativeHumidity" maxlength="7" />
+                    <input type="number" step="0.001" class="form-control" id="relativeHumidity" name="relativeHumidity" maxlength="7" />
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-md-6 form-group">
                     <label for="current">Current: </label>
-                    <input type="number" class="form-control" id="current" name="current" maxlength="7" />
+                    <input type="number" step="0.001" class="form-control" id="current" name="current" maxlength="7" />
                 </div>
                 <div class="col-md-6">
                     <div class="row">
@@ -117,56 +119,56 @@
             <div class="row">
                 <div class="col-md-12 form-group">
                     <label for="velocityReading">Velocity Reading: </label>
-                    <input type="number" class="form-control" id="velocityReading" name="velocityReading" maxlength="7" />
+                    <input type="number" step="0.001" class="form-control" id="velocityReading" name="velocityReading" maxlength="7" />
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-md-6 form-group">
                     <label for="velocityLowLimit">Velocity Low Limit: </label>
-                    <input type="number" class="form-control" id="velocityLowLimit" name="velocityLowLimit" maxlength="7" />
+                    <input type="number" step="0.001" class="form-control" id="velocityLowLimit" name="velocityLowLimit" maxlength="7" />
                 </div>
                 <div class="col-md-6 form-group">
                     <label for="velocityHighLimit">Velocity High Limit: </label>
-                    <input type="number" class="form-control" id="velocityHighLimit" name="velocityHighLimit" maxlength="7" />
+                    <input type="number" step="0.001" class="form-control" id="velocityHighLimit" name="velocityHighLimit" maxlength="7" />
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-md-12 form-group">
                     <label for="velocityCustom">Velocity Custom ma: </label>
-                    <input type="number" class="form-control" id="velocityCustom" name="velocityCustom" maxlength="7" />
+                    <input type="number" step="0.001" class="form-control" id="velocityCustom" name="velocityCustom" maxlength="7" />
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-md-12 form-group">
                     <label for="pressureReading">Pressure Reading: </label>
-                    <input type="number" class="form-control" id="pressureReading" name="pressureReading" maxlength="7" />
+                    <input type="number" step="0.001" class="form-control" id="pressureReading" name="pressureReading" maxlength="7" />
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-md-6 form-group">
                     <label for="pressureLowLimit">Pressure Low Limit: </label>
-                    <input type="number" class="form-control" id="pressureLowLimit" name="pressureLowLimit" maxlength="7" />
+                    <input type="number" step="0.001" class="form-control" id="pressureLowLimit" name="pressureLowLimit" maxlength="7" />
                 </div>
                 <div class="col-md-6 form-group">
                     <label for="pressureHighLimit">Pressure High Limit: </label>
-                    <input type="number" class="form-control" id="pressureHighLimit" name="pressureHighLimit" maxlength="7" />
+                    <input type="number" step="0.001" class="form-control" id="pressureHighLimit" name="pressureHighLimit" maxlength="7" />
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-md-12 form-group">
                     <label for="pressureCustom">Pressure Custom ma: </label>
-                    <input type="number" class="form-control" id="pressureCustom" name="pressureCustom" maxlength="7" />
+                    <input type="number" step="0.001" class="form-control" id="pressureCustom" name="pressureCustom" maxlength="7" />
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-md-12 form-group">
-                    <button class="btn btn-lg btn-success mt-2" type="submit">Add Data Point</button>
+                    <button class="btn btn-lg btn-primary mt-2" type="submit">Add Data Point</button>
                     <input type="hidden" id="reportId" name="reportId" value="<?php echo $report->reportId; ?>" />
                 </div>
             </div>

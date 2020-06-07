@@ -29,7 +29,7 @@
             <img class="mb-4" src="images/Kinergetics-Logo.png" alt="Kinergetic, LLC" class="w-100" />
             <h1 class="h3 mb-3 font-weight-normal">Create Report</h1>
             <label for="company" class="sr-only">Company Name</label>
-            <select id="company" name="company" class="form-control form-control-lg mb-2">
+            <select onchange="(value === 'addAccount') ? window.location.href = 'register.php' : false" id="company" name="company" class="form-control form-control-lg mb-2">
                 <?php
                     
                     $users = $report->getUsers();
@@ -40,10 +40,11 @@
                     }
                     
                 ?>
+                <option value="addAccount" class="btn-primary">Add Account</option>
             </select>
 
             <label for="device" class="sr-only">Device</label>
-            <select id="device" name="device" class="form-control form-control-lg mb-2">
+            <select onchange="(value === 'addDevice') ? window.location.href = 'addDevice.php' : false" id="device" name="device" class="form-control form-control-lg mb-2">
                 <?php
                     
                     $devices = $report->getDevices();
@@ -54,9 +55,10 @@
                     }
                     
                 ?>
+                <option value="addDevice" class="btn-primary">Add Device</option>
             </select>
 
-            <button class="btn btn-lg btn-success mt-2" type="submit">Create Report</button>
+            <button class="btn btn-lg btn-primary mt-2" type="submit">Create Report</button>
 
         </form>
 
