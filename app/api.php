@@ -108,6 +108,16 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     $Reports = new Reports();
                     switch ($_POST['method']) {
                         case "getDeviceReportData":
+                            /*
+                                class: "Reports"
+                                device: "flowMeter"
+                                endDate: "2020-06-07"
+                                endTime: "13:06"
+                                method: "getDeviceReportData"
+                                startDate: "2019-05-03"
+                                startTime: "16:05"
+                                user: "2"   
+                            */
                             echo $Reports->getDeviceReportData($_POST);
                             break;
                         default:

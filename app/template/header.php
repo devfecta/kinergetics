@@ -25,7 +25,7 @@
             <?php
                 if ($_SESSION['type'] > 0) {
             ?>
-                <a href="register.php" class="btn btn-lg btn-secondary m-1">Register an Account</a> 
+                <!-- <a href="register.php" class="btn btn-lg btn-secondary m-1">Register an Account</a> -->
                 <a href="createReport.php" class="btn btn-lg btn-secondary m-1">Create a Report</a> 
             <?php
                 }

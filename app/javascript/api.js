@@ -83,6 +83,8 @@ const getFlowRateData = async (formJSON) => {
     
     let responseJSON = await callApi(formJSON);
 
+    console.log(responseJSON);
+
     if(!responseJSON) {
         alert("No Record Found");
         return true;
@@ -331,7 +333,7 @@ const buildCharts = (chartData) => {
 const callApi = async (formData) => {
 
     let params = new URLSearchParams(formData);
-    console.log(formData);
+    //console.log(formData);
 
     let url = "./api.php";
 
@@ -342,7 +344,10 @@ const callApi = async (formData) => {
             'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
         })
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log(response);
+        return response.json();
+    })
     .then(data => data)
     .catch(error => console.log(error.toString()));
 

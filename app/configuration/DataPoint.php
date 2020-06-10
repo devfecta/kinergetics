@@ -35,7 +35,7 @@ class DataPoint {
 
                 $connection = Configuration::openConnection();
 
-                $statement = $connection->prepare("SELECT * FROM report_data WHERE id=:id");
+                $statement = $connection->prepare("SELECT * FROM `report_data` WHERE `id`=:id");
                 $statement->bindParam(":id", $pointId);
                 $statement->execute();
 
@@ -46,10 +46,10 @@ class DataPoint {
                 $this->setDate($results['date_time']);
                 $this->setFlowRate($results['flow_rate']);
                 $this->setTotalVolume($results['total_volume']);
-                $this->setSteam($results['steam']);
-                $this->setFeedWater($results['feedwater']);
+                $this->setSteam($results['flow_rate']);
+                $this->setFeedWater($results['flow_rate']);
                 $this->setFahrenheit($results['fahrenheit']);
-                $this->setCelsius($results['celsius']);
+                $this->setCelsius($results['fahrenheit']);
                 $this->setCurrent($results['current']);
                 $this->setRelativeHumidity($results['relative_humidity']);
                 $this->setVoltageDetected($results['voltage_detected']);
@@ -58,21 +58,22 @@ class DataPoint {
                 $this->setVelocityLowLimit($results['velocity_low_limit']);
                 $this->setVelocityHighLimit($results['velocity_high_limit']);
                 $this->setVelocityCustomMa($results['velocity_ma_custom']);
-                $this->setVelocityMa($results['velocity_ma']);
-                $this->setInwc($results['inwc']);
+                $this->setVelocityMa($results['velocity_reading'], $results['velocity_low_limit'], $results['velocity_high_limit'], $results['velocity_ma_custom']);
+                $this->setInwc($this->velocity_ma);
                 $this->setPressureReading($results['pressure_reading']);
                 $this->setPressureLowLimit($results['pressure_low_limit']);
                 $this->setPressureHighLimit($results['pressure_high_limit']);
                 $this->setPressureCustomMa($results['pressure_ma_custom']);
-                $this->setPressureMa($results['pressure_ma']);
-                $this->setPsig($results['psig']);
-
-                Configuration::closeConnection();
+                $this->setPressureMa($results['pressure_reading'], $results['pressure_low_limit'], $results['pressure_high_limit'], $results['pressure_ma_custom']);
+                $this->setPsig($this->pressure_ma);
+                
             }
             catch (PDOException $e) {
                 return "Error: " . $e->getMessage();
             }
-
+            finally {
+                Configuration::closeConnection();
+            }
         }
     }
 
@@ -114,15 +115,25 @@ class DataPoint {
     public function getSteam() {
         return $this->steam;
     }
-    public function setSteam($steam) {
-        $this->steam = $steam;
+    public function setSteam($flowRate) {
+        if($flowRate > 0) {
+            $this->steam = ($flowRate * 8.2) * 60;
+        }
+        else {
+            $this->steam = 0;
+        }
     }
     
     public function getFeedWater() {
         return $this->feedwater;
     }
-    public function setFeedWater($feedwater) {
-        $this->feedwater = $feedwater;
+    public function setFeedWater($flowRate) {
+        if ($flowRate > 1.5) {
+            $this->feedwater = 1;
+        }
+        else {
+            $this->feedwater = 0;
+        }
     }
     
     public function getFahrenheit() {
@@ -135,8 +146,8 @@ class DataPoint {
     public function getCelsius() {
         return $this->celsius;
     }
-    public function setCelsius($celsius) {
-        $this->celsius = $celsius;
+    public function setCelsius($fahrenheit) {
+        $this->celsius = ($fahrenheit - 32.0) / 1.8;
     }
     
     public function getCurrent() {
@@ -198,15 +209,20 @@ class DataPoint {
     public function getVelocityMa() {
         return $this->velocity_ma;
     }
-    public function setVelocityMa($velocity_ma) {
-        $this->velocity_ma = $velocity_ma;
+    public function setVelocityMa($velocityReading, $velocityLowLimit, $velocityHighLimit, $velocityMaCustom) {
+        if ($velocityMaCustom > 0) {
+            $this->velocity_ma = $velocityMaCustom;
+        }
+        else {
+            $this->velocity_ma = (4 + ((16 * ($velocityReading - $velocityLowLimit)) / ($velocityHighLimit - $velocityLowLimit)));
+        }
     }
     
     public function getInwc() {
         return $this->inwc;
     }
-    public function setInwc($inwc) {
-        $this->inwc = $inwc;
+    public function setInwc($velocityMa) {
+        $this->inwc = (($velocityMa - 3.9) / 16) * 10;
     }
     
     public function getPressureReading() {
@@ -240,15 +256,20 @@ class DataPoint {
     public function getPressureMa() {
         return $this->pressure_ma;
     }
-    public function setPressureMa($pressure_ma) {
-        $this->pressure_ma = $pressure_ma;
+    public function setPressureMa($pressureReading, $pressureLowLimit, $pressureHighLimit, $pressureMaCustom) {
+        if ($pressureMaCustom > 0) {
+            $this->pressure_ma = $pressureMaCustom;
+        }
+        else {
+            $this->pressure_ma = (4 + ((16 * ($pressureReading - $pressureLowLimit)) / ($pressureHighLimit - $pressureLowLimit)));
+        }
     }
     
     public function getPsig() {
         return $this->psig;
     }
-    public function setPsig($psig) {
-        $this->psig = $psig;
+    public function setPsig($pressureMa) {
+        $this->psig = $pressureMa;
     }
 
 }

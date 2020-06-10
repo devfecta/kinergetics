@@ -1,5 +1,7 @@
 <?php
 
+require_once('DataPoint.php');
+
 class Reports {
 
     function __construct() {}
@@ -16,17 +18,29 @@ class Reports {
 
             $reportId = $connection->lastInsertId();
 
-            Configuration::closeConnection();
-
             return json_encode(array('userId' => $formData['company'], 'deviceId' => $formData['device'], 'reportId' => $reportId), JSON_PRETTY_PRINT);
         }
         catch(PDOException $pdo) {
             return json_encode(array('error'=> $pdo->getMessage()), JSON_PRETTY_PRINT);
         }
+        finally {
+            Configuration::closeConnection();
+        }
 
     }
 
     public function getDeviceReportData($formData) {
+
+        /*
+            class: "Reports"
+            device: "flowMeter"
+            endDate: "2020-06-07"
+            endTime: "13:06"
+            method: "getDeviceReportData"
+            startDate: "2019-05-03"
+            startTime: "16:05"
+            user: "2"   
+        */
 
         try {
             $connection = Configuration::openConnection();
@@ -34,7 +48,7 @@ class Reports {
             $startDate = $formData['startDate']." ".$formData['startTime'];                
             $endDate = $formData['endDate']." ".$formData['endTime'];
 
-            $statement = $connection->prepare("SELECT * FROM `report_data` 
+            $statement = $connection->prepare("SELECT `report_data`.* FROM `report_data` 
             INNER JOIN `reports` ON `report_data`.`report_id`=`reports`.`id` 
             INNER JOIN `devices` ON `devices`.`id`=`reports`.`device_id` 
             WHERE `date_time` BETWEEN :startDate AND :endDate AND `reports`.`user_id`=:user AND `devices`.`tag`=:device
@@ -45,8 +59,20 @@ class Reports {
             $statement->bindParam(":user", $formData['user'], PDO::PARAM_STR);
             $statement->execute();
 
-            $result = $statement->rowCount() > 0 ? $statement->fetchAll(PDO::FETCH_ASSOC) : false;
+            $dataPoints = $statement->rowCount() > 0 ? $statement->fetchAll(PDO::FETCH_ASSOC) : false;
 
+            if (sizeof($dataPoints)) {
+                
+                foreach($dataPoints as $dataPoint) {
+                    //$dataPoint = new DataPoint($dataPointId['id']);
+                    //return json_encode($dataPoint, JSON_PRETTY_PRINT);
+                    $result[] = $dataPoint;
+                }
+            }
+            else {
+                $result = $dataPoints;
+            }
+            
         }
         catch (PDOException $pdo) {
             $result = array('error' => $pdo->getMessage());
