@@ -37,6 +37,18 @@ CREATE TABLE `devices` (
 LOCK TABLES `devices` WRITE;
 /*!40000 ALTER TABLE `devices` DISABLE KEYS */;
 INSERT INTO `devices` VALUES (1,'Flow Meter','flowMeter');
+INSERT INTO `devices` VALUES (2,'Flow Meter','volumeMeter');
+INSERT INTO `devices` VALUES (3,'Steam Flow Meter','steamFlowMeter');
+INSERT INTO `devices` VALUES (4,'Deaerator','deaerator'); -- Feed Water
+INSERT INTO `devices` VALUES (5,'Thermometer','thermometer');
+INSERT INTO `devices` VALUES (6,'Ammeter','ammeter'); -- Current
+
+INSERT INTO `devices` VALUES (7,'Relative Humidity Meter','flowMeter');
+INSERT INTO `devices` VALUES (8,'Flow Meter','volumeMeter');
+INSERT INTO `devices` VALUES (9,'Flow Meter','steamMeter');
+INSERT INTO `devices` VALUES (10,'Flow Meter','feedWaterMeter');
+INSERT INTO `devices` VALUES (11,'Thermometer','thermometer');
+INSERT INTO `devices` VALUES (12,'Current Meter','currentMeter');
 /*!40000 ALTER TABLE `devices` ENABLE KEYS */;
 UNLOCK TABLES;
 

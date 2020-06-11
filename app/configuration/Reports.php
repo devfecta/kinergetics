@@ -31,17 +31,6 @@ class Reports {
 
     public function getDeviceReportData($formData) {
 
-        /*
-            class: "Reports"
-            device: "flowMeter"
-            endDate: "2020-06-07"
-            endTime: "13:06"
-            method: "getDeviceReportData"
-            startDate: "2019-05-03"
-            startTime: "16:05"
-            user: "2"   
-        */
-
         try {
             $connection = Configuration::openConnection();
 
@@ -63,16 +52,22 @@ class Reports {
 
             if (sizeof($dataPoints)) {
                 
-                foreach($dataPoints as $dataPoint) {
-                    //$dataPoint = new DataPoint($dataPointId['id']);
-                    //return json_encode($dataPoint, JSON_PRETTY_PRINT);
-                    $result[] = $dataPoint;
+                foreach($dataPoints as $index => $data) {
+                    $dataPoint = new DataPoint($data['id']);
+                    $result[$index] = $data;
+                    // Calculated Properties
+                    $result[$index]['steam'] = $dataPoint->getSteam();
+                    $result[$index]['feedwater'] = $dataPoint->getFeedWater();
+                    $result[$index]['celsius'] = $dataPoint->getCelsius();
+                    $result[$index]['velocity_ma'] = $dataPoint->getVelocityMa();
+                    $result[$index]['inwc'] = $dataPoint->getInwc();
+                    $result[$index]['pressure_ma'] = $dataPoint->getPressureMa();
+                    $result[$index]['psig'] = $dataPoint->getPsig();
                 }
             }
             else {
                 $result = $dataPoints;
             }
-            
         }
         catch (PDOException $pdo) {
             $result = array('error' => $pdo->getMessage());

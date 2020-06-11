@@ -26,8 +26,8 @@ const getData = async () => {
     //console.log(json);
 
     getFlowRateData(json);
-    //getTotalVolumeData(json);
-    //getSteamData(json);
+    getTotalVolumeData(json);
+    getSteamData(json);
 
 }
 
@@ -70,30 +70,30 @@ total_volume: "96.00"
 */
 
 const getFlowRateData = async (formJSON) => {
-    
+    /**
+     * Create the canvas for the chart.
+     */
+    const charts = document.querySelector('#charts');
+    const chart = document.createElement('canvas');
+    chart.id = 'flowRateCanvas';
+    charts.appendChild(chart);
+    /**
+     * Get data points for the chart.
+     */
     formJSON.device = "flowMeter"; // Data type based on device.
     formJSON.class = "Reports";
     formJSON.method = "getDeviceReportData";
-
-    let chartData = {};
-    chartData.canvas = document.querySelector('#flowRateCanvas');
-
-    chartData.canvas.innerHTML = "";
-    chartData.chartTitle = "Flow Rate Data";
-    
     let responseJSON = await callApi(formJSON);
-
     console.log(responseJSON);
-
-    if(!responseJSON) {
-        alert("No Record Found");
-        return true;
-    }
     /**
      * Chart specific information.
      */
+    let chartData = {};
+    chartData.canvas = chart;
+    chartData.canvas.innerHTML = "";
+    chartData.chartTitle = "Flow Rate Data";
     chartData.unit = 'GPM';
-    chartData.label = 'Flow Rate (GPM)',
+    chartData.label = 'Flow Rate (GPM)';
     // Line Formatting
     //chartData.flow = {labelsData : []}
     chartData.labelsData = [];
@@ -101,18 +101,138 @@ const getFlowRateData = async (formJSON) => {
     chartData.barBackgroundColor = [];
     chartData.barBorderColor = [];
 
-    responseJSON.forEach(data => {
-        let date = new Date(data.date_time);
-        chartData.labelsData = [...chartData.labelsData, date.getHours() +":"+ date.getMinutes()];
-        chartData.data = [...chartData.data, data.flow_rate];
-        chartData.barBackgroundColor = [...chartData.barBackgroundColor, 'rgba(50, 100, 150, 0.2)'];
-        chartData.barBorderColor = [...chartData.barBorderColor, 'rgba(50, 100, 150, 0.7)'];
-    });
-    
+    if(!responseJSON) {
+        alert("No Record Found");
+        chartData.canvas.innerHTML = "No Record Found";
+    }
+    else {
+        responseJSON.forEach(data => {
+            let date = new Date(data.date_time);
+            chartData.labelsData = [...chartData.labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
+            chartData.data = [...chartData.data, data.flow_rate];
+            chartData.barBackgroundColor = [...chartData.barBackgroundColor, 'rgba(50, 100, 150, 0.2)'];
+            chartData.barBorderColor = [...chartData.barBorderColor, 'rgba(50, 100, 150, 0.7)'];
+        });
+    }
+
     buildChart(chartData);
-    return false;
 }
 
+const getTotalVolumeData = async (formJSON) => {
+    /**
+     * Create the canvas for the chart.
+     */
+    const charts = document.querySelector('#charts');
+    const chart = document.createElement('canvas');
+    chart.id = 'totalVolumeCanvas';
+    charts.appendChild(chart);
+    /**
+     * Get data points for the chart.
+     */
+    formJSON.device = "flowMeter"; // Data type based on device.
+    formJSON.class = "Reports";
+    formJSON.method = "getDeviceReportData";
+    let responseJSON = await callApi(formJSON);
+    console.log(responseJSON);
+    /**
+     * Chart specific information.
+     */
+    let chartData = {};
+    chartData.canvas = chart;
+    chartData.canvas.innerHTML = "";
+    chartData.chartTitle = "Total Volume Data";
+    chartData.unit = 'Gallons';
+    chartData.label = 'Total Volume (Gallons)';
+    // Line Formatting
+    //chartData.flow = {labelsData : []}
+    chartData.labelsData = [];
+    chartData.data = [];
+    chartData.barBackgroundColor = [];
+    chartData.barBorderColor = [];
+
+    if(!responseJSON) {
+        alert("No Record Found");
+        chartData.canvas.innerHTML = "No Record Found";
+    }
+    else {
+        responseJSON.forEach(data => {
+            let date = new Date(data.date_time);
+            chartData.labelsData = [...chartData.labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
+            chartData.data = [...chartData.data, data.total_volume];
+            chartData.barBackgroundColor = [...chartData.barBackgroundColor, 'rgba(50, 100, 150, 0.2)'];
+            chartData.barBorderColor = [...chartData.barBorderColor, 'rgba(50, 100, 150, 0.7)'];
+        });
+    }
+
+    buildChart(chartData);
+}
+
+const getSteamData = async (formJSON) => {
+    /**
+     * Create the canvas for the chart.
+     */
+    const charts = document.querySelector('#charts');
+    const chart = document.createElement('canvas');
+    chart.id = 'steamCanvas';
+    charts.appendChild(chart);
+    /**
+     * Get data points for the chart.
+     */
+    formJSON.device = "flowMeter"; // Data type based on device.
+    formJSON.class = "Reports";
+    formJSON.method = "getDeviceReportData";
+    let responseJSON = await callApi(formJSON);
+    console.log(responseJSON);
+    /**
+     * Chart specific information.
+     */
+    let chartData = {};
+    chartData.canvas = chart;
+    chartData.canvas.innerHTML = "";
+    chartData.chartTitle = "Total Volume Data";
+    chartData.unit = 'LB/Hr';
+    chartData.label = 'Steam (LB/Hr)';
+    // Line Formatting
+    //chartData.flow = {labelsData : []}
+    chartData.labelsData = [];
+    chartData.data = [];
+    chartData.barBackgroundColor = [];
+    chartData.barBorderColor = [];
+
+    if(!responseJSON) {
+        alert("No Record Found");
+        chartData.canvas.innerHTML = "No Record Found";
+    }
+    else {
+        responseJSON.forEach(data => {
+            let date = new Date(data.date_time);
+            chartData.labelsData = [...chartData.labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
+            chartData.data = [...chartData.data, data.steam];
+            chartData.barBackgroundColor = [...chartData.barBackgroundColor, 'rgba(50, 100, 150, 0.2)'];
+            chartData.barBorderColor = [...chartData.barBorderColor, 'rgba(50, 100, 150, 0.7)'];
+        });
+    }
+
+    /*
+    // Average Line Formatting
+    chartData.average = [];
+    chartData.averageBackgroundColor = [];
+    chartData.averageBorderColor = [];
+
+    let averageTotal = parseFloat(total / responseJSON.length).toFixed(2);
+
+    responseJSON.forEach(data => {
+        chartData.average = [...chartData.average, averageTotal];
+        chartData.averageBackgroundColor = [...chartData.averageBackgroundColor, 'rgba(175, 175, 175, 0.2)'];
+        chartData.averageBorderColor = [...chartData.averageBorderColor, 'rgba(175, 175, 175, 0.7)'];
+    });
+    */
+
+    buildChart(chartData);
+}
+
+////////////////////////////////
+/*
 const getTotalVolumeData = async (formJSON) => {
 
     let chartData = {};
@@ -144,7 +264,7 @@ const getTotalVolumeData = async (formJSON) => {
         chartData.barBackgroundColor = [...chartData.barBackgroundColor, 'rgba(100, 100, 50, 0.2)'];
         chartData.barBorderColor = [...chartData.barBorderColor, 'rgba(100, 100, 50, 0.7)'];
     });
-    
+
     buildChart(chartData);
     return false;
 }
@@ -180,26 +300,11 @@ const getSteamData = async (formJSON) => {
         chartData.barBackgroundColor = [...chartData.barBackgroundColor, 'rgba(70, 50, 150, 0.2)'];
         chartData.barBorderColor = [...chartData.barBorderColor, 'rgba(70, 50, 150, 0.7)'];
     });
-    /*
-    // Average Line Formatting
-    chartData.average = [];
-    chartData.averageBackgroundColor = [];
-    chartData.averageBorderColor = [];
-
-    let averageTotal = parseFloat(total / responseJSON.length).toFixed(2);
-
-    responseJSON.forEach(data => {
-        chartData.average = [...chartData.average, averageTotal];
-        chartData.averageBackgroundColor = [...chartData.averageBackgroundColor, 'rgba(175, 175, 175, 0.2)'];
-        chartData.averageBorderColor = [...chartData.averageBorderColor, 'rgba(175, 175, 175, 0.7)'];
-    });
-    */
-    //console.log(chartData);
     
     buildChart(chartData);
     return false;
 }
-
+*/
 const buildChart = (chartData) => {
 
     let myChart = new Chart(chartData.canvas, {

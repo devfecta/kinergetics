@@ -53,13 +53,8 @@
         </form>
 
     </div>
-    <div class="col-md-9">
+    <div id="charts" class="col-md-9">
 
-        <canvas id="flowRateCanvas"></canvas>
-
-        <canvas id="totalVolumeCanvas"></canvas>
-
-        <canvas id="steamCanvas"></canvas>
 
     </div>    
 

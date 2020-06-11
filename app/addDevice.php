@@ -2,16 +2,7 @@
     ob_start();
     session_start();
 	include("template/header.php");
-	//require_once('configuration/Configuration.php');
-    //require_once('configuration/Sensor.php');
-    //require('./configuration/User.php');
-    //require('./configuration/Device.php');
-    //require('./configuration/Report.php');
-    //require('./configuration/Reports.php');
-    
     $device = json_decode($_SESSION['device'], false);
-    
-    //$Device = new Device($device->deviceId);
 ?>
 
 <style>
