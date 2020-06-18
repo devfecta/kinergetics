@@ -1,14 +1,6 @@
 //let steamCanvas = document.querySelector('#steamCanvas');
 
-const init = () => {
-
-    let searchButton = document.querySelector("#getData");
-    searchButton.addEventListener("click", getData);
-
-    //let searchButton = document.querySelector("#getSteamData");
-    //searchButton.addEventListener("click", getSteamData);
-
-}
+const init = () => {}
 
 const getData = async () => {
 
@@ -31,7 +23,168 @@ const getData = async () => {
 
 }
 
+const getFormFields = () => {
+
+    const formFields = document.querySelector("#formFields");
+
+    getApi("Reports", "getFormFields", null)
+    .then(data => {
+        
+        console.log(data);
+
+        data.forEach(field => {
+
+            if (field.Field !== "id" && field.Field !== "report_id") {
+                const fieldCell = document.createElement('div');
+                fieldCell.setAttribute("class", "col-md-3 form-group text-left flex-nowrap form-check-inline");
+        
+                const fieldRadioButton = document.createElement('input');
+                fieldRadioButton.setAttribute("class", "form-control w-50");
+                fieldRadioButton.setAttribute("type", "checkbox");
+                fieldRadioButton.setAttribute("id", field.Field);
+                fieldRadioButton.setAttribute("name", "formField");
+                fieldRadioButton.setAttribute("value", field.Field);
+        
+                const fieldLabel = document.createElement('label');
+                fieldLabel.setAttribute("for", field.Field);
+                fieldLabel.setAttribute("class", "form-check-label w-50 text-capitalize");
+                fieldLabel.innerText = field.Field.replace(/_/g, " ");
+    
+                fieldCell.appendChild(fieldRadioButton);
+                fieldCell.appendChild(fieldLabel);
+                
+                formFields.appendChild(fieldCell);
+            }
+            
+        });
+
+    })
+    .catch(error => console.log(error));
+}
+
+const getCompanies = () => {
+    getApi("Reports", "getCompanies", null)
+    .then(data => {
+
+        //console.log(data);
+        
+        data.forEach(company => {
+
+            const companyList = document.querySelector("#accordion");
+
+            const companyCard = document.createElement('div');
+            companyCard.setAttribute("class", "card");
+            // Card Header START
+            const companyCardHeader = document.createElement('div');
+            companyCardHeader.setAttribute("class", "card-header p-0");
+            companyCardHeader.setAttribute("id", "companyHeader" + company.id);
+
+            const companyHeader = document.createElement('h5');
+            companyHeader.setAttribute("class", "mb-0");
+
+            const companyHeaderButton = document.createElement('button');
+            companyHeaderButton.setAttribute("class", "btn btn-primary py-3 w-100");
+            companyHeaderButton.setAttribute("data-toggle", "collapse");
+            companyHeaderButton.setAttribute("data-target", "#companyBody" + company.id);
+            companyHeaderButton.setAttribute("aria-expanded", "false");
+            companyHeaderButton.setAttribute("aria-controls", "companyBody" + company.id);
+            companyHeaderButton.innerText = company.company;
+
+            companyHeader.appendChild(companyHeaderButton);
+            companyCardHeader.appendChild(companyHeader);
+            
+            companyCard.appendChild(companyCardHeader);
+
+            companyList.appendChild(companyCard);
+            // Card Header END
+            // Card Body START
+            const companyCardBody = document.createElement('div');
+            companyCardBody.setAttribute("class", "collapse");
+            companyCardBody.setAttribute("id", "companyBody" + company.id);
+            companyCardBody.setAttribute("aria-labelledby", "companyHeader" + company.id);
+            companyCardBody.setAttribute("data-parent", "#accordion");
+
+            const companyBody = document.createElement('div');
+            companyBody.setAttribute("class", "card-body p-0 border-0");
+
+            const deviceList = document.createElement('div');
+            deviceList.setAttribute("class", "list-group");
+            
+            company.reports.forEach(report => {
+                const deviceLink = document.createElement('button');
+                //deviceLink.setAttribute("href", "/api.php?class=Reports&method=getUserReports&report=" + report.reportId);
+                //deviceLink.setAttribute("class", "list-group-item list-group-item-action");
+                deviceLink.setAttribute("class", "btn btn-light py-3 w-100");
+                deviceLink.setAttribute("value", report.reportId);
+                deviceLink.addEventListener("click", getUserReportDatapoints, event);
+                deviceLink.innerText = report.name;
+                deviceList.appendChild(deviceLink);
+            });
+            companyBody.appendChild(deviceList);
+            
+            companyCardBody.appendChild(companyBody);
+            companyCard.appendChild(companyCardBody);
+            // Card Body END
+            
+        });
+    })
+    .catch(error => console.log(error));
+}
+
+const getUserReportDatapoints = (event) => {
+
+    const adminSection = document.querySelector("#adminSection");
+    adminSection.innerHTML = "";
+
+    getApi("Reports", "getUserReportDatapoints", "reportId=" + event.target.value)
+    .then(data => {
+        console.log(data);
+
+        const responsiveTable = document.createElement('div');
+        responsiveTable.setAttribute("class", "table-responsive");
+
+        const dataPointTable = document.createElement('table');
+        dataPointTable.setAttribute("class", "table");
+
+        const tableHeader = document.createElement('thead');
+
+        const tableHeaderRow = document.createElement('tr');
+
+        Object.keys(data[0]).forEach(name => {
+            console.log(name);
+            const tableHeaderColumn = document.createElement('th');
+            tableHeaderColumn.setAttribute("scope", "col");
+            tableHeaderColumn.setAttribute("class", "text-nowrap text-capitalize");
+            tableHeaderColumn.innerText = name.replace(/_/g, " ");
+            tableHeaderRow.appendChild(tableHeaderColumn);
+            tableHeader.appendChild(tableHeaderRow);
+        });
+
+        dataPointTable.appendChild(tableHeader);
+
+        responsiveTable.appendChild(dataPointTable);
+
+        adminSection.appendChild(responsiveTable);
+
+        /*
+
+        
+
+        data.forEach(dataPoints => {
+            
+
+        });
+
+        responsiveTable.appendChild(dataPointTable);
+        */
+    })
+    .catch(error => console.log(error));
+}
+
 const getMinMaxDates = () => {
+
+    let searchButton = document.querySelector("#getData");
+    searchButton.addEventListener("click", getData);
 
     const startDate = document.querySelector("#startDate");
     const startTime = document.querySelector("#startTime");
@@ -76,8 +229,12 @@ total_volume: "96.00"
  * Create a chart.
  */
 const createChart = (chartId) => {
+    // Remove the old chart
+    (document.getElementById(chartId)) ? document.getElementById(chartId).remove() : '';
+
     const charts = document.querySelector('#charts');
     const chart = document.createElement('canvas');
+
     chart.id = chartId;
     charts.appendChild(chart);
     return chart;
@@ -91,7 +248,7 @@ const getDataPoints = async (deviceName, formJSON) => {
     formJSON.class = "Reports";
     formJSON.method = "getDeviceReportData";
     //console.log(responseJSON);
-    return await callApi(formJSON);
+    return await postApi(formJSON);
 }
 /**
  * Chart specific information.
@@ -124,6 +281,7 @@ const getFlowRateData = async (formJSON) => {
     let chart = createChart("flowRateCanvas");
     
     let dataPoints = await getDataPoints("flowMeter", formJSON).then(json => json).catch(error => console.log(error));
+
     chart = chartData(chart, "Flow Rate Data", "GPM", "Flow Rate (GPM)");
      
     if(!dataPoints) {
@@ -270,7 +428,7 @@ const buildChart = (chartData) => {
 
 }
 
-const callApi = async (formData) => {
+const postApi = async (formData) => {
 
     let params = new URLSearchParams(formData);
     //console.log(formData);
@@ -295,7 +453,7 @@ const callApi = async (formData) => {
 
 const getApi = async (className, methodName, parameters) => {
 
-    formData = 'class=' + className + '&method=' + methodName + '&=parameters=' + parameters;
+    formData = 'class=' + className + '&method=' + methodName + '&' + parameters;
 
     let url = "./api.php";
 

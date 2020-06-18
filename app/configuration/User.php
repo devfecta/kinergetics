@@ -139,9 +139,7 @@
                     $userInfo['authenticated'] = password_verify($data->password, $result['password']);
     
                 }
-
-                Configuration::closeConnection();
-    
+                
                 return json_encode($userInfo, JSON_PRETTY_PRINT);
     
             }
@@ -150,6 +148,9 @@
             }
             catch (Exception $e) {
                 return json_encode(array('error'=> $e->getMessage()), JSON_PRETTY_PRINT);
+            }
+            finally {
+                Configuration::closeConnection();
             }
     
             return json_encode($userInfo, JSON_PRETTY_PRINT);

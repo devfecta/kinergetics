@@ -65,10 +65,7 @@ CREATE TABLE `report_data` (
   `date_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `flow_rate` decimal(7,3) NOT NULL DEFAULT '0.000',
   `total_volume` decimal(10,3) NOT NULL DEFAULT '0.000',
-  /*`steam` double GENERATED ALWAYS AS (if((`flow_rate` > 0),((`flow_rate` * 8.2) * 60),0)) VIRTUAL,*/
-  /*`feedwater` tinyint(4) GENERATED ALWAYS AS (if((`flow_rate` > 1.5),1,0)) VIRTUAL,*/
   `fahrenheit` decimal(7,3) NOT NULL DEFAULT '0.000',
-  /*`celsius` double GENERATED ALWAYS AS (((`fahrenheit` - 32.0) / 1.8)) VIRTUAL,*/
   `current` decimal(7,3) NOT NULL DEFAULT '0.000',
   `relative_humidity` decimal(7,3) NOT NULL DEFAULT '0.000',
   `voltage_detected` int(1) NOT NULL DEFAULT '0',
@@ -77,29 +74,15 @@ CREATE TABLE `report_data` (
   `velocity_low_limit` decimal(7,3) NOT NULL DEFAULT '0.000',
   `velocity_high_limit` decimal(7,3) NOT NULL DEFAULT '0.000',
   `velocity_ma_custom` decimal(7,3) NOT NULL DEFAULT '0.000',
-  /*`velocity_ma` double GENERATED ALWAYS AS (if((`velocity_ma_custom` > 0),`velocity_ma_custom`,(4 + ((16 * (`velocity_reading` - `velocity_low_limit`)) / (`velocity_high_limit` - `velocity_low_limit`))))) VIRTUAL,*/
-  /*`inwc` double GENERATED ALWAYS AS ((((`velocity_ma` - 3.9) / 16) * 10)) VIRTUAL*/
   `pressure_reading` decimal(7,3) NOT NULL DEFAULT '0.000',
   `pressure_low_limit` decimal(7,3) NOT NULL DEFAULT '0.000',
   `pressure_high_limit` decimal(7,3) NOT NULL DEFAULT '0.000',
   `pressure_ma_custom` decimal(7,3) NOT NULL DEFAULT '0.000',
-  /*`pressure_ma` double GENERATED ALWAYS AS (if((`pressure_ma_custom` > 0),`pressure_ma_custom`,(4 + ((16 * (`pressure_reading` - `pressure_low_limit`)) / (`pressure_high_limit` - `pressure_low_limit`))))) VIRTUAL,*/
-  /*`psig` double GENERATED ALWAYS AS ((((`pressure_ma` - 3.9) / 16) * 30)) VIRTUAL,*/
   PRIMARY KEY (`id`),
   KEY `FK_reportId` (`report_id`),
   CONSTRAINT `FK_reportId` FOREIGN KEY (`report_id`) REFERENCES `reports` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `report_data`
---
-
-LOCK TABLES `report_data` WRITE;
-/*!40000 ALTER TABLE `report_data` DISABLE KEYS */;
-INSERT INTO `report_data` (`id`, `report_id`, `date_time`, `flow_rate`, `total_volume`, `fahrenheit`, `current`, `relative_humidity`, `voltage_detected`, `error`, `velocity_reading`, `velocity_low_limit`, `velocity_high_limit`, `velocity_ma_custom`, `pressure_reading`, `pressure_low_limit`, `pressure_high_limit`, `pressure_ma_custom`) VALUES (1,2,'2019-05-03 21:05:00',1.000,2.000,3.000,5.000,4.000,1,6,7.000,8.000,9.000,0.000,11.000,12.000,13.000,0.000),(2,2,'2019-12-11 15:25:00',1.500,2.000,3.000,5.000,4.000,1,6,7.000,8.000,9.000,500.000,11.000,12.000,13.000,400.000),(3,4,'2020-06-07 17:06:00',3.000,3.000,30.000,3.000,70.000,1,4,5.000,2.000,7.000,0.000,50.000,30.000,60.000,0.000),(4,5,'2020-06-07 18:06:00',0.000,0.000,0.000,0.000,0.000,0,0,0.000,0.000,0.000,5.000,0.000,0.000,0.000,7.000),(5,5,'2020-06-07 18:06:00',3.200,5.605,0.000,0.000,0.000,0,0,0.000,0.000,0.000,1.000,0.000,0.000,0.000,1.000);
-/*!40000 ALTER TABLE `report_data` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `reports`

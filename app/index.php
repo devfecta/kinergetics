@@ -20,7 +20,21 @@
     <div class="col-md-12">
         <h1><?php echo $_SESSION['company']; ?> - Energy Matrix</h1>
     </div>
-    
+</section>
+
+<?php if ((float)$_SESSION['type'] > 0) { ?>
+
+<section id="adminSection" class="container-fluid row">
+    <div id="accordion" class="w-100"></div>
+</section>
+
+<script>
+    getCompanies();
+</script>
+
+<?php } else { ?>
+
+<section id="userSection" class="container-fluid row <?php echo ($_SESSION['type'] == 0) ? "" : "d-none"; ?>">
     <div class="col-md-3">
         <form id="searchForm" method="post">
             <div class="form-group row mx-2">
@@ -33,7 +47,6 @@
                         value="<?php echo date("H:m"); ?>"
                         min="00:00" 
                         max="23:59">
-                
             </div>
             <div class="form-group row mx-2">
                 <label for="endDate">End Date: </label>
@@ -51,20 +64,16 @@
                 <button type="button" class="btn btn-primary w-100" id="getData">Get Data</button>
             </div>
         </form>
-
     </div>
-    <div id="charts" class="col-md-9">
 
-
-    </div>    
-
+    <div id="charts" class="col-md-9"></div>
 </section>
-
-<script src="javascript/api.js"></script>
 
 <script>
     getMinMaxDates();
 </script>
+
+<?php } ?>
 
 <?php
     include("template/footer.php");

@@ -52,13 +52,17 @@
             <img class="mb-4" src="images/Kinergetics-Logo.png" alt="Kinergetic, LLC" class="w-100" />
             <h1 class="h3 mb-3 font-weight-normal">Add Data Point</h1>
             
-            <div class="row">
+            <div class="row d-flex align-items-end justify-content-center">
                 <div class="col-md-12 form-group">
                     <label for="pointDate">Timestamp: </label>
+                </div>
+                <div class="col-md-6 form-group">
                     <input type="date" class="form-control" id="pointDate" name="pointDate" 
                         value="<?php echo date("Y-m-d"); ?>"
                         min="<?php echo date("Y-m-d", strtotime('-5 years')); ?>" 
                         max="<?php echo date("Y-m-d"); ?>">
+                </div>
+                <div class="col-md-6 form-group">
                     <input type="time" class="form-control" id="pointTime" name="pointTime"
                         value="<?php echo date("H:m"); ?>"
                         min="00:00" 

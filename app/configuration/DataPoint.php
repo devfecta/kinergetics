@@ -117,11 +117,12 @@ class DataPoint {
     }
     public function setSteam($flowRate) {
         if($flowRate > 0) {
-            $this->steam = ($flowRate * 8.2) * 60;
+            $steam = ($flowRate * 8.2) * 60;
         }
         else {
-            $this->steam = 0;
+            $steam = 0;
         }
+        $this->steam = round($steam, 3);
     }
     
     public function getFeedWater() {
@@ -129,11 +130,12 @@ class DataPoint {
     }
     public function setFeedWater($flowRate) {
         if ($flowRate > 1.5) {
-            $this->feedwater = 1;
+            $feedwater = 1;
         }
         else {
-            $this->feedwater = 0;
+            $feedwater = 0;
         }
+        $this->feedwater = round($feedwater, 3);
     }
     
     public function getFahrenheit() {
@@ -146,8 +148,8 @@ class DataPoint {
     public function getCelsius() {
         return $this->celsius;
     }
-    public function setCelsius($fahrenheit) {
-        $this->celsius = ($fahrenheit - 32.0) / 1.8;
+    public function setCelsius(float $fahrenheit) {
+        $this->celsius = round(($fahrenheit - 32.0) / 1.8, 3);
     }
     
     public function getCurrent() {
@@ -209,19 +211,25 @@ class DataPoint {
     public function getVelocityMa() {
         return $this->velocity_ma;
     }
-    public function setVelocityMa($velocityReading, $velocityLowLimit, $velocityHighLimit, $velocityMaCustom) {
+    public function setVelocityMa(float $velocityReading, float $velocityLowLimit, float $velocityHighLimit, float $velocityMaCustom) {
         if ($velocityMaCustom > 0) {
-            $this->velocity_ma = $velocityMaCustom;
+            $velocity_ma = $velocityMaCustom;
         }
         else {
-            $this->velocity_ma = (4 + ((16 * ($velocityReading - $velocityLowLimit)) / ($velocityHighLimit - $velocityLowLimit)));
+            if ($velocityLowLimit > 0 && $velocityHighLimit > 0) {
+                $velocity_ma = (4 + ((16 * ($velocityReading - $velocityLowLimit)) / ($velocityHighLimit - $velocityLowLimit)));
+            }
+            else {
+                $velocity_ma = 0;
+            }
         }
+        $this->velocity_ma = $velocity_ma;
     }
     
     public function getInwc() {
         return $this->inwc;
     }
-    public function setInwc($velocityMa) {
+    public function setInwc(float $velocityMa) {
         $this->inwc = (($velocityMa - 3.9) / 16) * 10;
     }
     
@@ -256,19 +264,26 @@ class DataPoint {
     public function getPressureMa() {
         return $this->pressure_ma;
     }
-    public function setPressureMa($pressureReading, $pressureLowLimit, $pressureHighLimit, $pressureMaCustom) {
-        if ($pressureMaCustom > 0) {
+    public function setPressureMa(float $pressureReading, float $pressureLowLimit, float $pressureHighLimit, float $pressureMaCustom) {
+        if ((float)$pressureMaCustom > 0) {
             $this->pressure_ma = $pressureMaCustom;
         }
         else {
-            $this->pressure_ma = (4 + ((16 * ($pressureReading - $pressureLowLimit)) / ($pressureHighLimit - $pressureLowLimit)));
+            if ($pressureLowLimit > 0 && $pressureHighLimit > 0) {
+                $this->pressure_ma = (4 + ((16 * ($pressureReading - $pressureLowLimit)) / ($pressureHighLimit - $pressureLowLimit)));
+            }
+            else {
+                $pressure_ma = 0;
+            }
+            
         }
+        $this->pressure_ma = $pressure_ma;
     }
     
     public function getPsig() {
         return $this->psig;
     }
-    public function setPsig($pressureMa) {
+    public function setPsig(float $pressureMa) {
         $this->psig = $pressureMa;
     }
 

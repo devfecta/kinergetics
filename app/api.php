@@ -179,10 +179,20 @@ switch ($_SERVER['REQUEST_METHOD']) {
                 case "Reports":
                     $Reports = new Reports();
                     switch ($_GET['method']) {
+                        case "getFormFields":
+                            echo $Reports->getFormFields();
+                            break;
                         case "getMinMaxDates":
-                            //echo json_encode(array("error" => $_GET));
-                            //exit();
                             echo $Reports->getMinMaxDates();
+                            break;
+                        case "getCompanies":
+                            echo $Reports->getCompanies();
+                            break;
+                        case "getUserReportDatapoints":
+                            echo $Reports->getUserReportDatapoints($_GET['reportId']);
+                            break;
+                        default:
+                            echo json_encode(array("error" => 'GET METHOD ERROR: The '.$_GET['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
                             break;
                     }
                     break;
