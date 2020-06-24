@@ -29,21 +29,22 @@ const getFormFields = () => {
 
     getApi("Reports", "getFormFields", null)
     .then(data => {
-        
-        console.log(data);
-
+        //console.log(data);
         data.forEach(field => {
 
-            if (field.Field !== "id" && field.Field !== "report_id") {
+            if (field.Field !== "id" && field.Field !== "report_id" && field.Field !== "date_time") {
+                
                 const fieldCell = document.createElement('div');
                 fieldCell.setAttribute("class", "col-md-3 form-group text-left flex-nowrap form-check-inline");
         
                 const fieldRadioButton = document.createElement('input');
                 fieldRadioButton.setAttribute("class", "form-control w-50");
                 fieldRadioButton.setAttribute("type", "checkbox");
+                fieldRadioButton.setAttribute("name", "formFields[]");
                 fieldRadioButton.setAttribute("id", field.Field);
-                fieldRadioButton.setAttribute("name", "formField");
+                fieldRadioButton.setAttribute("data-value", field.Field);
                 fieldRadioButton.setAttribute("value", field.Field);
+                fieldRadioButton.checked = true;
         
                 const fieldLabel = document.createElement('label');
                 fieldLabel.setAttribute("for", field.Field);
@@ -54,6 +55,7 @@ const getFormFields = () => {
                 fieldCell.appendChild(fieldLabel);
                 
                 formFields.appendChild(fieldCell);
+
             }
             
         });
@@ -66,7 +68,7 @@ const getCompanies = () => {
     getApi("Reports", "getCompanies", null)
     .then(data => {
 
-        //console.log(data);
+        console.log(data);
         
         data.forEach(company => {
 
@@ -116,8 +118,8 @@ const getCompanies = () => {
                 //deviceLink.setAttribute("class", "list-group-item list-group-item-action");
                 deviceLink.setAttribute("class", "btn btn-light py-3 w-100");
                 deviceLink.setAttribute("value", report.reportId);
-                deviceLink.addEventListener("click", getUserReportDatapoints, event);
-                deviceLink.innerText = report.name;
+                deviceLink.addEventListener("click", getReportDatapoints, event);
+                deviceLink.innerHTML = "<em style=\"font-size:80%\">( Report ID: " + report.reportId + " )</em> " + report.name;
                 deviceList.appendChild(deviceLink);
             });
             companyBody.appendChild(deviceList);
@@ -131,52 +133,79 @@ const getCompanies = () => {
     .catch(error => console.log(error));
 }
 
-const getUserReportDatapoints = (event) => {
+const getReportDatapoints = (event) => {
 
     const adminSection = document.querySelector("#adminSection");
     adminSection.innerHTML = "";
 
-    getApi("Reports", "getUserReportDatapoints", "reportId=" + event.target.value)
+    getApi("Reports", "getReportDatapoints", "reportId=" + event.target.value)
     .then(data => {
         console.log(data);
-
         const responsiveTable = document.createElement('div');
         responsiveTable.setAttribute("class", "table-responsive");
 
         const dataPointTable = document.createElement('table');
         dataPointTable.setAttribute("class", "table");
 
-        const tableHeader = document.createElement('thead');
+        if (data) {
 
-        const tableHeaderRow = document.createElement('tr');
+            const tableHeader = document.createElement('thead');
 
-        Object.keys(data[0]).forEach(name => {
-            console.log(name);
-            const tableHeaderColumn = document.createElement('th');
-            tableHeaderColumn.setAttribute("scope", "col");
-            tableHeaderColumn.setAttribute("class", "text-nowrap text-capitalize");
-            tableHeaderColumn.innerText = name.replace(/_/g, " ");
-            tableHeaderRow.appendChild(tableHeaderColumn);
-            tableHeader.appendChild(tableHeaderRow);
-        });
+            const tableHeaderRow = document.createElement('tr');
 
-        dataPointTable.appendChild(tableHeader);
+            let formFields = JSON.parse(data[0]['form_fields']);
+            //console.log(formFields);
+
+            formFields.forEach(name => {
+                //console.log(name);
+                const tableHeaderColumn = document.createElement('th');
+                tableHeaderColumn.setAttribute("scope", "col");
+                tableHeaderColumn.setAttribute("class", "text-nowrap text-capitalize");
+                tableHeaderColumn.innerText = name.replace(/_/g, " ");
+                tableHeaderRow.appendChild(tableHeaderColumn);
+                tableHeader.appendChild(tableHeaderRow);
+            });
+
+            dataPointTable.appendChild(tableHeader);
+
+            //responsiveTable.appendChild(dataPointTable);
+            //adminSection.appendChild(responsiveTable);
+
+            data.forEach(dataPoints => {
+                //console.log(Object.keys(dataPoints[0]));
+                console.log(dataPoints);
+                const tableRow = document.createElement('tr');
+
+                formFields.forEach(name => {
+                    // console.log(dataPoints[name]);
+                    const tableColumn = document.createElement('td');
+                    tableColumn.innerText = dataPoints[name];
+                    tableRow.appendChild(tableColumn);
+                    
+                });
+
+                dataPointTable.appendChild(tableRow);
+
+            });
+
+        }
+        else {
+            const notFoundRow = document.createElement('tr');
+            const notFoundColumn = document.createElement('td');
+            notFoundColumn.innerText = "No Records Found";
+            
+            notFoundRow.appendChild(notFoundColumn);
+            dataPointTable.appendChild(notFoundRow);
+        }
+
+        
+
+        
 
         responsiveTable.appendChild(dataPointTable);
 
         adminSection.appendChild(responsiveTable);
-
-        /*
-
         
-
-        data.forEach(dataPoints => {
-            
-
-        });
-
-        responsiveTable.appendChild(dataPointTable);
-        */
     })
     .catch(error => console.log(error));
 }

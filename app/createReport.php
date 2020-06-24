@@ -29,7 +29,7 @@
         </div>
     </div>
 
-    <form action="api.php?class=Reports&method=createReport" class="form-signin needs-validation" method="post" enctype="application/x-www-form-urlencoded" novalidate>
+    <form action="api.php?class=Reports&method=createReport" class="form-signin needs-validation" method="post" novalidate>
 
         <div class="row">
             
@@ -71,7 +71,7 @@
 
         <div class="row">
             <div class="col-md-12">
-                <h4>Fields:</h4>
+                <h4>Form Fields:</h4>
             </div>
             <div id="formFields" class="col-md-12 d-flex flex-wrap align-items-start"></div>
         </div>

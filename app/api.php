@@ -70,7 +70,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     switch ($_GET['method']) {
                         case "createReport":
                             $_SESSION['report'] = $Reports->createReport($_POST);
-                            header("Location: addDataPoint.php");
+                            header("Location: index.php");
                             break;
                         case "addDataPoint":
                             $_SESSION['dataPoint'] = $Reports->addDataPoint($_POST);
@@ -188,8 +188,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
                         case "getCompanies":
                             echo $Reports->getCompanies();
                             break;
-                        case "getUserReportDatapoints":
-                            echo $Reports->getUserReportDatapoints($_GET['reportId']);
+                        case "getReportDatapoints":
+                            echo $Reports->getReportDatapoints($_GET['reportId']);
                             break;
                         default:
                             echo json_encode(array("error" => 'GET METHOD ERROR: The '.$_GET['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);

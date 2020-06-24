@@ -12,12 +12,16 @@
     $report = json_decode($_SESSION['report'], false);
 
     $dataPoint = json_decode($_SESSION['dataPoint'], false);
-    
 
     $Report = new Report(null);
 
+    $Reports = new Reports();
+
+    $Reports->getFormFields($report->reportId);
+
     $User = new User($report->userId);
     $Device = new Device($report->deviceId);
+
 ?>
 
 <style>
@@ -71,36 +75,36 @@
             </div>
 
             <div class="row">
-                <div class="col-md-6 form-group">
+                <div class="col-md-6 form-group <?php echo in_array("flow_rate", $report->fields) ? "" : "d-none"; ?>">
                     <label for="flowRate">Flow Rate: </label>
                     <input type="number" step="0.001" class="form-control" id="flowRate" name="flowRate" maxlength="7" />
                 </div>
-                <div class="col-md-6 form-group">
+                <div class="col-md-6 form-group <?php echo in_array("total_volume", $report->fields) ? "" : "d-none"; ?>">
                     <label for="totalVolume">Total Volume: </label>
                     <input type="number" step="0.001" class="form-control" id="totalVolume" name="totalVolume" maxlength="10" />
                 </div>
             </div>
 
             <div class="row">
-                <div class="col-md-12 form-group">
+                <div class="col-md-12 form-group <?php echo in_array("fahrenheit", $report->fields) ? "" : "d-none"; ?>">
                     <label for="fahrenheit">Fahrenheit: </label>
                     <input type="number" step="0.001" class="form-control" id="fahrenheit" name="fahrenheit" maxlength="7" />
                 </div>
             </div>
 
             <div class="row">
-                <div class="col-md-12 form-group">
+                <div class="col-md-12 form-group <?php echo in_array("relative_humidity", $report->fields) ? "" : "d-none"; ?>">
                     <label for="relativeHumidity">Relative Humidity: </label>
                     <input type="number" step="0.001" class="form-control" id="relativeHumidity" name="relativeHumidity" maxlength="7" />
                 </div>
             </div>
 
             <div class="row">
-                <div class="col-md-6 form-group">
+                <div class="col-md-6 form-group <?php echo in_array("current", $report->fields) ? "" : "d-none"; ?>">
                     <label for="current">Current: </label>
                     <input type="number" step="0.001" class="form-control" id="current" name="current" maxlength="7" />
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-6 <?php echo in_array("voltage_detected", $report->fields) ? "" : "d-none"; ?>">
                     <div class="row">
                         <div class="col-md-4">
                             <p>Voltage Detected:</p>
@@ -114,57 +118,57 @@
             </div>
 
             <div class="row">
-                <div class="col-md-12 form-group">
+                <div class="col-md-12 form-group <?php echo in_array("error", $report->fields) ? "" : "d-none"; ?>">
                     <label for="errorCode">Error Code: </label>
                     <input type="number" class="form-control" id="errorCode" name="errorCode" maxlength="4" />
                 </div>
             </div>
 
             <div class="row">
-                <div class="col-md-12 form-group">
+                <div class="col-md-12 form-group <?php echo in_array("velocity_reading", $report->fields) ? "" : "d-none"; ?>">
                     <label for="velocityReading">Velocity Reading: </label>
                     <input type="number" step="0.001" class="form-control" id="velocityReading" name="velocityReading" maxlength="7" />
                 </div>
             </div>
 
             <div class="row">
-                <div class="col-md-6 form-group">
+                <div class="col-md-6 form-group <?php echo in_array("velocity_low_limit", $report->fields) ? "" : "d-none"; ?>">
                     <label for="velocityLowLimit">Velocity Low Limit: </label>
                     <input type="number" step="0.001" class="form-control" id="velocityLowLimit" name="velocityLowLimit" maxlength="7" />
                 </div>
-                <div class="col-md-6 form-group">
+                <div class="col-md-6 form-group <?php echo in_array("velocity_high_limit", $report->fields) ? "" : "d-none"; ?>">
                     <label for="velocityHighLimit">Velocity High Limit: </label>
                     <input type="number" step="0.001" class="form-control" id="velocityHighLimit" name="velocityHighLimit" maxlength="7" />
                 </div>
             </div>
 
             <div class="row">
-                <div class="col-md-12 form-group">
+                <div class="col-md-12 form-group <?php echo in_array("velocity_ma_custom", $report->fields) ? "" : "d-none"; ?>">
                     <label for="velocityCustom">Velocity Custom ma: </label>
                     <input type="number" step="0.001" class="form-control" id="velocityCustom" name="velocityCustom" maxlength="7" />
                 </div>
             </div>
 
             <div class="row">
-                <div class="col-md-12 form-group">
+                <div class="col-md-12 form-group <?php echo in_array("pressure_reading", $report->fields) ? "" : "d-none"; ?>">
                     <label for="pressureReading">Pressure Reading: </label>
                     <input type="number" step="0.001" class="form-control" id="pressureReading" name="pressureReading" maxlength="7" />
                 </div>
             </div>
 
             <div class="row">
-                <div class="col-md-6 form-group">
+                <div class="col-md-6 form-group <?php echo in_array("pressure_low_limit", $report->fields) ? "" : "d-none"; ?>">
                     <label for="pressureLowLimit">Pressure Low Limit: </label>
                     <input type="number" step="0.001" class="form-control" id="pressureLowLimit" name="pressureLowLimit" maxlength="7" />
                 </div>
-                <div class="col-md-6 form-group">
+                <div class="col-md-6 form-group <?php echo in_array("pressure_high_limit", $report->fields) ? "" : "d-none"; ?>">
                     <label for="pressureHighLimit">Pressure High Limit: </label>
                     <input type="number" step="0.001" class="form-control" id="pressureHighLimit" name="pressureHighLimit" maxlength="7" />
                 </div>
             </div>
 
             <div class="row">
-                <div class="col-md-12 form-group">
+                <div class="col-md-12 form-group <?php echo in_array("pressure_ma_custom", $report->fields) ? "" : "d-none"; ?>">
                     <label for="pressureCustom">Pressure Custom ma: </label>
                     <input type="number" step="0.001" class="form-control" id="pressureCustom" name="pressureCustom" maxlength="7" />
                 </div>

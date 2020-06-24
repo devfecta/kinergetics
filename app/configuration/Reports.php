@@ -10,7 +10,7 @@ class Reports {
         try {
             $connection = Configuration::openConnection();
 
-            $statement = $connection->prepare("DESCRIBE `report_data` ORDER BY `Field`");
+            $statement = $connection->prepare("DESCRIBE `report_data`");
             $statement->execute();
 
             $result = $statement->rowCount() > 0 ? $statement->fetchAll(PDO::FETCH_ASSOC) : false;
@@ -30,22 +30,23 @@ class Reports {
         try {
             $connection = Configuration::openConnection();
 
-            $statement = $connection->prepare("INSERT INTO reports (`user_id`, `device_id`) VALUES (:user, :device)");
+            $statement = $connection->prepare("INSERT INTO reports (`user_id`, `device_id`, `form_fields`) VALUES (:user, :device, :formFields)");
             $statement->bindParam(":user", $formData['company']);
             $statement->bindParam(":device", $formData['device']);
+            $statement->bindParam(":formFields", json_encode($formData['formFields']));
             $statement->execute();
 
             $reportId = $connection->lastInsertId();
 
-            return json_encode(array('userId' => $formData['company'], 'deviceId' => $formData['device'], 'reportId' => $reportId), JSON_PRETTY_PRINT);
+            $result = array('userId' => $formData['company'], 'deviceId' => $formData['device'], 'reportId' => $reportId);
         }
         catch(PDOException $pdo) {
-            return json_encode(array('error'=> $pdo->getMessage()), JSON_PRETTY_PRINT);
+            $result = array('error'=> $pdo->getMessage());
         }
         finally {
             Configuration::closeConnection();
         }
-
+        return json_encode($result, JSON_PRETTY_PRINT);
     }
 
     public function getCompanies() {
@@ -96,12 +97,13 @@ class Reports {
         return json_encode($result, JSON_PRETTY_PRINT);
     }
 
-    public function getUserReportDatapoints($reportId) {
+    public function getReportDatapoints($reportId) {
         try {
             $connection = Configuration::openConnection();
 
-            $statement = $connection->prepare("SELECT * FROM `report_data` 
-            WHERE `report_id`=:reportId 
+            $statement = $connection->prepare("SELECT `reports`.`form_fields`, `report_data`.* FROM `report_data` 
+            INNER JOIN `reports` ON `reports`.`id`=`report_data`.`report_id`
+            WHERE `report_data`.`report_id`=:reportId 
             ORDER BY `date_time` DESC");
             $statement->bindParam(":reportId", $reportId , PDO::PARAM_STR);
             $statement->execute();
