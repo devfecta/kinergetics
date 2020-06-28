@@ -24,13 +24,5 @@
 	<main class="container text-center">
 
         <section class="container-fluid text-right">
-            <?php
-                if ($_SESSION['type'] > 0) {
-            ?>
-                <!-- <a href="register.php" class="btn btn-lg btn-secondary m-1">Register an Account</a> -->
-                <a href="createReport.php" class="btn btn-lg btn-secondary m-1">Create a Report</a> 
-            <?php
-                }
-            ?>
             <a href="logout.php" class="btn btn-lg btn-secondary px-2 m-1">Logout</a> 
         </section>

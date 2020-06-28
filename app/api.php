@@ -74,7 +74,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                             break;
                         case "addDataPoint":
                             $_SESSION['dataPoint'] = $Reports->addDataPoint($_POST);
-                            header("Location: addDataPoint.php");
+                            header("Location: addDataPoint.php?reportId=" . $_POST['reportId']);
                             break;
                         case "addDevice":
                             echo $Reports->addDevice($_POST);

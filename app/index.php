@@ -24,9 +24,7 @@
 
 <?php if ((float)$_SESSION['type'] > 0) { ?>
 
-<section id="adminSection" class="container-fluid row">
-    <div id="accordion" class="w-100"></div>
-</section>
+<section id="adminSection" class="container-fluid row"></section>
 
 <script>
     getCompanies();

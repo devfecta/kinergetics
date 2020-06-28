@@ -24,7 +24,7 @@ const getData = async () => {
 }
 
 const getFormFields = () => {
-
+    // For creating the report
     const formFields = document.querySelector("#formFields");
 
     getApi("Reports", "getFormFields", null)
@@ -64,7 +64,42 @@ const getFormFields = () => {
     .catch(error => console.log(error));
 }
 
+const createAdminHeader = (headerType, reportId) => {
+    const adminButtons = document.createElement('div');
+    const createReportButton = document.createElement('a');
+    createReportButton.setAttribute("href", "createReport.php");
+    createReportButton.setAttribute("class", "btn btn-md btn-secondary m-1");
+    createReportButton.innerText = "Create Report";
+    adminButtons.appendChild(createReportButton);
+
+    switch (headerType) {
+        case "dataPoints":
+            const addDataPointButton = document.createElement('a');
+            addDataPointButton.setAttribute("href", "addDataPoint.php?reportId=" + reportId);
+            addDataPointButton.setAttribute("class", "btn btn-md btn-secondary m-1");
+            addDataPointButton.innerText = "Add Data Point";
+            adminButtons.appendChild(addDataPointButton);
+            break;
+        default:
+            break;
+    }
+
+    return adminButtons;
+    
+}
+
 const getCompanies = () => {
+
+    const adminSection = document.querySelector("#adminSection");
+    adminSection.appendChild(createAdminHeader(null, null));
+
+    //<div id="accordion" class="w-100"></div>
+
+    const companyList = document.createElement('div');
+    companyList.setAttribute("class", "w-100");
+    companyList.id = "accordion";
+    adminSection.appendChild(companyList);
+
     getApi("Reports", "getCompanies", null)
     .then(data => {
 
@@ -72,7 +107,7 @@ const getCompanies = () => {
         
         data.forEach(company => {
 
-            const companyList = document.querySelector("#accordion");
+            //const companyList = document.querySelector("#accordion");
 
             const companyCard = document.createElement('div');
             companyCard.setAttribute("class", "card");
@@ -133,10 +168,14 @@ const getCompanies = () => {
     .catch(error => console.log(error));
 }
 
+
+
 const getReportDatapoints = (event) => {
 
     const adminSection = document.querySelector("#adminSection");
     adminSection.innerHTML = "";
+
+    adminSection.appendChild(createAdminHeader("dataPoints", event.target.value));
 
     getApi("Reports", "getReportDatapoints", "reportId=" + event.target.value)
     .then(data => {
@@ -160,16 +199,13 @@ const getReportDatapoints = (event) => {
                 //console.log(name);
                 const tableHeaderColumn = document.createElement('th');
                 tableHeaderColumn.setAttribute("scope", "col");
-                tableHeaderColumn.setAttribute("class", "text-nowrap text-capitalize");
+                tableHeaderColumn.setAttribute("class", "text-nowrap text-capitalize border-0");
                 tableHeaderColumn.innerText = name.replace(/_/g, " ");
                 tableHeaderRow.appendChild(tableHeaderColumn);
                 tableHeader.appendChild(tableHeaderRow);
             });
 
             dataPointTable.appendChild(tableHeader);
-
-            //responsiveTable.appendChild(dataPointTable);
-            //adminSection.appendChild(responsiveTable);
 
             data.forEach(dataPoints => {
                 //console.log(Object.keys(dataPoints[0]));
@@ -187,23 +223,17 @@ const getReportDatapoints = (event) => {
                 dataPointTable.appendChild(tableRow);
 
             });
-
         }
         else {
             const notFoundRow = document.createElement('tr');
             const notFoundColumn = document.createElement('td');
+            notFoundColumn.setAttribute("class", "border-0");
             notFoundColumn.innerText = "No Records Found";
-            
             notFoundRow.appendChild(notFoundColumn);
             dataPointTable.appendChild(notFoundRow);
         }
 
-        
-
-        
-
         responsiveTable.appendChild(dataPointTable);
-
         adminSection.appendChild(responsiveTable);
         
     })

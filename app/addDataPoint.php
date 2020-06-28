@@ -9,18 +9,24 @@
     require('./configuration/Report.php');
     require('./configuration/Reports.php');
     
-    $report = json_decode($_SESSION['report'], false);
+    //$report = json_decode($_SESSION['report'], false);
 
     $dataPoint = json_decode($_SESSION['dataPoint'], false);
 
-    $Report = new Report(null);
+    $Report = new Report($_GET['reportId']);
 
-    $Reports = new Reports();
+    $report->fields = $Report->getReportField();
 
-    $Reports->getFormFields($report->reportId);
+    //echo in_array("flow_rate", $report->fields);
 
-    $User = new User($report->userId);
-    $Device = new Device($report->deviceId);
+    //$Reports = new Reports();
+
+    //echo $_GET['reportId'];
+
+    //echo $Reports->getFormFields($_GET['reportId']);
+
+    $User = new User($Report->getUserId());
+    $Device = new Device($Report->getDeviceId());
 
 ?>
 
@@ -177,7 +183,7 @@
             <div class="row">
                 <div class="col-md-12 form-group">
                     <button class="btn btn-lg btn-primary mt-2" type="submit">Add Data Point</button>
-                    <input type="hidden" id="reportId" name="reportId" value="<?php echo $report->reportId; ?>" />
+                    <input type="hidden" id="reportId" name="reportId" value="<?php echo $Report->getId(); ?>" />
                 </div>
             </div>
 

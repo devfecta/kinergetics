@@ -7,6 +7,7 @@ class Reports {
     function __construct() {}
 
     public function getFormFields() {
+        // For creating the report
         try {
             $connection = Configuration::openConnection();
 

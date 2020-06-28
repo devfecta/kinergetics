@@ -8,6 +8,7 @@ class Report {
     private $id;
     private $userId;
     private $deviceId;
+    private $reportFields;
 
     function __construct($reportId) {
         if ($reportId != null) {
@@ -25,6 +26,7 @@ class Report {
                 $this->setId($results['id']);
                 $this->setUserId($results['user_id']);
                 $this->setDeviceId($results['device_id']);
+                $this->setReportField($results['form_fields']);
 
                 Configuration::closeConnection();
             }
@@ -56,6 +58,13 @@ class Report {
         $this->deviceId = $deviceId;
     }
 
+    public function getReportField() {
+        return $this->reportFields;
+    }
+    public function setReportField($reportFields) {
+        $this->reportFields = json_decode($reportFields, false);
+    }
+
     public function getUsers() {
 
         $users = [];
@@ -75,13 +84,13 @@ class Report {
                 array_push($users, $user);
                 
             }
-
-            Configuration::closeConnection();
         }
         catch (PDOException $e) {
             return "Error: " . $e->getMessage();
         }
-
+        finally {
+            Configuration::closeConnection();
+        }
 
         return $users;
 
