@@ -6,6 +6,67 @@ class Reports {
 
     function __construct() {}
 
+    public function getUserReports($formData) {
+        
+        try {
+            $connection = Configuration::openConnection();
+
+            $statement = $connection->prepare("SELECT DISTINCT `reports`.`id`, `reports`.`form_fields`, `report_data`.`date_time` 
+            FROM `reports` INNER JOIN `report_data` ON `report_data`.`report_id`=`reports`.`id` 
+            WHERE `reports`.`user_id`=2 AND `report_data`.`date_time` 
+            IN (SELECT MAX(`date_time`) FROM `report_data` WHERE `report_id`=`reports`.`id`) 
+            ORDER BY `report_data`.`date_time` DESC");
+            $statement->bindParam(":user", $formData['user'], PDO::PARAM_STR);
+            $statement->execute();
+
+            $reports = $statement->rowCount() > 0 ? $statement->fetchAll(PDO::FETCH_ASSOC) : false;
+
+            if (sizeof($reports)) {
+                foreach($reports as $reportIndex => $report) {
+
+                    $startDate = $formData['startDate']." ".$formData['startTime'];                
+                    $endDate = $formData['endDate']." ".$formData['endTime'];
+
+                    $statement = $connection->prepare("SELECT `devices`.`name`, `devices`.`tag`, `report_data`.* FROM `report_data` 
+                    INNER JOIN `reports` ON `report_data`.`report_id`=`reports`.`id` 
+                    INNER JOIN `devices` ON `devices`.`id`=`reports`.`device_id` 
+                    WHERE `date_time` BETWEEN :startDate AND :endDate AND `report_data`.`report_id`=:reportId
+                    ORDER BY `date_time` ASC");
+                    $statement->bindParam(":startDate", $startDate, PDO::PARAM_STR);
+                    $statement->bindParam(":endDate", $endDate, PDO::PARAM_STR);
+                    $statement->bindParam(":reportId", $report['form_fields'], PDO::PARAM_STR);
+
+                }
+            }
+
+
+
+            $startDate = $formData['startDate']." ".$formData['startTime'];                
+            $endDate = $formData['endDate']." ".$formData['endTime'];
+
+            $statement = $connection->prepare("SELECT `report_data`.* FROM `report_data` 
+            INNER JOIN `reports` ON `report_data`.`report_id`=`reports`.`id` 
+            INNER JOIN `devices` ON `devices`.`id`=`reports`.`device_id` 
+            WHERE `date_time` BETWEEN :startDate AND :endDate AND `reports`.`user_id`=:user AND `devices`.`tag`=:device
+            ORDER BY `date_time`");
+            $statement->bindParam(":startDate", $startDate, PDO::PARAM_STR);
+            $statement->bindParam(":endDate", $endDate, PDO::PARAM_STR);
+            $statement->bindParam(":device", $formData['device'], PDO::PARAM_STR);
+            $statement->bindParam(":user", $formData['user'], PDO::PARAM_STR);
+            $statement->execute();
+
+            $result = $statement->rowCount() > 0 ? $statement->fetchAll(PDO::FETCH_ASSOC) : false;
+
+        }
+        catch(PDOException $pdo) {
+            $result = array('error' => $pdo->getMessage());
+        }
+        finally {
+            Configuration::closeConnection();
+        }
+        return json_encode($result, JSON_PRETTY_PRINT);
+    }
+
     public function getFormFields() {
         // For creating the report
         try {

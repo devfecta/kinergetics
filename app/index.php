@@ -23,7 +23,7 @@
 </section>
 
 <?php if ((float)$_SESSION['type'] > 0) { ?>
-
+<!-- Admin Section -->
 <section id="adminSection" class="container-fluid row"></section>
 
 <script>
@@ -31,7 +31,7 @@
 </script>
 
 <?php } else { ?>
-
+<!-- User Section -->
 <section id="userSection" class="container-fluid row <?php echo ($_SESSION['type'] == 0) ? "" : "d-none"; ?>">
     <div class="col-md-3">
         <form id="searchForm" method="post">

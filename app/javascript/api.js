@@ -1,6 +1,4 @@
-//let steamCanvas = document.querySelector('#steamCanvas');
-
-const init = () => {}
+//const init = () => {}
 
 const getData = async () => {
 
@@ -15,11 +13,13 @@ const getData = async () => {
     formData.forEach((entry, index) => {
         json[index] = entry;
     });
-    //console.log(json);
+    console.log(json);
 
-    getFlowRateData(json);
-    getTotalVolumeData(json);
-    getSteamData(json);
+    getCharts(json);
+
+    //getFlowRateData(json);
+    //getTotalVolumeData(json);
+    //getSteamData(json);
 
 }
 
@@ -285,7 +285,7 @@ time_lapse: "0.02"
 total_volume: "96.00"
 */
 /**
- * Create a chart.
+ * Creates a chart canvas with an ID.
  */
 const createChart = (chartId) => {
     // Remove the old chart
@@ -334,6 +334,15 @@ const chartData = (chart, title, verticalLabel, horizontalLabel) => {
     chartData.averageLineColor = [];
     
     return chartData;
+}
+
+const getCharts = async (formJSON) => {
+    formJSON.class = "Reports";
+    formJSON.method = "getUserReports";
+    return await postApi(formJSON);
+
+    let chart = createChart("flowRateCanvas");
+
 }
 
 const getFlowRateData = async (formJSON) => {
