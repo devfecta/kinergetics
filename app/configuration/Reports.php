@@ -1,5 +1,5 @@
 <?php
-
+require_once('Configuration.php');
 require_once('DataPoint.php');
 
 class Reports {
@@ -11,12 +11,18 @@ class Reports {
         try {
             $connection = Configuration::openConnection();
 
-            $statement = $connection->prepare("SELECT DISTINCT `reports`.`id`, `reports`.`form_fields`, `report_data`.`date_time` 
-            FROM `reports` INNER JOIN `report_data` ON `report_data`.`report_id`=`reports`.`id` 
-            WHERE `reports`.`user_id`=2 AND `report_data`.`date_time` 
-            IN (SELECT MAX(`date_time`) FROM `report_data` WHERE `report_id`=`reports`.`id`) 
+            $startDate = $formData['startDate']." ".$formData['startTime'];
+            $endDate = $formData['endDate']." ".$formData['endTime'];
+
+            $statement = $connection->prepare("SELECT DISTINCT `devices`.`name`, `devices`.`tag`, `reports`.`id`, `reports`.`form_fields`, `report_data`.`date_time` FROM `reports` 
+            INNER JOIN `report_data` ON `report_data`.`report_id`=`reports`.`id` 
+            INNER JOIN `devices` ON `devices`.`id`=`reports`.`device_id` 
+            WHERE `reports`.`user_id`=:user AND `report_data`.`date_time` 
+            IN (SELECT MAX(`date_time`) FROM `report_data` WHERE `date_time` BETWEEN :startDate AND :endDate AND `report_id`=`reports`.`id`) 
             ORDER BY `report_data`.`date_time` DESC");
-            $statement->bindParam(":user", $formData['user'], PDO::PARAM_STR);
+            $statement->bindParam(":user", $formData['user'], PDO::PARAM_INT);
+            $statement->bindParam(":startDate", $startDate, PDO::PARAM_STR);
+            $statement->bindParam(":endDate", $endDate, PDO::PARAM_STR);
             $statement->execute();
 
             $reports = $statement->rowCount() > 0 ? $statement->fetchAll(PDO::FETCH_ASSOC) : false;
@@ -24,39 +30,72 @@ class Reports {
             if (sizeof($reports)) {
                 foreach($reports as $reportIndex => $report) {
 
-                    $startDate = $formData['startDate']." ".$formData['startTime'];                
-                    $endDate = $formData['endDate']." ".$formData['endTime'];
+                    $result[$reportIndex]['device']['name'] = $report['name'];
+                    $result[$reportIndex]['device']['tag'] = $report['tag'];
 
-                    $statement = $connection->prepare("SELECT `devices`.`name`, `devices`.`tag`, `report_data`.* FROM `report_data` 
+                    $statement = $connection->prepare("SELECT `report_data`.* FROM `report_data` 
                     INNER JOIN `reports` ON `report_data`.`report_id`=`reports`.`id` 
-                    INNER JOIN `devices` ON `devices`.`id`=`reports`.`device_id` 
                     WHERE `date_time` BETWEEN :startDate AND :endDate AND `report_data`.`report_id`=:reportId
                     ORDER BY `date_time` ASC");
                     $statement->bindParam(":startDate", $startDate, PDO::PARAM_STR);
                     $statement->bindParam(":endDate", $endDate, PDO::PARAM_STR);
-                    $statement->bindParam(":reportId", $report['form_fields'], PDO::PARAM_STR);
+                    $statement->bindParam(":reportId", $report['id'], PDO::PARAM_INT);
+                    $statement->execute();
+
+                    $dataPoints = $statement->rowCount() > 0 ? $statement->fetchAll(PDO::FETCH_ASSOC) : false;
+
+                    if (sizeof($dataPoints)) {
+
+                        $fields = json_decode($report['form_fields']);
+
+                        foreach($fields as $field) {
+
+                            foreach($dataPoints as $dataPointIndex => $dataPoint) {
+
+                                $result[$reportIndex]['dataPoints'][$field][$dataPointIndex]['date_times'] = $dataPoint['date_time'];
+                                $result[$reportIndex]['dataPoints'][$field][$dataPointIndex]['values'] = $dataPoint[$field];
+
+                                $dataPoint = new DataPoint($dataPoint['id']);
+                                // Calculated Properties
+                                switch ($field) {
+                                    case "flow_rate":
+                                    case "total_volume":
+                                        $result[$reportIndex]['dataPoints']['steam'][$dataPointIndex]['date_times'] = $dataPoint->getDate();
+                                        $result[$reportIndex]['dataPoints']['steam'][$dataPointIndex]['values'] = $dataPoint->getSteam();
+                                        $result[$reportIndex]['dataPoints']['feedwater'][$dataPointIndex]['date_times'] = $dataPoint->getDate();
+                                        $result[$reportIndex]['dataPoints']['feedwater'][$dataPointIndex]['values'] = $dataPoint->getFeedWater();
+                                        break;
+                                    case "fahrenheit":
+                                        $result[$reportIndex]['dataPoints']['celsius'][$dataPointIndex]['date_times'] = $dataPoint->getDate();
+                                        $result[$reportIndex]['dataPoints']['celsius'][$dataPointIndex]['values'] = $dataPoint->getCelsius();
+                                        break;
+                                    case "velocity_reading":
+                                    case "velocity_ma_custom":
+                                        $result[$reportIndex]['dataPoints']['velocity_ma'][$dataPointIndex]['date_times'] = $dataPoint->getDate();
+                                        $result[$reportIndex]['dataPoints']['velocity_ma'][$dataPointIndex]['values'] = $dataPoint->getVelocityMa();
+                                        $result[$reportIndex]['dataPoints']['inwc'][$dataPointIndex]['date_times'] = $dataPoint->getDate();
+                                        $result[$reportIndex]['dataPoints']['inwc'][$dataPointIndex]['values'] = $dataPoint->getInwc();
+                                        break;
+                                    case "pressure_reading":
+                                    case "pressure_ma_custom":
+                                        $result[$reportIndex]['dataPoints']['pressure_ma'][$dataPointIndex]['date_times'] = $dataPoint->getDate();
+                                        $result[$reportIndex]['dataPoints']['pressure_ma'][$dataPointIndex]['values'] = $dataPoint->getPressureMa();
+                                        $result[$reportIndex]['dataPoints']['psig'][$dataPointIndex]['date_times'] = $dataPoint->getDate();
+                                        $result[$reportIndex]['dataPoints']['psig'][$dataPointIndex]['values'] = $dataPoint->getPsig();
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                
+                            }
+
+                        }
+
+                    }
 
                 }
             }
-
-
-
-            $startDate = $formData['startDate']." ".$formData['startTime'];                
-            $endDate = $formData['endDate']." ".$formData['endTime'];
-
-            $statement = $connection->prepare("SELECT `report_data`.* FROM `report_data` 
-            INNER JOIN `reports` ON `report_data`.`report_id`=`reports`.`id` 
-            INNER JOIN `devices` ON `devices`.`id`=`reports`.`device_id` 
-            WHERE `date_time` BETWEEN :startDate AND :endDate AND `reports`.`user_id`=:user AND `devices`.`tag`=:device
-            ORDER BY `date_time`");
-            $statement->bindParam(":startDate", $startDate, PDO::PARAM_STR);
-            $statement->bindParam(":endDate", $endDate, PDO::PARAM_STR);
-            $statement->bindParam(":device", $formData['device'], PDO::PARAM_STR);
-            $statement->bindParam(":user", $formData['user'], PDO::PARAM_STR);
-            $statement->execute();
-
-            $result = $statement->rowCount() > 0 ? $statement->fetchAll(PDO::FETCH_ASSOC) : false;
-
+            
         }
         catch(PDOException $pdo) {
             $result = array('error' => $pdo->getMessage());
@@ -249,6 +288,43 @@ class Reports {
 
         return json_encode($result, JSON_PRETTY_PRINT);
         
+    }
+
+    public function addNewDataPoint($sensor) {
+        
+        try {
+            
+            $connection = Configuration::openConnection();
+            
+            $statement = $connection->prepare("INSERT INTO report_data (
+                `report_id`,
+                `data_point`, 
+                `date_time`
+            ) 
+            VALUES (
+                :report_id,
+                :data_point, 
+                :date_time
+            )");
+
+            $statement->bindValue(":report_id", 7, PDO::PARAM_INT); 
+            $statement->bindParam(":data_point", json_encode($sensor));
+            $statement->bindParam(":date_time", $sensor['messageDate'], PDO::PARAM_STR);            
+            $statement->execute();
+
+            $dataPointId = $connection->lastInsertId();
+
+            $result['dataPointId'] = $dataPointId;
+
+        }
+        catch(PDOException $pdo) {
+            $result['error'] =  $pdo->getMessage();
+        }
+        finally {
+            Configuration::closeConnection();
+        }
+
+        return json_encode($result, JSON_PRETTY_PRINT);
     }
 
     public function addDataPoint($formData) {

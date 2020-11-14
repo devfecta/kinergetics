@@ -32,39 +32,48 @@
 
 <?php } else { ?>
 <!-- User Section -->
-<section id="userSection" class="container-fluid row <?php echo ($_SESSION['type'] == 0) ? "" : "d-none"; ?>">
-    <div class="col-md-3">
-        <form id="searchForm" method="post">
-            <div class="form-group row mx-2">
-                <label for="startDate">Start Date: </label>
-                    <input type="date" class="form-control" id="startDate" name="startDate" 
-                        value=""
-                        min="" 
-                        max="<?php echo date("Y-m-d"); ?>">
-                    <input type="time" class="form-control" id="startTime" name="startTime"
-                        value="<?php echo date("H:m"); ?>"
-                        min="00:00" 
-                        max="23:59">
-            </div>
-            <div class="form-group row mx-2">
-                <label for="endDate">End Date: </label>
-                    <input type="date" class="form-control" id="endDate" name="endDate" 
-                        value=""
-                        min="" 
-                        max="<?php echo date("Y-m-d"); ?>">
-                    <input type="time" class="form-control" id="endTime" name="endTime"
-                        value="<?php echo date("H:m"); ?>"
-                        min="00:00" 
-                        max="23:59">
-            </div>
-            <div class="form-group row mx-2">
-                <input type="hidden" name="user" id="user" value="<?php echo $_SESSION['userId']; ?>" />
-                <button type="button" class="btn btn-primary w-100" id="getData">Get Data</button>
-            </div>
-        </form>
-    </div>
+<section id="userSectionSearch" class="" style="background-color: #ddd">
 
-    <div id="charts" class="col-md-9"></div>
+    <form id="searchForm" class="form-inline row d-flex justify-content-center w-100 p-2" method="post">
+        
+        <div class="col-md-3 mx-2 justify-content-center align-items-center">
+            <label for="startDate">Start Date: </label>
+            <input type="date" class="form-control m-2" id="startDate" name="startDate" 
+                value=""
+                min="" 
+                max="<?php echo date("Y-m-d"); ?>">
+        
+            <input type="time" class="form-control m-2" id="startTime" name="startTime"
+                value="<?php echo date("H:m"); ?>"
+                min="00:00" 
+                max="23:59">
+        </div>
+
+        
+        <div class="col-md-3 mx-2 justify-content-center align-items-center">
+            <label for="endDate">End Date: </label>
+            <input type="date" class="form-control m-2" id="endDate" name="endDate" 
+                value=""
+                min="" 
+                max="<?php echo date("Y-m-d"); ?>">
+
+            <input type="time" class="form-control m-2" id="endTime" name="endTime"
+                value="<?php echo date("H:m"); ?>"
+                min="00:00" 
+                max="23:59">
+        </div>
+        
+        <div class="col-md-2 mx-2 align-items-center">
+            <input type="hidden" name="user" id="user" value="<?php echo $_SESSION['userId']; ?>" />
+            <button type="button" class="btn btn-primary w-100" id="getData">Get Data</button>
+        </div>
+
+    </form>
+
+
+</section>
+<section id="userSectionResults" class="container-fluid row">
+    <div id="charts" class="col-md"></div>
 </section>
 
 <script>

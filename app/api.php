@@ -79,9 +79,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
                         case "addDevice":
                             echo $Reports->addDevice($_POST);
                             break;
-                        case "getUserReports":
-                            echo $Reports->getUserReports($_POST);
-                            break;
                         default:
                             echo json_encode(array("error" => 'METHOD ERROR: The '.$_GET['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
                         break;
@@ -122,6 +119,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
                                 user: "2"   
                             */
                             echo $Reports->getDeviceReportData($_POST);
+                            break;
+                        case "getUserReports":
+                            echo $Reports->getUserReports($_POST);
                             break;
                         default:
                             echo json_encode(array("error" => 'METHOD ERROR: The '.$_POST['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);

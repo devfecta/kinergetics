@@ -1,5 +1,7 @@
 <?php
 
+require_once('Configuration.php');
+
 class Database {
 
     function __construct() {}

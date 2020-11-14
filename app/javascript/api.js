@@ -293,6 +293,7 @@ const createChart = (chartId) => {
 
     const charts = document.querySelector('#charts');
     const chart = document.createElement('canvas');
+    chart.setAttribute("class", "col-md-3");
 
     chart.id = chartId;
     charts.appendChild(chart);
@@ -339,10 +340,100 @@ const chartData = (chart, title, verticalLabel, horizontalLabel) => {
 const getCharts = async (formJSON) => {
     formJSON.class = "Reports";
     formJSON.method = "getUserReports";
-    return await postApi(formJSON);
+    return await postApi(formJSON)
+    .then(json => {
+        console.log(json);
 
-    let chart = createChart("flowRateCanvas");
+        json.forEach((report, index) => {
+            
+            console.log(Object.entries(report.dataPoints));
+            /*
+            Object.entries(report.dataPoints).forEach(dataPoint => {
+                let chart = createChart(dataPoint[0] + index);
 
+                if (report.dataPoints.flow_rate) {
+                    chart = chartData(chart, "Flow Rate Data", "GPM", "Flow Rate (GPM)");
+                    let averageTotal = parseFloat(report.dataPoints.flow_rate.reduce((total, data) => total + Number(data.values), 0) / report.dataPoints.flow_rate.length).toFixed(2);
+                    chart = drawChartLines(chart, report.dataPoints.flow_rate, averageTotal);
+                    buildChart(chart);
+                }
+            });
+            */
+            
+            let chart = null;
+
+            if (report.dataPoints.flow_rate) {
+                chart = createChart("flowRate" + index);
+                chart = chartData(chart, report.device.name + " Data", "GPM", "Flow Rate (GPM)");
+                let averageTotal = parseFloat(report.dataPoints.flow_rate.reduce((total, data) => total + Number(data.values), 0) / report.dataPoints.flow_rate.length).toFixed(2);
+                chart = drawChartLines(chart, report.dataPoints.flow_rate, averageTotal);
+                buildChart(chart);
+            }
+            if (report.dataPoints.total_volume) {
+                chart = createChart("totalVolume" + index);
+                chart = chartData(chart, report.device.name + " Data", "Gal", "Total Volume (Gal)");
+                let averageTotal = parseFloat(report.dataPoints.total_volume.reduce((total, data) => total + Number(data.values), 0) / report.dataPoints.total_volume.length).toFixed(2);
+                chart = drawChartLines(chart, report.dataPoints.total_volume, averageTotal);
+                buildChart(chart);
+            }
+            if (report.dataPoints.steam) {
+                chart = createChart("steam" + index);
+                chart = chartData(chart, report.device.name + " Data", "LB/Hr", "Steam (LB/Hr)");
+                let averageTotal = parseFloat(report.dataPoints.steam.reduce((total, data) => total + Number(data.values), 0) / report.dataPoints.steam.length).toFixed(2);
+                chart = drawChartLines(chart, report.dataPoints.steam, averageTotal);
+                buildChart(chart);
+            }
+            if (report.dataPoints.feedwater) {
+                chart = createChart("feedwater" + index);
+                chart = chartData(chart, report.device.name + " Data", "Fow", "Feedwater (Fow)");
+                let averageTotal = parseFloat(report.dataPoints.feedwater.reduce((total, data) => total + Number(data.values), 0) / report.dataPoints.feedwater.length).toFixed(2);
+                chart = drawChartLines(chart, report.dataPoints.feedwater, averageTotal);
+                buildChart(chart);
+            }
+
+
+            if (report.dataPoints.fahrenheit) {
+                chart = createChart("fahrenheit" + index);
+                chart = chartData(chart, report.device.name + " Data", "Degrees", "Fahrenheit (Degrees)");
+                let averageTotal = parseFloat(report.dataPoints.fahrenheit.reduce((total, data) => total + Number(data.values), 0) / report.dataPoints.fahrenheit.length).toFixed(2);
+                chart = drawChartLines(chart, report.dataPoints.fahrenheit, averageTotal);
+                buildChart(chart);
+            }
+            if (report.dataPoints.celsius) {
+                chart = createChart("celsius" + index);
+                chart = chartData(chart, report.device.name + " Data", "Degrees", "Celsius (Degrees)");
+                let averageTotal = parseFloat(report.dataPoints.celsius.reduce((total, data) => total + Number(data.values), 0) / report.dataPoints.celsius.length).toFixed(2);
+                chart = drawChartLines(chart, report.dataPoints.celsius, averageTotal);
+                buildChart(chart);
+            }
+            
+        });
+    })
+    .catch(error => console.log(error));
+
+}
+
+const drawChartLines = (chart, dataPoints, averageTotal) => {
+
+    //console.log(dataPoints);
+
+    dataPoints.forEach(dataPoint => {
+
+        console.log(dataPoint.date_times);
+
+        let date = new Date(dataPoint.date_times);
+        chart.labelsData = [...chart.labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
+        
+        chart.data = [...chart.data, dataPoint.values];
+        chart.lineShadingColor = [...chart.lineShadingColor, 'rgba(' + chart.color + ', 0.2)'];
+        chart.lineColor = [...chart.lineColor, 'rgba(' + chart.color + ', 0.7)'];
+        
+        chart.average = [...chart.average, averageTotal];
+        chart.averageLineShadingColor = [...chart.averageLineShadingColor, 'rgba(' + chart.averageColor + ', 0.2)'];
+        chart.averageLineColor = [...chart.averageLineColor, 'rgba(' + chart.averageColor + ', 0.7)'];
+        
+    });
+    return chart;
 }
 
 const getFlowRateData = async (formJSON) => {
@@ -430,7 +521,10 @@ const getSteamData = async (formJSON) => {
 
     buildChart(chart);
 }
-
+/**
+ * Add property values to the chart.
+ * @param {json} chartData 
+ */
 const buildChart = (chartData) => {
 
     let myChart = new Chart(chartData.canvas, {
