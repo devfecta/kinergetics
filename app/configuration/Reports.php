@@ -1,5 +1,5 @@
 <?php
-require_once('Configuration.php');
+
 require_once('DataPoint.php');
 
 class Reports {
@@ -290,42 +290,7 @@ class Reports {
         
     }
 
-    public function addNewDataPoint($sensor) {
-        
-        try {
-            
-            $connection = Configuration::openConnection();
-            
-            $statement = $connection->prepare("INSERT INTO report_data (
-                `report_id`,
-                `data_point`, 
-                `date_time`
-            ) 
-            VALUES (
-                :report_id,
-                :data_point, 
-                :date_time
-            )");
-
-            $statement->bindValue(":report_id", 7, PDO::PARAM_INT); 
-            $statement->bindParam(":data_point", json_encode($sensor));
-            $statement->bindParam(":date_time", $sensor['messageDate'], PDO::PARAM_STR);            
-            $statement->execute();
-
-            $dataPointId = $connection->lastInsertId();
-
-            $result['dataPointId'] = $dataPointId;
-
-        }
-        catch(PDOException $pdo) {
-            $result['error'] =  $pdo->getMessage();
-        }
-        finally {
-            Configuration::closeConnection();
-        }
-
-        return json_encode($result, JSON_PRETTY_PRINT);
-    }
+    
 
     public function addDataPoint($formData) {
         try {

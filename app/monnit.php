@@ -1,6 +1,6 @@
 
 <?php
-require_once('./configuration/Reports.php');
+require_once('./configuration/DataPoints.php');
 // Posted WebHook data.
 $webhookData = file_get_contents('php://input');
 // Converts WebHook data to an array.
@@ -31,12 +31,14 @@ switch($_SERVER['REQUEST_METHOD']) {
     case 'POST':
         $content = '';
 
-        $reports = new Reports();
-        
+        $dataPoints = new DataPoints(null);
+
         // Each Sensor
         foreach($webhookArray['sensorMessages'] as $sensor) {
+            
+            $userId = (int)explode(' | ', $sensor['sensorName'])[0];
 
-            $result = $reports->addNewDataPoint($sensor);
+            $result = $dataPoints->addDataPoint($userId, $sensor);
             echo var_dump($result);
             /*
             

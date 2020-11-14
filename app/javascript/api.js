@@ -1,4 +1,23 @@
-//const init = () => {}
+const init = () => {
+    let count = 0;
+    let interval = setInterval(
+        function() { 
+            if (count === 5) {
+                stopInterval();
+            }
+            else {
+                console.log("Hello"); 
+                count++;
+            }
+        }
+    , 1000);
+
+    const stopInterval = () => {
+        clearInterval(interval);
+        console.log("Interval Stopped"); 
+    }
+
+}
 
 const getData = async () => {
 

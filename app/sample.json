@@ -2,7 +2,7 @@
     "sensorMessages":
     [
         {   
-            "sensorID":"528911" , "sensorName":"Temperature - 528911", 
+            "sensorID":"528911" , "sensorName":"2 | Test Company | Temperature", 
             "applicationID":"2", 
             "networkID":"3", 
             "dataMessageGUID":"4c5da9b7-7e0d-46fd-88cb-cac46176cd5f", 
@@ -16,11 +16,10 @@
             "batteryLevel": "100", 
             "signalStrength": "0", 
             "pendingChange": "True", 
-            "voltage": "3.19",
-            "error": "false"
+            "voltage": "3.19"
         },
         {   
-            "sensorID":"528879" , "sensorName":"0-20mA Current - 528879", 
+            "sensorID":"528879" , "sensorName":"2 | Test Company | 0-20mA Current", 
             "applicationID":"22", 
             "networkID":"3", 
             "dataMessageGUID":"7ba0b460-f815-48aa-8ef0-eb254bb61649", 
@@ -34,11 +33,10 @@
             "batteryLevel": "100", 
             "signalStrength": "0", 
             "pendingChange": "True", 
-            "voltage": "2.5",
-            "error": "true"
+            "voltage": "2.5"
         },
         {   
-            "sensorID":"528876" , "sensorName":"Thermocouple - 528876", 
+            "sensorID":"528876" , "sensorName":"2 | Test Company | Thermocouple", 
             "applicationID":"86", 
             "networkID":"3", 
             "dataMessageGUID":"57f2f4d6-3152-4e34-8d38-cf9c0b967f99", 
@@ -55,7 +53,7 @@
             "voltage": "2.54"
         },
         {   
-            "sensorID":"528889" , "sensorName":"Current Meter 20 Amp - 528889", 
+            "sensorID":"528889" , "sensorName":"2 | Test Company | Current Meter 20 Amp", 
             "applicationID":"93", 
             "networkID":"3", 
             "dataMessageGUID":"e026e9ec-f193-44f1-abdd-b71817631cdd", 

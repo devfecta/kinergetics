@@ -53,6 +53,27 @@ INSERT INTO `devices` VALUES (12,'Current Meter','currentMeter');
 UNLOCK TABLES;
 
 --
+-- Table structure for table `data_points`
+--
+
+DROP TABLE IF EXISTS `data_points`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `data_points` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL DEFAULT 0,
+  `sensor_id` int(11) NOT NULL DEFAULT 0,
+  `date_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `data_point` LONGTEXT NULL,
+  `custom_field` BOOLEAN NOT NULL DEFAULT false,
+  `custom_value` decimal(7,3) NOT NULL DEFAULT 0.000,
+  PRIMARY KEY (`id`),
+  KEY `FK_dataPoint_userId` (`user_id`),
+  CONSTRAINT `FK_dataPoint_userId` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `report_data`
 --
 
