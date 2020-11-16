@@ -1,12 +1,33 @@
 const init = () => {
+
     let count = 0;
+    const currentDataTime = new Date();
+    let initialDateTime = 
+    currentDataTime.getFullYear() + 
+    "-" + (currentDataTime.getMonth() + 1) + 
+    "-" + currentDataTime.getDate() + 
+    " " + currentDataTime.getHours() + 
+    ":" + currentDataTime.getMinutes() + 
+    ":" + currentDataTime.getSeconds();
+
+    initializeRealTimeData(initialDateTime)
+    .then(dataPoints => {
+        buildRealTimeCharts(dataPoints);
+    })
+    .catch(error => console.log(error));
+
+    
+    /*
+    getRealTimeData(initialDateTime);
+
     let interval = setInterval(
         function() { 
             if (count === 5) {
                 stopInterval();
             }
             else {
-                console.log("Hello"); 
+                getRealTimeData(updatedDateTime);
+                //console.log("Hello"); 
                 count++;
             }
         }
@@ -16,7 +37,91 @@ const init = () => {
         clearInterval(interval);
         console.log("Interval Stopped"); 
     }
+    */
+}
+// await
+const initializeRealTimeData = (dateTime) => {
+    const id = document.cookie.split('; ').find(c => c.startsWith('userId')).split('=')[1];
+    //console.log(id);
+    return getApi("DataPoints", "getDataPoints", "userId=" + id + "&dateTime=" + dateTime)
+    .then(dataPoints => dataPoints)
+    .catch(error => console.log(error));
+}
 
+const buildRealTimeCharts = (dataPoints) => {
+
+    console.log(dataPoints);
+    
+    dataPoints.forEach((dataPoint, index) => {
+        // console.log(Object.entries(report.dataPoints));
+
+        //let dataPointJson = JSON.parse(dataPoint);
+        
+        let chart = null;
+
+        chart = createChart(dataPoint.dataType + index);
+        
+        chart = chartData(chart, dataPoint.sensorName + " Data", dataPoint.unitType, dataPoint.dataType + " (" + dataPoint.unitType + ")");
+
+        //let averageTotal = parseFloat(report.dataPoints.flow_rate.reduce((total, data) => total + Number(data.values), 0) / report.dataPoints.flow_rate.length).toFixed(2);
+        chart = drawRealTimeChartLines(chart, dataPoint.data_points, averageTotal=0);
+        buildChart(chart);
+        
+    });
+    
+}
+
+const drawRealTimeChartLines = (chart, dataPoints, averageTotal) => {
+
+    //console.log(dataPoints);
+
+    dataPoints.forEach(dataPoint => {
+
+        console.log();
+        
+        let date = new Date(dataPoint.messageDate);
+        chart.labelsData = [...chart.labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
+        
+        chart.data = [...chart.data, dataPoint.plotValues.includes('|') ? dataPoint.plotValues.split('|')[1] : dataPoint.plotValues];
+        chart.lineShadingColor = [...chart.lineShadingColor, 'rgba(' + chart.color + ', 0.2)'];
+        chart.lineColor = [...chart.lineColor, 'rgba(' + chart.color + ', 0.7)'];
+        
+        chart.average = [...chart.average, averageTotal];
+        chart.averageLineShadingColor = [...chart.averageLineShadingColor, 'rgba(' + chart.averageColor + ', 0.2)'];
+        chart.averageLineColor = [...chart.averageLineColor, 'rgba(' + chart.averageColor + ', 0.7)'];
+        
+    });
+    return chart;
+}
+
+
+
+const plotRealTimeDataPoints = () => {}
+
+
+const getRealTimeData = (updatedDateTime) => {
+
+    const id = document.cookie.split('; ').find(c => c.startsWith('userId')).split('=')[1];
+    console.log(id);
+    // For creating the report
+    //const formFields = document.querySelector("#formFields");
+    //const newUser = urlParams.get('id')
+    /*
+    getApi("DataPoints", "getDataPoints", "userId=" + id + "lastDateTime=" + lastDateTime)
+    .then(data => {
+        //console.log(data);
+        data.forEach(field => {
+
+            if (field.Field !== "id" && field.Field !== "report_id" && field.Field !== "date_time") {
+                
+
+            }
+            
+        });
+
+    })
+    .catch(error => console.log(error));
+    */
 }
 
 const getData = async () => {

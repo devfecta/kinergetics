@@ -12,6 +12,7 @@ require('configuration/User.php');
 require('configuration/Device.php');
 require("configuration/Reports.php");
 require("configuration/Devices.php");
+require("configuration/DataPoints.php");
 
 //$requestMethod = $_SERVER['REQUEST_METHOD'];
 $registration = null;
@@ -54,6 +55,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                                 $_SESSION['userId'] = $result->id;
                                 $_SESSION['company'] = $result->company;
                                 $_SESSION['type'] = $result->type;
+                                setcookie("userId", $result->id, time()+3600);
                                 header("Location: index.php");
                             }
                             else {
@@ -193,6 +195,19 @@ switch ($_SERVER['REQUEST_METHOD']) {
                             break;
                         case "getReportDatapoints":
                             echo $Reports->getReportDatapoints($_GET['reportId']);
+                            break;
+                        default:
+                            echo json_encode(array("error" => 'GET METHOD ERROR: The '.$_GET['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
+                            break;
+                    }
+                    break;
+                case "DataPoints":
+                    $dataPoints = new DataPoints();
+                    
+                    switch ($_GET['method']) {
+                        case "getDataPoints":
+                            //echo json_encode(array("message" => $_GET['userId'].' = '.$_GET['dateTime']), JSON_PRETTY_PRINT);
+                            echo $dataPoints->getDataPoints((int)$_GET['userId'], $_GET['dateTime']);
                             break;
                         default:
                             echo json_encode(array("error" => 'GET METHOD ERROR: The '.$_GET['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);

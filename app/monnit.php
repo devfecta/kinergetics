@@ -31,25 +31,29 @@ switch($_SERVER['REQUEST_METHOD']) {
     case 'POST':
         $content = '';
 
-        $dataPoints = new DataPoints(null);
+        $dataPoints = new DataPoints();
 
-        // Each Sensor
-        foreach($webhookArray['sensorMessages'] as $sensor) {
-            
-            $userId = (int)explode(' | ', $sensor['sensorName'])[0];
+        if (sizeof($webhookArray['sensorMessages']) > 0) {
+            // Each Sensor
+            foreach($webhookArray['sensorMessages'] as $sensor) {
+                        
+                $userId = (int)explode(' | ', $sensor['sensorName'])[0];
 
-            $result = $dataPoints->addDataPoint($userId, $sensor);
-            echo var_dump($result);
-            /*
-            
-            $content .= "\rData:\n".$sensor['sensorName']."\r";
-            */
+                $result = $dataPoints->addDataPoint($userId, $sensor);
+                echo var_dump($result);
+            }
         }
+        else {
+            mail("monitor@gmail.com", "Kinergetics's Webhook Data", "Webhook didn't send any sensor data.");
+        }
+
+        
         
         //file_put_contents('data.json', $content, FILE_APPEND);
 
         break;
     default:
+        mail("monitor@gmail.com", "Kinergetics's Webhook Data", "Webhook didn't send a POST");
         break;
 }
 

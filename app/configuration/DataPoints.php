@@ -30,7 +30,7 @@ class DataPoints {
     private $pressure_ma;
     private $psig;
 
-    function __construct($pointId) {
+    function __construct() {
         /*
         if ($pointId != null) {
 
@@ -81,13 +81,65 @@ class DataPoints {
         */
     }
 
+    public function getDataPoints($userId, $dateTime) {
+        //return json_encode(array($userId, $dateTime), JSON_PRETTY_PRINT);
+        $result = array();
+
+        try {
+            
+            $connection = Configuration::openConnection();
+            
+            $statement = $connection->prepare("SELECT `sensor_id`, `data_point` FROM `data_points` WHERE `user_id`=:user_id AND `date_time`>=:date_time");
+
+            $statement->bindParam(":user_id", $userId, PDO::PARAM_INT); 
+            $statement->bindParam(":date_time", $dateTime, PDO::PARAM_STR); 
+            $statement->execute();
+
+            $dataPoints = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+            $results = array();
+
+            foreach($dataPoints as $dataPoint) {
+                // Set Sensor ID Property
+                $results[$dataPoint['sensor_id']]['sensorID'] = $dataPoint['sensor_id'];
+                // Set Sensor Name Property
+                $sensorName = json_decode($dataPoint['data_point'])->sensorName;
+                $results[$dataPoint['sensor_id']]['sensorName'] =  strpos($sensorName, '|') ? explode(' | ', $sensorName)[2] : $sensorName;
+                // Set Data Type Property
+                $dataType = json_decode($dataPoint['data_point'])->dataType;
+                $results[$dataPoint['sensor_id']]['dataType'] =  strpos($dataType, '|') ? explode('|', $dataType)[0] : $dataType;
+
+                // Set Unit Type Property
+                
+                $plotLabels = json_decode($dataPoint['data_point'])->plotLabels;
+                $results[$dataPoint['sensor_id']]['unitType'] =  strpos($plotLabels, '|') ? explode('|', $plotLabels)[1] : $plotLabels;
+
+                // Set Sensor Data Points Property
+                $results[$dataPoint['sensor_id']]['data_points'][] = json_decode($dataPoint['data_point']);
+            }
+            // Re-indexes the array of data points.
+            foreach($results as $sensor) {
+                $result[] = $sensor;
+            }
+
+        }
+        catch(PDOException $pdo) {
+            $result['error'] =  $pdo->getMessage();
+        }
+        finally {
+            Configuration::closeConnection();
+        }
+
+        return json_encode($result, JSON_PRETTY_PRINT);
+    }
+
     public function addDataPoint($userId, $sensor) {
 
         try {
             
             $connection = Configuration::openConnection();
             
-            $statement = $connection->prepare("INSERT INTO data_points (
+            $statement = $connection->prepare("INSERT INTO `data_points` (
                 `user_id`,
                 `sensor_id`,
                 `date_time`,
