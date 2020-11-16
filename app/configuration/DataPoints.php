@@ -108,12 +108,9 @@ class DataPoints {
                 // Set Data Type Property
                 $dataType = json_decode($dataPoint['data_point'])->dataType;
                 $results[$dataPoint['sensor_id']]['dataType'] =  strpos($dataType, '|') ? explode('|', $dataType)[0] : $dataType;
-
                 // Set Unit Type Property
-                
                 $plotLabels = json_decode($dataPoint['data_point'])->plotLabels;
                 $results[$dataPoint['sensor_id']]['unitType'] =  strpos($plotLabels, '|') ? explode('|', $plotLabels)[1] : $plotLabels;
-
                 // Set Sensor Data Points Property
                 $results[$dataPoint['sensor_id']]['data_points'][] = json_decode($dataPoint['data_point']);
             }

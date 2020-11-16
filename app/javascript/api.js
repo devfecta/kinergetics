@@ -11,8 +11,14 @@ const init = () => {
     ":" + currentDataTime.getSeconds();
 
     initializeRealTimeData(initialDateTime)
-    .then(dataPoints => {
-        buildRealTimeCharts(dataPoints);
+    .then(sensors => {
+        const charts = initializeRealTimeCharts(sensors);
+
+
+        let interval = setInterval(
+            appendRealTimeDataPoints(charts, sensors)
+        , 2000);
+
     })
     .catch(error => console.log(error));
 
@@ -39,36 +45,70 @@ const init = () => {
     }
     */
 }
-// await
-const initializeRealTimeData = (dateTime) => {
-    const id = document.cookie.split('; ').find(c => c.startsWith('userId')).split('=')[1];
-    //console.log(id);
-    return getApi("DataPoints", "getDataPoints", "userId=" + id + "&dateTime=" + dateTime)
-    .then(dataPoints => dataPoints)
-    .catch(error => console.log(error));
+
+const appendRealTimeDataPoints = (charts, sensors) => {
+    console.log(charts, sensors);
+    charts.forEach(chart => {
+        sensors.forEach(sensor => {
+            sensor.data_points.forEach(dataPoint => {
+                appendRealTimeDataPoint(chart, dataPoint);
+            });
+        });
+    });
 }
 
-const buildRealTimeCharts = (dataPoints) => {
+const appendRealTimeDataPoint = (chart, dataPoint) => {
+    console.log(chart.chartName + " === " + dataPoint.sensorID);
+}
+/**
+ * Get initial real time data, and start at the current date and time.
+ * @param {string} dateTime 
+ */
+// await
+const initializeRealTimeData = (dateTime) => {
+    // Logs out after idle for 1 hour.
+    if (document.cookie.includes('; ')) {
+        const id = document.cookie.split('; ').find(c => c.startsWith('userId')).split('=')[1];
+        //console.log(id);
+        return getApi("DataPoints", "getDataPoints", "userId=" + id + "&dateTime=" + dateTime)
+        .then(dataPoints => dataPoints)
+        .catch(error => console.log(error));
+    }
+    else {
+        alert("logging out");
+        location.href = './logout.php';
+    }
+}
+/**
+ * Creates blank charts
+ * @param {array} dataPoints 
+ */
+const initializeRealTimeCharts = (dataPoints) => {
 
     console.log(dataPoints);
+    let charts = [];
     
     dataPoints.forEach((dataPoint, index) => {
         // console.log(Object.entries(report.dataPoints));
-
         //let dataPointJson = JSON.parse(dataPoint);
         
         let chart = null;
+        let chartId = dataPoint.dataType + index;
 
-        chart = createChart(dataPoint.dataType + index);
-        
+        chart = createChart(chartId);
+        console.log(chart);
         chart = chartData(chart, dataPoint.sensorName + " Data", dataPoint.unitType, dataPoint.dataType + " (" + dataPoint.unitType + ")");
-
+        
         //let averageTotal = parseFloat(report.dataPoints.flow_rate.reduce((total, data) => total + Number(data.values), 0) / report.dataPoints.flow_rate.length).toFixed(2);
-        chart = drawRealTimeChartLines(chart, dataPoint.data_points, averageTotal=0);
+
+        //chart = drawRealTimeChartLines(chart, dataPoint.data_points, averageTotal=0);
         buildChart(chart);
+
+        charts = [...charts, {chartName: chartId, sensorID: dataPoint.sensorID}];
         
     });
-    
+
+    return charts;
 }
 
 const drawRealTimeChartLines = (chart, dataPoints, averageTotal) => {
@@ -78,7 +118,7 @@ const drawRealTimeChartLines = (chart, dataPoints, averageTotal) => {
     dataPoints.forEach(dataPoint => {
 
         console.log();
-        
+
         let date = new Date(dataPoint.messageDate);
         chart.labelsData = [...chart.labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
         
@@ -94,9 +134,20 @@ const drawRealTimeChartLines = (chart, dataPoints, averageTotal) => {
     return chart;
 }
 
+const setDataPoint = (dataPoint) => {
+    let date = new Date(dataPoint.messageDate);
+    chart.labelsData = [...chart.labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
+    
+    chart.data = [...chart.data, dataPoint.plotValues.includes('|') ? dataPoint.plotValues.split('|')[1] : dataPoint.plotValues];
+    chart.lineShadingColor = [...chart.lineShadingColor, 'rgba(' + chart.color + ', 0.2)'];
+    chart.lineColor = [...chart.lineColor, 'rgba(' + chart.color + ', 0.7)'];
+}
 
+const plotRealTimeDataPoints = () => {
+    getRealTimeData(initialDateTime);
 
-const plotRealTimeDataPoints = () => {}
+    
+}
 
 
 const getRealTimeData = (updatedDateTime) => {
@@ -417,7 +468,7 @@ const createChart = (chartId) => {
 
     const charts = document.querySelector('#charts');
     const chart = document.createElement('canvas');
-    chart.setAttribute("class", "col-md-3");
+    chart.setAttribute("class", "col-md");
 
     chart.id = chartId;
     charts.appendChild(chart);
