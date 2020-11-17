@@ -1,6 +1,5 @@
 const init = () => {
 
-    let count = 0;
     const currentDataTime = new Date();
     let initialDateTime = 
     currentDataTime.getFullYear() + 
@@ -14,26 +13,81 @@ const init = () => {
     .then(sensors => {
         const charts = initializeRealTimeCharts(sensors);
 
+        //appendRealTimeDataPoints(charts, sensors);
 
+        /*
         let interval = setInterval(
             appendRealTimeDataPoints(charts, sensors)
         , 2000);
-
+        */
     })
     .catch(error => console.log(error));
+    //getRealTimeData(initialDateTime);
+}
+
+const appendRealTimeDataPoints = (charts, sensors) => {
+
+    let chartsIndex = 0;
+    let sensorsIndex = 0;
+    let dataPointIndex = 0;
+
+    const dataPointInterval = setInterval(function() {
+        
+        if (sensorsIndex < sensors.length) {
+            console.log(sensorsIndex);
+            //appendRealTimeDataPoint(charts[chartsIndex], sensors[sensorsIndex].data_points);
+            chartsIndex++;
+            sensorsIndex++;
+        }
+        else {
+            clearInterval(dataPointInterval);
+            console.log("Interval Stopped"); 
+        }
+        
+    }, 2000);
+
+    //console.log(charts, sensors);
 
     
-    /*
-    getRealTimeData(initialDateTime);
 
-    let interval = setInterval(
+
+    //await appendRealTimeDataPoint(chart, dataPoint);
+/*
+    chartsIndex = getNextChart(charts, chartIndex, appendRealTimeDataPoint)
+
+    
+    let dataPoint = getNextDataPoint(sensorDataPoints, dataPointIndex);
+    
+    console.log("Return: " + dataPointIndex);
+    
+
+    let count = 0;
+*/
+    
+
+   
+/*
+    const interval = setInterval(
         function() { 
+            charts[$chartsIndex]
+            sensors[$sensorsIndex]
+
+
+            charts.forEach(chart => {
+                sensors.forEach(sensor => {
+                    sensor.data_points.forEach(dataPoint => {
+                        appendRealTimeDataPoint(chart, dataPoint);
+                    });
+                });
+            });
+
+
             if (count === 5) {
                 stopInterval();
             }
             else {
-                getRealTimeData(updatedDateTime);
-                //console.log("Hello"); 
+                //getRealTimeData(updatedDateTime);
+                console.log("Hello"); 
                 count++;
             }
         }
@@ -43,11 +97,10 @@ const init = () => {
         clearInterval(interval);
         console.log("Interval Stopped"); 
     }
-    */
-}
+*/
 
-const appendRealTimeDataPoints = (charts, sensors) => {
-    console.log(charts, sensors);
+/*
+    
     charts.forEach(chart => {
         sensors.forEach(sensor => {
             sensor.data_points.forEach(dataPoint => {
@@ -55,10 +108,50 @@ const appendRealTimeDataPoints = (charts, sensors) => {
             });
         });
     });
+    
+    */
+    
+}
+
+const getNextChart = async (charts, chartIndex, callback) => {
+    console.log(chartIndex);
+    return chartIndex++;
+}
+
+const getNextDataPoint = (dataPoints, dataPointIndex) => {
+    let dataPointInterval = setInterval(function() {
+        
+        if (dataPointIndex < dataPoints.length) {
+            //appendRealTimeDataPoint(dataPoints[dataPointIndex], sensors);
+            console.log(dataPoints[dataPointIndex]);
+            dataPointIndex++;
+        }
+        else {
+            clearInterval(dataPointInterval);
+            console.log("Interval Stopped"); 
+        }
+        
+    }, 1000);
+    return dataPointIndex;
 }
 
 const appendRealTimeDataPoint = (chart, dataPoint) => {
-    console.log(chart.chartName + " === " + dataPoint.sensorID);
+
+    console.log(chart);
+
+    let date = new Date(dataPoint.messageDate);
+    chart.labelsData = [...chart.labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
+    
+    chart.data = [...chart.data, dataPoint.plotValues.includes('|') ? dataPoint.plotValues.split('|')[1] : dataPoint.plotValues];
+    chart.lineShadingColor = [...chart.lineShadingColor, 'rgba(' + chart.color + ', 0.2)'];
+    chart.lineColor = [...chart.lineColor, 'rgba(' + chart.color + ', 0.7)'];
+    
+    chart.average = [...chart.average, averageTotal];
+    chart.averageLineShadingColor = [...chart.averageLineShadingColor, 'rgba(' + chart.averageColor + ', 0.2)'];
+    chart.averageLineColor = [...chart.averageLineColor, 'rgba(' + chart.averageColor + ', 0.7)'];
+    
+    buildChart(chart);
+    
 }
 /**
  * Get initial real time data, and start at the current date and time.
@@ -70,7 +163,7 @@ const initializeRealTimeData = (dateTime) => {
     if (document.cookie.includes('; ')) {
         const id = document.cookie.split('; ').find(c => c.startsWith('userId')).split('=')[1];
         //console.log(id);
-        return getApi("DataPoints", "getDataPoints", "userId=" + id + "&dateTime=" + dateTime)
+        return getApi("DataPoints", "getDataPoints", "userId=" + id + "&startDateTime=" + dateTime)
         .then(dataPoints => dataPoints)
         .catch(error => console.log(error));
     }
@@ -85,8 +178,9 @@ const initializeRealTimeData = (dateTime) => {
  */
 const initializeRealTimeCharts = (dataPoints) => {
 
-    console.log(dataPoints);
     let charts = [];
+
+    console.log(dataPoints);
     
     dataPoints.forEach((dataPoint, index) => {
         // console.log(Object.entries(report.dataPoints));
@@ -96,19 +190,19 @@ const initializeRealTimeCharts = (dataPoints) => {
         let chartId = dataPoint.dataType + index;
 
         chart = createChart(chartId);
-        console.log(chart);
+//        console.log(chart);
         chart = chartData(chart, dataPoint.sensorName + " Data", dataPoint.unitType, dataPoint.dataType + " (" + dataPoint.unitType + ")");
         
         //let averageTotal = parseFloat(report.dataPoints.flow_rate.reduce((total, data) => total + Number(data.values), 0) / report.dataPoints.flow_rate.length).toFixed(2);
 
-        //chart = drawRealTimeChartLines(chart, dataPoint.data_points, averageTotal=0);
+        chart = drawRealTimeChartLines(chart, dataPoint.data_points, averageTotal=0);
         buildChart(chart);
 
-        charts = [...charts, {chartName: chartId, sensorID: dataPoint.sensorID}];
+        //charts = [...charts, {chartName: chartId, sensorID: dataPoint.sensorID}];
         
     });
 
-    return charts;
+    //return charts;
 }
 
 const drawRealTimeChartLines = (chart, dataPoints, averageTotal) => {
@@ -116,8 +210,6 @@ const drawRealTimeChartLines = (chart, dataPoints, averageTotal) => {
     //console.log(dataPoints);
 
     dataPoints.forEach(dataPoint => {
-
-        console.log();
 
         let date = new Date(dataPoint.messageDate);
         chart.labelsData = [...chart.labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
@@ -188,7 +280,7 @@ const getData = async () => {
     formData.forEach((entry, index) => {
         json[index] = entry;
     });
-    console.log(json);
+    //console.log(json);
 
     getCharts(json);
 
@@ -513,6 +605,34 @@ const chartData = (chart, title, verticalLabel, horizontalLabel) => {
 }
 
 const getCharts = async (formJSON) => {
+
+    if (document.cookie.includes('; ')) {
+        const id = document.cookie.split('; ').find(c => c.startsWith('userId')).split('=')[1];
+        formJSON.userId = id;
+        formJSON.startDateTime = formJSON.startDate + " "+ formJSON.startTime;
+        formJSON.endDateTime = formJSON.endDate + " "+ formJSON.endTime;
+        //console.log(id);
+        formJSON.class = "DataPoints";
+        formJSON.method = "getDataPoints";
+
+        //console.log(formJSON);
+
+        return postApi(formJSON)
+        .then(dataPoints => {
+            //console.log(dataPoints);
+            initializeRealTimeCharts(dataPoints);
+        })
+        .catch(error => console.log(error));
+    }
+    else {
+        alert("logging out");
+        location.href = './logout.php';
+    }
+
+
+
+
+/*
     formJSON.class = "Reports";
     formJSON.method = "getUserReports";
     return await postApi(formJSON)
@@ -522,18 +642,6 @@ const getCharts = async (formJSON) => {
         json.forEach((report, index) => {
             
             console.log(Object.entries(report.dataPoints));
-            /*
-            Object.entries(report.dataPoints).forEach(dataPoint => {
-                let chart = createChart(dataPoint[0] + index);
-
-                if (report.dataPoints.flow_rate) {
-                    chart = chartData(chart, "Flow Rate Data", "GPM", "Flow Rate (GPM)");
-                    let averageTotal = parseFloat(report.dataPoints.flow_rate.reduce((total, data) => total + Number(data.values), 0) / report.dataPoints.flow_rate.length).toFixed(2);
-                    chart = drawChartLines(chart, report.dataPoints.flow_rate, averageTotal);
-                    buildChart(chart);
-                }
-            });
-            */
             
             let chart = null;
 
@@ -585,7 +693,7 @@ const getCharts = async (formJSON) => {
         });
     })
     .catch(error => console.log(error));
-
+    */
 }
 
 const drawChartLines = (chart, dataPoints, averageTotal) => {

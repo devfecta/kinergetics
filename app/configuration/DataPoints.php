@@ -81,7 +81,7 @@ class DataPoints {
         */
     }
 
-    public function getDataPoints($userId, $dateTime) {
+    public function getDataPoints($userId, $startDateTime, $endDateTime) {
         //return json_encode(array($userId, $dateTime), JSON_PRETTY_PRINT);
         $result = array();
 
@@ -89,10 +89,11 @@ class DataPoints {
             
             $connection = Configuration::openConnection();
             
-            $statement = $connection->prepare("SELECT `sensor_id`, `data_point` FROM `data_points` WHERE `user_id`=:user_id AND `date_time`>=:date_time");
+            $statement = $connection->prepare("SELECT `sensor_id`, `data_point` FROM `data_points` WHERE `user_id`=:user_id AND `date_time`>=:startDateTime AND `date_time`<=:endDateTime LIMIT 0, 10");
 
             $statement->bindParam(":user_id", $userId, PDO::PARAM_INT); 
-            $statement->bindParam(":date_time", $dateTime, PDO::PARAM_STR); 
+            $statement->bindParam(":startDateTime", $startDateTime, PDO::PARAM_STR); 
+            $statement->bindParam(":endDateTime", $endDateTime, PDO::PARAM_STR); 
             $statement->execute();
 
             $dataPoints = $statement->fetchAll(PDO::FETCH_ASSOC);

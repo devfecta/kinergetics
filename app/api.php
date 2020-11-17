@@ -82,7 +82,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                             echo $Reports->addDevice($_POST);
                             break;
                         default:
-                            echo json_encode(array("error" => 'METHOD ERROR: The '.$_GET['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
+                            echo json_encode(array("error" => 'METHOD ERROR: The '.$_POST['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
                         break;
                     }
                     break;
@@ -103,23 +103,21 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     break;
             }
         }
-
+        
         if (isset($_POST["class"])) {
             switch ($_POST['class']) {
                 case "Reports":
                     $Reports = new Reports();
                     switch ($_POST['method']) {
                         case "getDeviceReportData":
-                            /*
-                                class: "Reports"
-                                device: "flowMeter"
-                                endDate: "2020-06-07"
-                                endTime: "13:06"
-                                method: "getDeviceReportData"
-                                startDate: "2019-05-03"
-                                startTime: "16:05"
-                                user: "2"   
-                            */
+                                // class: "Reports"
+                                // device: "flowMeter"
+                                // endDate: "2020-06-07"
+                                // endTime: "13:06"
+                                // method: "getDeviceReportData"
+                                // startDate: "2019-05-03"
+                                // startTime: "16:05"
+                                // user: "2"   
                             echo $Reports->getDeviceReportData($_POST);
                             break;
                         case "getUserReports":
@@ -127,6 +125,19 @@ switch ($_SERVER['REQUEST_METHOD']) {
                             break;
                         default:
                             echo json_encode(array("error" => 'METHOD ERROR: The '.$_POST['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
+                            break;
+                    }
+                    break;
+                case "DataPoints":
+                    $dataPoints = new DataPoints();
+                    
+                    switch ($_POST['method']) {
+                        case "getDataPoints":
+                            //echo json_encode(array("message" => $_GET['userId'].' = '.$_GET['dateTime']), JSON_PRETTY_PRINT);
+                            echo $dataPoints->getDataPoints((int)$_POST['userId'], $_POST['startDateTime'], $_POST['endDateTime']);
+                            break;
+                        default:
+                            echo json_encode(array("error" => 'GET METHOD ERROR: The '.$_POST['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
                             break;
                     }
                     break;
@@ -207,7 +218,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     switch ($_GET['method']) {
                         case "getDataPoints":
                             //echo json_encode(array("message" => $_GET['userId'].' = '.$_GET['dateTime']), JSON_PRETTY_PRINT);
-                            echo $dataPoints->getDataPoints((int)$_GET['userId'], $_GET['dateTime']);
+                            echo $dataPoints->getDataPoints((int)$_GET['userId'], $_GET['startDateTime'], 'null');
                             break;
                         default:
                             echo json_encode(array("error" => 'GET METHOD ERROR: The '.$_GET['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
