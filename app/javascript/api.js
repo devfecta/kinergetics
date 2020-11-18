@@ -12,147 +12,10 @@ const init = () => {
     initializeRealTimeData(initialDateTime)
     .then(sensors => {
         const charts = initializeRealTimeCharts(sensors);
-
-        //appendRealTimeDataPoints(charts, sensors);
-
-        /*
-        let interval = setInterval(
-            appendRealTimeDataPoints(charts, sensors)
-        , 2000);
-        */
     })
     .catch(error => console.log(error));
-    //getRealTimeData(initialDateTime);
 }
 
-const appendRealTimeDataPoints = (charts, sensors) => {
-
-    let chartsIndex = 0;
-    let sensorsIndex = 0;
-    let dataPointIndex = 0;
-
-    const dataPointInterval = setInterval(function() {
-        
-        if (sensorsIndex < sensors.length) {
-            console.log(sensorsIndex);
-            //appendRealTimeDataPoint(charts[chartsIndex], sensors[sensorsIndex].data_points);
-            chartsIndex++;
-            sensorsIndex++;
-        }
-        else {
-            clearInterval(dataPointInterval);
-            console.log("Interval Stopped"); 
-        }
-        
-    }, 2000);
-
-    //console.log(charts, sensors);
-
-    
-
-
-    //await appendRealTimeDataPoint(chart, dataPoint);
-/*
-    chartsIndex = getNextChart(charts, chartIndex, appendRealTimeDataPoint)
-
-    
-    let dataPoint = getNextDataPoint(sensorDataPoints, dataPointIndex);
-    
-    console.log("Return: " + dataPointIndex);
-    
-
-    let count = 0;
-*/
-    
-
-   
-/*
-    const interval = setInterval(
-        function() { 
-            charts[$chartsIndex]
-            sensors[$sensorsIndex]
-
-
-            charts.forEach(chart => {
-                sensors.forEach(sensor => {
-                    sensor.data_points.forEach(dataPoint => {
-                        appendRealTimeDataPoint(chart, dataPoint);
-                    });
-                });
-            });
-
-
-            if (count === 5) {
-                stopInterval();
-            }
-            else {
-                //getRealTimeData(updatedDateTime);
-                console.log("Hello"); 
-                count++;
-            }
-        }
-    , 1000);
-
-    const stopInterval = () => {
-        clearInterval(interval);
-        console.log("Interval Stopped"); 
-    }
-*/
-
-/*
-    
-    charts.forEach(chart => {
-        sensors.forEach(sensor => {
-            sensor.data_points.forEach(dataPoint => {
-                appendRealTimeDataPoint(chart, dataPoint);
-            });
-        });
-    });
-    
-    */
-    
-}
-
-const getNextChart = async (charts, chartIndex, callback) => {
-    console.log(chartIndex);
-    return chartIndex++;
-}
-
-const getNextDataPoint = (dataPoints, dataPointIndex) => {
-    let dataPointInterval = setInterval(function() {
-        
-        if (dataPointIndex < dataPoints.length) {
-            //appendRealTimeDataPoint(dataPoints[dataPointIndex], sensors);
-            console.log(dataPoints[dataPointIndex]);
-            dataPointIndex++;
-        }
-        else {
-            clearInterval(dataPointInterval);
-            console.log("Interval Stopped"); 
-        }
-        
-    }, 1000);
-    return dataPointIndex;
-}
-
-const appendRealTimeDataPoint = (chart, dataPoint) => {
-
-    console.log(chart);
-
-    let date = new Date(dataPoint.messageDate);
-    chart.labelsData = [...chart.labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
-    
-    chart.data = [...chart.data, dataPoint.plotValues.includes('|') ? dataPoint.plotValues.split('|')[1] : dataPoint.plotValues];
-    chart.lineShadingColor = [...chart.lineShadingColor, 'rgba(' + chart.color + ', 0.2)'];
-    chart.lineColor = [...chart.lineColor, 'rgba(' + chart.color + ', 0.7)'];
-    
-    chart.average = [...chart.average, averageTotal];
-    chart.averageLineShadingColor = [...chart.averageLineShadingColor, 'rgba(' + chart.averageColor + ', 0.2)'];
-    chart.averageLineColor = [...chart.averageLineColor, 'rgba(' + chart.averageColor + ', 0.7)'];
-    
-    buildChart(chart);
-    
-}
 /**
  * Get initial real time data, and start at the current date and time.
  * @param {string} dateTime 
@@ -178,37 +41,26 @@ const initializeRealTimeData = (dateTime) => {
  */
 const initializeRealTimeCharts = (dataPoints) => {
 
-    let charts = [];
-
     console.log(dataPoints);
     
     dataPoints.forEach((dataPoint, index) => {
         // console.log(Object.entries(report.dataPoints));
-        //let dataPointJson = JSON.parse(dataPoint);
-        
         let chart = null;
         let chartId = dataPoint.dataType + index;
 
         chart = createChart(chartId);
-//        console.log(chart);
-        chart = chartData(chart, dataPoint.sensorName + " Data", dataPoint.unitType, dataPoint.dataType + " (" + dataPoint.unitType + ")");
-        
-        //let averageTotal = parseFloat(report.dataPoints.flow_rate.reduce((total, data) => total + Number(data.values), 0) / report.dataPoints.flow_rate.length).toFixed(2);
 
+        chart = chartData(chart, dataPoint.sensorName + " Data", dataPoint.unitType, dataPoint.dataType + " (" + dataPoint.unitType + ")");
+        //let averageTotal = parseFloat(report.dataPoints.flow_rate.reduce((total, data) => total + Number(data.values), 0) / report.dataPoints.flow_rate.length).toFixed(2);
         chart = drawRealTimeChartLines(chart, dataPoint.data_points, averageTotal=0);
         buildChart(chart);
-
-        //charts = [...charts, {chartName: chartId, sensorID: dataPoint.sensorID}];
         
     });
 
-    //return charts;
 }
 
 const drawRealTimeChartLines = (chart, dataPoints, averageTotal) => {
-
     //console.log(dataPoints);
-
     dataPoints.forEach(dataPoint => {
 
         let date = new Date(dataPoint.messageDate);
@@ -226,70 +78,21 @@ const drawRealTimeChartLines = (chart, dataPoints, averageTotal) => {
     return chart;
 }
 
-const setDataPoint = (dataPoint) => {
-    let date = new Date(dataPoint.messageDate);
-    chart.labelsData = [...chart.labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
-    
-    chart.data = [...chart.data, dataPoint.plotValues.includes('|') ? dataPoint.plotValues.split('|')[1] : dataPoint.plotValues];
-    chart.lineShadingColor = [...chart.lineShadingColor, 'rgba(' + chart.color + ', 0.2)'];
-    chart.lineColor = [...chart.lineColor, 'rgba(' + chart.color + ', 0.7)'];
-}
-
-const plotRealTimeDataPoints = () => {
-    getRealTimeData(initialDateTime);
-
-    
-}
-
-
-const getRealTimeData = (updatedDateTime) => {
-
-    const id = document.cookie.split('; ').find(c => c.startsWith('userId')).split('=')[1];
-    console.log(id);
-    // For creating the report
-    //const formFields = document.querySelector("#formFields");
-    //const newUser = urlParams.get('id')
-    /*
-    getApi("DataPoints", "getDataPoints", "userId=" + id + "lastDateTime=" + lastDateTime)
-    .then(data => {
-        //console.log(data);
-        data.forEach(field => {
-
-            if (field.Field !== "id" && field.Field !== "report_id" && field.Field !== "date_time") {
-                
-
-            }
-            
-        });
-
-    })
-    .catch(error => console.log(error));
-    */
-}
-
 const getData = async () => {
-
     // Select form
     let searchForm = document.querySelector("#searchForm");
-
     // Convert form data to JSON
     const json = {};
-    //json.device = "flowMeter";
-    //json.dataType = "steam";
+
     let formData = new FormData(searchForm);
     formData.forEach((entry, index) => {
         json[index] = entry;
     });
-    //console.log(json);
 
     getCharts(json);
 
-    //getFlowRateData(json);
-    //getTotalVolumeData(json);
-    //getSteamData(json);
-
 }
-
+/** REMOVE IF NOT NEEDED
 const getFormFields = () => {
     // For creating the report
     const formFields = document.querySelector("#formFields");
@@ -330,7 +133,7 @@ const getFormFields = () => {
     })
     .catch(error => console.log(error));
 }
-
+*/
 const createAdminHeader = (headerType, reportId) => {
     const adminButtons = document.createElement('div');
     const createReportButton = document.createElement('a');
@@ -359,9 +162,7 @@ const getCompanies = () => {
 
     const adminSection = document.querySelector("#adminSection");
     adminSection.appendChild(createAdminHeader(null, null));
-
     //<div id="accordion" class="w-100"></div>
-
     const companyList = document.createElement('div');
     companyList.setAttribute("class", "w-100");
     companyList.id = "accordion";
@@ -373,9 +174,7 @@ const getCompanies = () => {
         console.log(data);
         
         data.forEach(company => {
-
             //const companyList = document.querySelector("#accordion");
-
             const companyCard = document.createElement('div');
             companyCard.setAttribute("class", "card");
             // Card Header START
@@ -429,13 +228,10 @@ const getCompanies = () => {
             companyCardBody.appendChild(companyBody);
             companyCard.appendChild(companyCardBody);
             // Card Body END
-            
         });
     })
     .catch(error => console.log(error));
 }
-
-
 
 const getReportDatapoints = (event) => {
 
@@ -616,6 +412,7 @@ const getCharts = async (formJSON) => {
         formJSON.method = "getDataPoints";
 
         //console.log(formJSON);
+        document.getElementById('charts').innerHTML = '';
 
         return postApi(formJSON)
         .then(dataPoints => {
@@ -629,181 +426,8 @@ const getCharts = async (formJSON) => {
         location.href = './logout.php';
     }
 
-
-
-
-/*
-    formJSON.class = "Reports";
-    formJSON.method = "getUserReports";
-    return await postApi(formJSON)
-    .then(json => {
-        console.log(json);
-
-        json.forEach((report, index) => {
-            
-            console.log(Object.entries(report.dataPoints));
-            
-            let chart = null;
-
-            if (report.dataPoints.flow_rate) {
-                chart = createChart("flowRate" + index);
-                chart = chartData(chart, report.device.name + " Data", "GPM", "Flow Rate (GPM)");
-                let averageTotal = parseFloat(report.dataPoints.flow_rate.reduce((total, data) => total + Number(data.values), 0) / report.dataPoints.flow_rate.length).toFixed(2);
-                chart = drawChartLines(chart, report.dataPoints.flow_rate, averageTotal);
-                buildChart(chart);
-            }
-            if (report.dataPoints.total_volume) {
-                chart = createChart("totalVolume" + index);
-                chart = chartData(chart, report.device.name + " Data", "Gal", "Total Volume (Gal)");
-                let averageTotal = parseFloat(report.dataPoints.total_volume.reduce((total, data) => total + Number(data.values), 0) / report.dataPoints.total_volume.length).toFixed(2);
-                chart = drawChartLines(chart, report.dataPoints.total_volume, averageTotal);
-                buildChart(chart);
-            }
-            if (report.dataPoints.steam) {
-                chart = createChart("steam" + index);
-                chart = chartData(chart, report.device.name + " Data", "LB/Hr", "Steam (LB/Hr)");
-                let averageTotal = parseFloat(report.dataPoints.steam.reduce((total, data) => total + Number(data.values), 0) / report.dataPoints.steam.length).toFixed(2);
-                chart = drawChartLines(chart, report.dataPoints.steam, averageTotal);
-                buildChart(chart);
-            }
-            if (report.dataPoints.feedwater) {
-                chart = createChart("feedwater" + index);
-                chart = chartData(chart, report.device.name + " Data", "Fow", "Feedwater (Fow)");
-                let averageTotal = parseFloat(report.dataPoints.feedwater.reduce((total, data) => total + Number(data.values), 0) / report.dataPoints.feedwater.length).toFixed(2);
-                chart = drawChartLines(chart, report.dataPoints.feedwater, averageTotal);
-                buildChart(chart);
-            }
-
-
-            if (report.dataPoints.fahrenheit) {
-                chart = createChart("fahrenheit" + index);
-                chart = chartData(chart, report.device.name + " Data", "Degrees", "Fahrenheit (Degrees)");
-                let averageTotal = parseFloat(report.dataPoints.fahrenheit.reduce((total, data) => total + Number(data.values), 0) / report.dataPoints.fahrenheit.length).toFixed(2);
-                chart = drawChartLines(chart, report.dataPoints.fahrenheit, averageTotal);
-                buildChart(chart);
-            }
-            if (report.dataPoints.celsius) {
-                chart = createChart("celsius" + index);
-                chart = chartData(chart, report.device.name + " Data", "Degrees", "Celsius (Degrees)");
-                let averageTotal = parseFloat(report.dataPoints.celsius.reduce((total, data) => total + Number(data.values), 0) / report.dataPoints.celsius.length).toFixed(2);
-                chart = drawChartLines(chart, report.dataPoints.celsius, averageTotal);
-                buildChart(chart);
-            }
-            
-        });
-    })
-    .catch(error => console.log(error));
-    */
 }
 
-const drawChartLines = (chart, dataPoints, averageTotal) => {
-
-    //console.log(dataPoints);
-
-    dataPoints.forEach(dataPoint => {
-
-        console.log(dataPoint.date_times);
-
-        let date = new Date(dataPoint.date_times);
-        chart.labelsData = [...chart.labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
-        
-        chart.data = [...chart.data, dataPoint.values];
-        chart.lineShadingColor = [...chart.lineShadingColor, 'rgba(' + chart.color + ', 0.2)'];
-        chart.lineColor = [...chart.lineColor, 'rgba(' + chart.color + ', 0.7)'];
-        
-        chart.average = [...chart.average, averageTotal];
-        chart.averageLineShadingColor = [...chart.averageLineShadingColor, 'rgba(' + chart.averageColor + ', 0.2)'];
-        chart.averageLineColor = [...chart.averageLineColor, 'rgba(' + chart.averageColor + ', 0.7)'];
-        
-    });
-    return chart;
-}
-
-const getFlowRateData = async (formJSON) => {
-    let chart = createChart("flowRateCanvas");
-    
-    let dataPoints = await getDataPoints("flowMeter", formJSON).then(json => json).catch(error => console.log(error));
-
-    chart = chartData(chart, "Flow Rate Data", "GPM", "Flow Rate (GPM)");
-     
-    if(!dataPoints) {
-        alert("No Record Found");
-        chart.canvas.innerHTML = "No Record Found";
-    }
-    else {
-        let averageTotal = parseFloat(dataPoints.reduce((total, data) => total + Number(data.flow_rate), 0) / dataPoints.length).toFixed(2);
-
-        dataPoints.forEach(data => {
-            let date = new Date(data.date_time);
-            chart.labelsData = [...chart.labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
-            chart.data = [...chart.data, data.flow_rate];
-            chart.lineShadingColor = [...chart.lineShadingColor, 'rgba(' + chart.color + ', 0.2)'];
-            chart.lineColor = [...chart.lineColor, 'rgba(' + chart.color + ', 0.7)'];
-            
-            chart.average = [...chart.average, averageTotal];
-            chart.averageLineShadingColor = [...chart.averageLineShadingColor, 'rgba(' + chart.averageColor + ', 0.2)'];
-            chart.averageLineColor = [...chart.averageLineColor, 'rgba(' + chart.averageColor + ', 0.7)'];
-        });
-    }
-
-    buildChart(chart);
-}
-
-const getTotalVolumeData = async (formJSON) => {
-    let chart = createChart("totalVolumeCanvas");
-    chart = chartData(chart, "Total Volume Data", "Gallons", "Total Volume (Gallons)");
-    let dataPoints = await getDataPoints("flowMeter", formJSON).then(json => json).catch(error => console.log(error));
-    
-    if(!dataPoints) {
-        alert("No Record Found");
-        chart.canvas.innerHTML = "No Record Found";
-    }
-    else {
-        let averageTotal = parseFloat(dataPoints.reduce((total, data) => total + Number(data.total_volume), 0) / dataPoints.length).toFixed(2);
-
-        dataPoints.forEach(data => {
-            let date = new Date(data.date_time);
-            chart.labelsData = [...chart.labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
-            chart.data = [...chart.data, data.total_volume];
-            chart.lineShadingColor = [...chart.lineShadingColor, 'rgba(' + chart.color + ', 0.2)'];
-            chart.lineColor = [...chart.lineColor, 'rgba(' + chart.color + ', 0.7)'];
-
-            chart.average = [...chart.average, averageTotal];
-            chart.averageLineShadingColor = [...chart.averageLineShadingColor, 'rgba(' + chart.averageColor + ', 0.2)'];
-            chart.averageLineColor = [...chart.averageLineColor, 'rgba(' + chart.averageColor + ', 0.7)'];
-        });
-    }
-
-    buildChart(chart);
-}
-
-const getSteamData = async (formJSON) => {
-    let chart = createChart("steamCanvas");
-    chart = chartData(chart, "Steam Data", "LB/Hr", "Steam (LB/Hr)");
-    let dataPoints = await getDataPoints("flowMeter", formJSON).then(json => json).catch(error => console.log(error));
-    
-    if(!dataPoints) {
-        alert("No Record Found");
-        chart.canvas.innerHTML = "No Record Found";
-    }
-    else {
-        let averageTotal = parseFloat(dataPoints.reduce((total, data) => total + Number(data.steam), 0) / dataPoints.length).toFixed(2);
-
-        dataPoints.forEach(data => {
-            let date = new Date(data.date_time);
-            chart.labelsData = [...chart.labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
-            chart.data = [...chart.data, data.steam];
-            chart.lineShadingColor = [...chart.lineShadingColor, 'rgba(' + chart.color + ', 0.2)'];
-            chart.lineColor = [...chart.lineColor, 'rgba(' + chart.color + ', 0.7)'];
-            
-            chart.average = [...chart.average, averageTotal];
-            chart.averageLineShadingColor = [...chart.averageLineShadingColor, 'rgba(' + chart.averageColor + ', 0.2)'];
-            chart.averageLineColor = [...chart.averageLineColor, 'rgba(' + chart.averageColor + ', 0.7)'];
-        });
-    }
-
-    buildChart(chart);
-}
 /**
  * Add property values to the chart.
  * @param {json} chartData 
@@ -876,7 +500,6 @@ const buildChart = (chartData) => {
 const postApi = async (formData) => {
 
     let params = new URLSearchParams(formData);
-    //console.log(formData);
 
     let url = "./api.php";
 
@@ -908,7 +531,5 @@ const getApi = async (className, methodName, parameters) => {
     .catch(error => console.log(error));
 
 }
-
-
 
 window.onload = init;
