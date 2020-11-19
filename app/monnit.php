@@ -39,8 +39,13 @@ switch($_SERVER['REQUEST_METHOD']) {
                         
                 $userId = (int)explode(' | ', $sensor['sensorName'])[0];
 
+                // Needed to convert the time stamp from UTC to CST
+                $utcDateTime = new DateTime($sensor['messageDate'], new DateTimeZone('UTC'));
+                $utcDateTime->setTimezone(new DateTimeZone('America/Chicago'));
+                $sensor['messageDate'] = $utcDateTime->format('Y-m-d H:i:s');
+
                 $result = $dataPoints->addDataPoint($userId, $sensor);
-                echo var_dump($result);
+                //echo var_dump($result);
             }
         }
         else {
