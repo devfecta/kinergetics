@@ -25,7 +25,7 @@ const initializeRealTimeData = (dateTime) => {
     // Logs out after idle for 1 hour.
     if (document.cookie.includes('; ')) {
         const id = document.cookie.split('; ').find(c => c.startsWith('userId')).split('=')[1];
-        //console.log(id);
+        //console.log(dateTime);
         return getApi("DataPoints", "getDataPoints", "userId=" + id + "&startDateTime=" + dateTime)
         .then(dataPoints => dataPoints)
         .catch(error => console.log(error));

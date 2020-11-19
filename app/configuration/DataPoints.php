@@ -88,12 +88,19 @@ class DataPoints {
         try {
             
             $connection = Configuration::openConnection();
-            
-            $statement = $connection->prepare("SELECT `sensor_id`, `data_point` FROM `data_points` WHERE `user_id`=:user_id AND `date_time`>=:startDateTime AND `date_time`<=:endDateTime LIMIT 0, 10");
 
-            $statement->bindParam(":user_id", $userId, PDO::PARAM_INT); 
-            $statement->bindParam(":startDateTime", $startDateTime, PDO::PARAM_STR); 
-            $statement->bindParam(":endDateTime", $endDateTime, PDO::PARAM_STR); 
+            if ($endDateTime != "null") {
+                $statement = $connection->prepare("SELECT `sensor_id`, `data_point` FROM `data_points` WHERE `user_id`=:user_id AND `date_time`>=:startDateTime AND `date_time`<=:endDateTime LIMIT 0, 10");
+                $statement->bindParam(":user_id", $userId, PDO::PARAM_INT); 
+                $statement->bindParam(":startDateTime", $startDateTime, PDO::PARAM_STR); 
+                $statement->bindParam(":endDateTime", $endDateTime, PDO::PARAM_STR); 
+            }
+            else {
+                $statement = $connection->prepare("SELECT `sensor_id`, `data_point` FROM `data_points` WHERE `user_id`=:user_id AND `date_time`>=:startDateTime LIMIT 0, 10");
+                $statement->bindParam(":user_id", $userId, PDO::PARAM_INT); 
+                $statement->bindParam(":startDateTime", $startDateTime, PDO::PARAM_STR); 
+            }
+            
             $statement->execute();
 
             $dataPoints = $statement->fetchAll(PDO::FETCH_ASSOC);
