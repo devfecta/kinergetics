@@ -21,7 +21,7 @@
 </head>
 <body>
 	<header></header>
-	<main class="container-fluid text-center">
+	<main class="text-center">
 
         <section class="container text-right">
             <a href="logout.php" class="btn btn-lg btn-secondary px-2 m-1">Logout</a> 

@@ -382,13 +382,13 @@ class Reports {
 
             $connection = Configuration::openConnection();
 
-            $statement = $connection->prepare("SELECT MIN(date_time) as dateTime FROM report_data");
+            $statement = $connection->prepare("SELECT MIN(date_time) as dateTime FROM data_points");
             $statement->execute();
             $results = $statement->fetch(PDO::FETCH_ASSOC);
 
             $dates['minimum'] = $results['dateTime'];
 
-            $statement = $connection->prepare("SELECT MAX(date_time) as dateTime FROM report_data");
+            $statement = $connection->prepare("SELECT MAX(date_time) as dateTime FROM data_points");
             $statement->execute();
             $results = $statement->fetch(PDO::FETCH_ASSOC);
 

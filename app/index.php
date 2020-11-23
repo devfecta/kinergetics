@@ -16,7 +16,7 @@
 
 </style>
 
-<section class="container-fluid row">
+<section class="row">
     <div class="col-md-12">
         <h1><?php echo $_SESSION['company']; ?> - Energy Matrix</h1>
     </div>
@@ -32,9 +32,9 @@
 
 <?php } else { ?>
 <!-- User Section -->
-<section id="userSectionSearch" class="" style="background-color: #ddd">
+<section id="userSectionSearch" class="row" style="background-color: #ddd">
 
-    <form id="searchForm" class="form-inline row d-flex justify-content-center w-100 p-2" method="post">
+    <form id="searchForm" class="form-inline d-flex justify-content-center w-100 p-2" method="post">
         
         <div class="col-md-3 mx-2 justify-content-center align-items-center">
             <label for="startDate">Start Date: </label>
@@ -72,8 +72,8 @@
 
 
 </section>
-<section id="userSectionResults" class="container-fluid row">
-    <div id="charts" class="col-md"></div>
+<section id="userSectionResults" class="container-fluid">
+    <div id="charts" class="d-flex justify-content-around row"></div>
 </section>
 
 <script>

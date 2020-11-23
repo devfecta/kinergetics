@@ -23,7 +23,7 @@ const init = () => {
 // await
 const initializeRealTimeData = (dateTime) => {
     // Logs out after idle for 1 hour.
-    if (document.cookie.includes('; ')) {
+    if (document.cookie.includes('; ') && document.cookie.includes('userId')) {
         const id = document.cookie.split('; ').find(c => c.startsWith('userId')).split('=')[1];
         //console.log(dateTime);
         return getApi("DataPoints", "getDataPoints", "userId=" + id + "&startDateTime=" + dateTime)
@@ -41,7 +41,7 @@ const initializeRealTimeData = (dateTime) => {
  */
 const initializeRealTimeCharts = (dataPoints) => {
 
-    console.log(dataPoints);
+    //console.log(dataPoints);
     
     dataPoints.forEach((dataPoint, index) => {
         // console.log(Object.entries(report.dataPoints));
@@ -356,7 +356,7 @@ const createChart = (chartId) => {
 
     const charts = document.querySelector('#charts');
     const chart = document.createElement('canvas');
-    chart.setAttribute("class", "col-md");
+    chart.setAttribute("class", "col-lg-6 col-md");
 
     chart.id = chartId;
     charts.appendChild(chart);
