@@ -80,7 +80,15 @@ class DataPoints {
         }
         */
     }
-
+    /**
+     * Gets the data points for a specific company/user based on a start and end datetime.
+     *
+     * @param   int  $userId         User ID
+     * @param   string  $startDateTime  Start DateTime of the data point search.
+     * @param   string  $endDateTime    End DateTime of the data point search.
+     *
+     * @return  json                  Datapoint JSON
+     */
     public function getDataPoints($userId, $startDateTime, $endDateTime) {
         //return json_encode(array($userId, $dateTime), JSON_PRETTY_PRINT);
         $result = array();
@@ -108,6 +116,10 @@ class DataPoints {
             //return json_encode($dataPoints, JSON_PRETTY_PRINT);
 
             $results = array();
+
+            /**
+             * Data point manipulation here for charts
+             */
 
             foreach($dataPoints as $dataPoint) {
                 // Set Sensor ID Property
@@ -139,7 +151,15 @@ class DataPoints {
 
         return json_encode($result, JSON_PRETTY_PRINT);
     }
-
+    /**
+     * This inserts the data point JSON from the webhook, along with the sensor ID, 
+     * company/user ID, and the datetime of the sensor reading.
+     *
+     * @param   int  $userId  User ID
+     * @param   json  $sensor  JSON from the webhook
+     *
+     * @return  json           JSON of the new data point ID
+     */
     public function addDataPoint($userId, $sensor) {
 
         try {

@@ -17,7 +17,7 @@ const init = () => {
 }
 
 /**
- * Get initial real time data, and start at the current date and time.
+ * Get initial real time data, and start at the current date and time. IN USE
  * @param {string} dateTime 
  */
 // await
@@ -36,12 +36,12 @@ const initializeRealTimeData = (dateTime) => {
     }
 }
 /**
- * Creates blank charts
+ * Creates blank charts  IN USE
  * @param {array} dataPoints 
  */
 const initializeRealTimeCharts = (dataPoints) => {
 
-    //console.log(dataPoints);
+    console.log(dataPoints);
     
     dataPoints.forEach((dataPoint, index) => {
         // console.log(Object.entries(report.dataPoints));
@@ -58,7 +58,7 @@ const initializeRealTimeCharts = (dataPoints) => {
     });
 
 }
-
+//  IN USE
 const drawRealTimeChartLines = (chart, dataPoints, averageTotal) => {
     //console.log(dataPoints);
     dataPoints.forEach(dataPoint => {
@@ -348,7 +348,7 @@ time_lapse: "0.02"
 total_volume: "96.00"
 */
 /**
- * Creates a chart canvas with an ID.
+ * Creates a chart canvas with an ID.  IN USE
  */
 const createChart = (chartId) => {
     // Remove the old chart
@@ -363,10 +363,13 @@ const createChart = (chartId) => {
     return chart;
 }
 /**
- * Get data points for the chart.
+ * Get data points for the chart. NOT IN USE
  * @returns json of data points
  */
 const getDataPoints = async (deviceName, formJSON) => {
+
+    console.log("test");
+
     formJSON.device = deviceName; // Data type based on device.
     formJSON.class = "Reports";
     formJSON.method = "getDeviceReportData";
@@ -374,7 +377,7 @@ const getDataPoints = async (deviceName, formJSON) => {
     return await postApi(formJSON);
 }
 /**
- * Chart specific information.
+ * Chart specific information. IN USE
  * @returns json of chart information
  */
 const chartData = (chart, title, verticalLabel, horizontalLabel) => {
@@ -399,7 +402,7 @@ const chartData = (chart, title, verticalLabel, horizontalLabel) => {
     
     return chartData;
 }
-
+// IN USE
 const getCharts = async (formJSON) => {
 
     if (document.cookie.includes('; ')) {
@@ -429,7 +432,7 @@ const getCharts = async (formJSON) => {
 }
 
 /**
- * Add property values to the chart.
+ * Add property values to the chart.  IN USE
  * @param {json} chartData 
  */
 const buildChart = (chartData) => {
