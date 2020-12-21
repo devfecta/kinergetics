@@ -122,19 +122,50 @@ class DataPoints {
              */
 
             foreach($dataPoints as $dataPoint) {
-                // Set Sensor ID Property
+                // Set Sensor ID Property from Database Column
                 $results[$dataPoint['sensor_id']]['sensorID'] = $dataPoint['sensor_id'];
-                // Set Sensor Name Property
+                // Set Sensor Name Property from JSON in the Database Column
                 $sensorName = json_decode($dataPoint['data_point'])->sensorName;
                 $results[$dataPoint['sensor_id']]['sensorName'] =  strpos($sensorName, '|') ? explode(' | ', $sensorName)[2] : $sensorName;
-                // Set Data Type Property
-                $dataType = json_decode($dataPoint['data_point'])->dataType;
-                $results[$dataPoint['sensor_id']]['dataType'] =  strpos($dataType, '|') ? explode('|', $dataType)[0] : $dataType;
-                // Set Unit Type Property
+
+
+                // Set Data Type Property from JSON in the Database Column
+                //$dataType = json_decode($dataPoint['data_point'])->dataType;
+                // Get Plot Labels and Values for the Data Points from JSON in the Database Column
+                $plotLabels = json_decode($dataPoint['data_point'])->plotLabels;
+                $plotValues = json_decode($dataPoint['data_point'])->plotValues;
+
+                if (strpos($plotLabels, '|')) {
+
+                    //$dataTypeArray = explode('|', $dataType);
+                    $plotLabelArray = explode('|', $plotLabels);
+
+                    for ($i = 0; count($plotLabelArray); $i++) {
+
+                        //$plotLabelNames[] = str_replace(' ', '', $plotLabelArray[$i]);
+
+                        $results[$dataPoint['sensor_id']]['data_points'][$i]['label'] = trim($plotLabelArray[$i]);
+                        $results[$dataPoint['sensor_id']]['data_points'][$i]['value'] = $plotValues[$i];
+                    }
+
+                   // $results[$dataPoint['sensor_id']]['dataType'] = explode('|', $dataType)[0];
+
+                }
+                else {
+                    $results[$dataPoint['sensor_id']]['data_points'][]['label'] = $plotLabels;
+                    $results[$dataPoint['sensor_id']]['data_points'][]['value'] = $plotValues;
+                    //$results[$dataPoint['sensor_id']]['dataType'] = $dataType;
+                }
+                
+/*
+                // Set Unit Type Property from JSON in the Database Column
                 $plotLabels = json_decode($dataPoint['data_point'])->plotLabels;
                 $results[$dataPoint['sensor_id']]['unitType'] =  strpos($plotLabels, '|') ? explode('|', $plotLabels)[1] : $plotLabels;
-                // Set Sensor Data Points Property
-                $results[$dataPoint['sensor_id']]['data_points'][] = json_decode($dataPoint['data_point']);
+*/
+
+                // Set Specific Sensor Data Points Property from JSON in the Database Column
+                $results[$dataPoint['sensor_id']]['default'][] = json_decode($dataPoint['data_point']);
+
             }
             // Re-indexes the array of data points.
             foreach($results as $sensor) {

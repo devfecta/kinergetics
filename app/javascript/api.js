@@ -419,7 +419,7 @@ const getCharts = async (formJSON) => {
 
         return postApi(formJSON)
         .then(dataPoints => {
-            //console.log(dataPoints);
+            console.log(dataPoints);
             initializeRealTimeCharts(dataPoints);
         })
         .catch(error => console.log(error));
