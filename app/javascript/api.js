@@ -39,20 +39,22 @@ const initializeRealTimeData = (dateTime) => {
  * Creates blank charts  IN USE
  * @param {array} dataPoints 
  */
-const initializeRealTimeCharts = (dataPoints) => {
+const initializeRealTimeCharts = (sensors) => {
 
-    console.log(dataPoints);
+    //console.log(sensors);
     
-    dataPoints.forEach((dataPoint, index) => {
+    sensors.forEach((sensor, index) => {
         // console.log(Object.entries(report.dataPoints));
         let chart = null;
-        let chartId = dataPoint.dataType + index;
-
+        //let chartId = dataPoint.dataType + index;
+        let chartId = sensor.sensorID + "-" + index;
+        // Create the Chart
         chart = createChart(chartId);
-
-        chart = chartData(chart, dataPoint.sensorName + " Data", dataPoint.unitType, dataPoint.dataType + " (" + dataPoint.unitType + ")");
+        // Title the Chart and Label the Chart's Axes
+        // REMOVE chart = chartData(chart, sensor.sensorName + " Data", sensor.unitType, dataPoint.dataType + " (" + sensor.unitType + ")");
+        chart = chartData(chart, sensor.sensorName + " Data", "sensor.unitType", "Duration");
         //let averageTotal = parseFloat(report.dataPoints.flow_rate.reduce((total, data) => total + Number(data.values), 0) / report.dataPoints.flow_rate.length).toFixed(2);
-        chart = drawRealTimeChartLines(chart, dataPoint.data_points, averageTotal=0);
+        chart = drawRealTimeChartLines(chart, sensor.data_points, averageTotal=0);
         buildChart(chart);
         
     });
@@ -60,9 +62,20 @@ const initializeRealTimeCharts = (dataPoints) => {
 }
 //  IN USE
 const drawRealTimeChartLines = (chart, dataPoints, averageTotal) => {
-    //console.log(dataPoints);
+    //console.log(dataPoints[0]);
     dataPoints.forEach(dataPoint => {
-
+        let date = new Date(dataPoint[0].dateTime);
+        //console.log(dataPoint[0].dateTime);
+        chart.labelsData = [...chart.labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
+        
+        chart.data = [...chart.data, dataPoint[0].value];
+        chart.lineShadingColor = [...chart.lineShadingColor, 'rgba(' + chart.color + ', 0.2)'];
+        chart.lineColor = [...chart.lineColor, 'rgba(' + chart.color + ', 0.7)'];
+        
+        chart.average = [...chart.average, averageTotal];
+        chart.averageLineShadingColor = [...chart.averageLineShadingColor, 'rgba(' + chart.averageColor + ', 0.2)'];
+        chart.averageLineColor = [...chart.averageLineColor, 'rgba(' + chart.averageColor + ', 0.7)'];
+        /*
         let date = new Date(dataPoint.messageDate);
         chart.labelsData = [...chart.labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
         
@@ -73,6 +86,7 @@ const drawRealTimeChartLines = (chart, dataPoints, averageTotal) => {
         chart.average = [...chart.average, averageTotal];
         chart.averageLineShadingColor = [...chart.averageLineShadingColor, 'rgba(' + chart.averageColor + ', 0.2)'];
         chart.averageLineColor = [...chart.averageLineColor, 'rgba(' + chart.averageColor + ', 0.7)'];
+        */
         
     });
     return chart;
@@ -418,9 +432,9 @@ const getCharts = async (formJSON) => {
         document.getElementById('charts').innerHTML = '';
 
         return postApi(formJSON)
-        .then(dataPoints => {
-            console.log(dataPoints);
-            initializeRealTimeCharts(dataPoints);
+        .then(sensors => {
+            //console.log(sensors);
+            initializeRealTimeCharts(sensors);
         })
         .catch(error => console.log(error));
     }

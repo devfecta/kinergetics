@@ -127,6 +127,7 @@ class DataPoints {
                 // Set Sensor Name Property from JSON in the Database Column
                 $sensorName = json_decode($dataPoint['data_point'])->sensorName;
                 $results[$dataPoint['sensor_id']]['sensorName'] =  strpos($sensorName, '|') ? explode(' | ', $sensorName)[2] : $sensorName;
+                
 
 
                 // Set Data Type Property from JSON in the Database Column
@@ -135,37 +136,47 @@ class DataPoints {
                 $plotLabels = json_decode($dataPoint['data_point'])->plotLabels;
                 $plotValues = json_decode($dataPoint['data_point'])->plotValues;
 
-                if (strpos($plotLabels, '|')) {
+                $sensorDataPointIndex = count($results[$dataPoint['sensor_id']]['data_points']);
 
+                if (strpos($plotLabels, '|')) {
                     //$dataTypeArray = explode('|', $dataType);
                     $plotLabelArray = explode('|', $plotLabels);
+                    $plotValueArray = explode('|', $plotValues);
 
-                    for ($i = 0; count($plotLabelArray); $i++) {
+                    //return json_encode(array("test" => "0"), JSON_PRETTY_PRINT);
+
+                    for ($i = 0; $i < count($plotLabelArray); $i++) {
 
                         //$plotLabelNames[] = str_replace(' ', '', $plotLabelArray[$i]);
 
-                        $results[$dataPoint['sensor_id']]['data_points'][$i]['label'] = trim($plotLabelArray[$i]);
-                        $results[$dataPoint['sensor_id']]['data_points'][$i]['value'] = $plotValues[$i];
+                        $results[$dataPoint['sensor_id']]['data_points'][$sensorDataPointIndex][$i]['label'] = $plotLabelArray[$i];
+                        
+                        $results[$dataPoint['sensor_id']]['data_points'][$sensorDataPointIndex][$i]['value'] = floatval($plotValueArray[$i]);
+                        // Set Datetime Property from Database Column
+                        $results[$dataPoint['sensor_id']]['data_points'][$sensorDataPointIndex][$i]['dateTime'] = json_decode($dataPoint['data_point'])->messageDate;
                     }
 
                    // $results[$dataPoint['sensor_id']]['dataType'] = explode('|', $dataType)[0];
 
                 }
                 else {
-                    $results[$dataPoint['sensor_id']]['data_points'][]['label'] = $plotLabels;
-                    $results[$dataPoint['sensor_id']]['data_points'][]['value'] = $plotValues;
+                    $results[$dataPoint['sensor_id']]['data_points'][$sensorDataPointIndex][0]['label'] = empty($plotLabels) ? 0 : $plotLabels;
+                    $results[$dataPoint['sensor_id']]['data_points'][$sensorDataPointIndex][0]['value'] = empty($plotValues) ? 0 : floatval($plotValues);
+                    $results[$dataPoint['sensor_id']]['data_points'][$sensorDataPointIndex][0]['dateTime'] = json_decode($dataPoint['data_point'])->messageDate;
                     //$results[$dataPoint['sensor_id']]['dataType'] = $dataType;
                 }
+
+                
                 
 /*
                 // Set Unit Type Property from JSON in the Database Column
                 $plotLabels = json_decode($dataPoint['data_point'])->plotLabels;
                 $results[$dataPoint['sensor_id']]['unitType'] =  strpos($plotLabels, '|') ? explode('|', $plotLabels)[1] : $plotLabels;
 */
-
+/* MAYBE DELETE
                 // Set Specific Sensor Data Points Property from JSON in the Database Column
                 $results[$dataPoint['sensor_id']]['default'][] = json_decode($dataPoint['data_point']);
-
+*/
             }
             // Re-indexes the array of data points.
             foreach($results as $sensor) {
