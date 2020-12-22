@@ -136,7 +136,7 @@ class DataPoints {
                 $plotLabels = json_decode($dataPoint['data_point'])->plotLabels;
                 $plotValues = json_decode($dataPoint['data_point'])->plotValues;
 
-                $sensorDataPointIndex = count($results[$dataPoint['sensor_id']]['data_points']);
+                
 
                 if (strpos($plotLabels, '|')) {
                     //$dataTypeArray = explode('|', $dataType);
@@ -148,21 +148,28 @@ class DataPoints {
                     for ($i = 0; $i < count($plotLabelArray); $i++) {
 
                         //$plotLabelNames[] = str_replace(' ', '', $plotLabelArray[$i]);
+                        $count = count($results[$dataPoint['sensor_id']]['data_points'][$plotLabelArray[$i]]);
 
-                        $results[$dataPoint['sensor_id']]['data_points'][$sensorDataPointIndex][$i]['label'] = $plotLabelArray[$i];
+                        $results[$dataPoint['sensor_id']]['data_points'][$plotLabelArray[$i]][$count] = floatval($plotValueArray[$i]);
                         
-                        $results[$dataPoint['sensor_id']]['data_points'][$sensorDataPointIndex][$i]['value'] = floatval($plotValueArray[$i]);
+                        //$results[$dataPoint['sensor_id']]['data_points'][$sensorDataPointIndex][$i]['value'] = floatval($plotValueArray[$i]);
                         // Set Datetime Property from Database Column
-                        $results[$dataPoint['sensor_id']]['data_points'][$sensorDataPointIndex][$i]['dateTime'] = json_decode($dataPoint['data_point'])->messageDate;
+                        $results[$dataPoint['sensor_id']]['data_points'][$plotLabelArray[$i]][$count]['dateTime'] = json_decode($dataPoint['data_point'])->messageDate;
                     }
 
                    // $results[$dataPoint['sensor_id']]['dataType'] = explode('|', $dataType)[0];
 
                 }
                 else {
+                    $sensorDataPointIndex = count($results[$dataPoint['sensor_id']]['data_points'][empty($plotLabels) ? 0 : $plotLabels]);
+
+                    $results[$dataPoint['sensor_id']]['data_points'][empty($plotLabels) ? 0 : $plotLabels][$sensorDataPointIndex] = empty($plotValues) ? 0 : floatval($plotValues);
+                    $results[$dataPoint['sensor_id']]['data_points'][empty($plotLabels) ? 0 : $plotLabels][$sensorDataPointIndex]['dateTime'] = json_decode($dataPoint['data_point'])->messageDate;
+                    /*
                     $results[$dataPoint['sensor_id']]['data_points'][$sensorDataPointIndex][0]['label'] = empty($plotLabels) ? 0 : $plotLabels;
                     $results[$dataPoint['sensor_id']]['data_points'][$sensorDataPointIndex][0]['value'] = empty($plotValues) ? 0 : floatval($plotValues);
                     $results[$dataPoint['sensor_id']]['data_points'][$sensorDataPointIndex][0]['dateTime'] = json_decode($dataPoint['data_point'])->messageDate;
+                    */
                     //$results[$dataPoint['sensor_id']]['dataType'] = $dataType;
                 }
 

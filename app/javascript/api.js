@@ -62,19 +62,51 @@ const initializeRealTimeCharts = (sensors) => {
 }
 //  IN USE
 const drawRealTimeChartLines = (chart, dataPoints, averageTotal) => {
-    //console.log(dataPoints[0]);
+    
+    //dataPoints = dataPoint[0];
+    let pointColor = getRandomColor();
+    let date = "";
+    
+
     dataPoints.forEach(dataPoint => {
-        let date = new Date(dataPoint[0].dateTime);
-        //console.log(dataPoint[0].dateTime);
-        chart.labelsData = [...chart.labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
+
         
-        chart.data = [...chart.data, dataPoint[0].value];
-        chart.lineShadingColor = [...chart.lineShadingColor, 'rgba(' + chart.color + ', 0.2)'];
-        chart.lineColor = [...chart.lineColor, 'rgba(' + chart.color + ', 0.7)'];
+
+        if (dataPoint.length > 1) {
+
+            dataPoint.forEach(point => {
+
+                console.log(point);
+
+                date = new Date(point.dateTime);
+                //console.log(dataPoint[0].dateTime);
+                chart.labelsData = [...chart.labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
+                
+                chart.data = [...chart.data, point.value];
+                chart.lineShadingColor = [...chart.lineShadingColor, 'rgba(' + pointColor + ', 0.2)'];
+                chart.lineColor = [...chart.lineColor, 'rgba(' + pointColor + ', 0.7)'];
+                
+                chart.average = [...chart.average, averageTotal];
+                chart.averageLineShadingColor = [...chart.averageLineShadingColor, 'rgba(' + chart.averageColor + ', 0.2)'];
+                chart.averageLineColor = [...chart.averageLineColor, 'rgba(' + chart.averageColor + ', 0.7)'];
+            });
+        }
+        else {
+            date = new Date(dataPoint[0].dateTime);
+            //console.log(dataPoint[0].dateTime);
+            chart.labelsData = [...chart.labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
+            
+            chart.data = [...chart.data, dataPoint[0].value];
+            chart.lineShadingColor = [...chart.lineShadingColor, 'rgba(' + pointColor + ', 0.2)'];
+            chart.lineColor = [...chart.lineColor, 'rgba(' + chart.color + ', 0.7)'];
+            
+            chart.average = [...chart.average, averageTotal];
+            chart.averageLineShadingColor = [...chart.averageLineShadingColor, 'rgba(' + chart.averageColor + ', 0.2)'];
+            chart.averageLineColor = [...chart.averageLineColor, 'rgba(' + chart.averageColor + ', 0.7)'];
+        }
+
+
         
-        chart.average = [...chart.average, averageTotal];
-        chart.averageLineShadingColor = [...chart.averageLineShadingColor, 'rgba(' + chart.averageColor + ', 0.2)'];
-        chart.averageLineColor = [...chart.averageLineColor, 'rgba(' + chart.averageColor + ', 0.7)'];
         /*
         let date = new Date(dataPoint.messageDate);
         chart.labelsData = [...chart.labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
@@ -433,8 +465,8 @@ const getCharts = async (formJSON) => {
 
         return postApi(formJSON)
         .then(sensors => {
-            //console.log(sensors);
-            initializeRealTimeCharts(sensors);
+            console.log(sensors);
+            //initializeRealTimeCharts(sensors);
         })
         .catch(error => console.log(error));
     }
