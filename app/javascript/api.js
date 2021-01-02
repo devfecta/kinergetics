@@ -74,7 +74,7 @@ const initializeRealTimeCharts = (sensors) => {
         chart = chartData(chart, sensor.sensorName + " Data", "sensor.unitType", "Duration");
         //let averageTotal = parseFloat(report.dataPoints.flow_rate.reduce((total, data) => total + Number(data.values), 0) / report.dataPoints.flow_rate.length).toFixed(2);
         chart = drawRealTimeChartLines(chart, sensor.data_points, averageTotal=0);
-        
+        console.log(chart);
         buildChart(chart);
         
     });
@@ -86,6 +86,12 @@ const drawRealTimeChartLines = (chart, dataPoints, averageTotal) => {
     //dataPoints = dataPoint[0];
     let pointColor = getRandomColor();
     let date = "";
+
+    let dataSets = [];
+    let labelsData = [];
+    let pointData = [];
+    let lineShadingColor = [];
+    let lineColor = [];
 
     //console.log(dataPoints);
 
@@ -106,7 +112,7 @@ const drawRealTimeChartLines = (chart, dataPoints, averageTotal) => {
     //console.log(Object.keys(dataPoints).length);
 
     for (const key of Object.keys(dataPoints)) {
-        console.log(dataPoints[key]);
+        //console.log(dataPoints[key]);
         chart.unit = key;
 
         
@@ -115,12 +121,30 @@ const drawRealTimeChartLines = (chart, dataPoints, averageTotal) => {
         if (Object.keys(dataPoints).length > 1) {
 
             for (const dataPointKey of Object.keys(dataPoints[key])) {
-                //console.log(dataPoints[key][dataPointKey]);
+                console.log(dataPoints[key][dataPointKey]);
                 
                 //console.log(dataPointKey);
                 //chart.label = key;
+
+                date = new Date(dataPoints[key][dataPointKey].dateTime);
+
+                labelsData = [...labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
+
+                pointData = [...pointData, dataPoints[key][dataPointKey].value];
+
+                lineShadingColor = [...lineShadingColor, 'rgba(' + pointColor + ', 0.2)'];
+                lineColor = [...lineColor, 'rgba(' + pointColor + ', 0.7)'];
                 
             }
+
+            chart.datasets = [...chart.datasets, {
+                label: labelsData, 
+                data: pointData,
+                backgroundColor: lineShadingColor,
+                borderColor: lineColor,
+                borderWidth: 1,
+                fill: true
+            }];
 
             dataPoints[key].forEach(point => {
 
@@ -157,11 +181,7 @@ fill: true
 chartData.datasets = []
 */
 
-            let dataSets = [];
-            let labelsData = [];
-            let pointData = [];
-            let lineShadingColor = [];
-            let lineColor = [];
+            
 
             dataPoints[key].forEach(point => {
                 date = new Date(point.dateTime);
@@ -173,9 +193,11 @@ chartData.datasets = []
                 lineShadingColor = [...lineShadingColor, 'rgba(' + pointColor + ', 0.2)'];
                 lineColor = [...lineColor, 'rgba(' + pointColor + ', 0.7)'];
 
+                
+
             });
 
-            datasets = [{
+            chart.datasets = [...chart.datasets, {
                 label: labelsData, 
                 data: pointData,
                 backgroundColor: lineShadingColor,
@@ -183,10 +205,21 @@ chartData.datasets = []
                 borderWidth: 1,
                 fill: true
             }];
+/*
+            datasets = {
+                label: labelsData, 
+                data: pointData,
+                backgroundColor: lineShadingColor,
+                borderColor: lineColor,
+                borderWidth: 1,
+                fill: true
+            };
+*/
+            
 
-            console.log(datasets);
+            
 
-            chartData.datasets = [...chartData.datasets, dataSets];
+            
 
             //console.log(chartData.datasets);
             
@@ -206,6 +239,8 @@ chartData.datasets = []
         }
         
     }
+
+    
     /*
     dataPoints.forEach(dataPoint => {
         let date = new Date(dataPoint.messageDate);
@@ -587,6 +622,76 @@ const getCharts = async (formJSON) => {
  * @param {json} chartData 
  */
 const buildChart = (chartData) => {
+
+    console.log(chartData.datasets);
+
+    const myChart = new Chart(chartData.canvas, {
+        type: 'line',
+        data: {
+            labels: chartData.labelsData,
+            datasets: [
+                {
+                    label: chartData.label,
+                    data: chartData.data,
+                    backgroundColor: chartData.lineShadingColor,
+                    borderColor: chartData.lineColor,
+                    borderWidth: 1,
+                    fill: true
+                },
+                {
+                    label: 'Average ' + chartData.unit,
+                    data: chartData.average,
+                    backgroundColor: chartData.averageLineShadingColor,
+                    borderColor: chartData.averageLineColor,
+                    borderWidth: 1,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: chartData.chartTitle
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            },
+            scales: {
+                xAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Time'
+                    }
+                }],
+                yAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: chartData.unit
+                    }
+                }]
+            }
+            /*
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+            */
+        }
+    });
+
+}
+
+
+const buildChartOLD = (chartData) => {
+
+    console.log(chartData.datasets);
 
     const myChart = new Chart(chartData.canvas, {
         type: 'line',
