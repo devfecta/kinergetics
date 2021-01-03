@@ -41,28 +41,8 @@ const initializeRealTimeData = (dateTime) => {
  */
 const initializeRealTimeCharts = (sensors) => {
 
-    //console.log(sensors);
-    /*
-    for (const key of Object.keys(sensors)) {
-
-        let sensorJson = JSON.parse(sensors[key].data_point);
-        //console.log(JSON.parse(sensors[key].data_point));
-        console.log(sensorJson.sensorID);
-
-        let chart = null;
-        let chartId = sensorJson.sensorID + "-" + key;
-        // Create the Chart
-        chart = createChart(chartId);
-        // Title the Chart and Label the Chart's Axes
-        // REMOVE chart = chartData(chart, sensor.sensorName + " Data", sensor.unitType, dataPoint.dataType + " (" + sensor.unitType + ")");
-        chart = chartData(chart, sensorJson.sensorName + " Data", "sensor.unitType", "Duration");
-        //let averageTotal = parseFloat(report.dataPoints.flow_rate.reduce((total, data) => total + Number(data.values), 0) / report.dataPoints.flow_rate.length).toFixed(2);
-        chart = drawRealTimeChartLines(chart, sensor.data_points, averageTotal=0);
-        buildChart(chart);
-    }
-    */
     sensors.forEach((sensor, index) => {
-        
+        //console.log(sensor);
         // console.log(Object.entries(report.dataPoints));
         let chart = null;
         //let chartId = dataPoint.dataType + index;
@@ -71,10 +51,11 @@ const initializeRealTimeCharts = (sensors) => {
         chart = createChart(chartId);
         // Title the Chart and Label the Chart's Axes
         // REMOVE chart = chartData(chart, sensor.sensorName + " Data", sensor.unitType, dataPoint.dataType + " (" + sensor.unitType + ")");
-        chart = chartData(chart, sensor.sensorName + " Data", "sensor.unitType", "Duration");
+        chart = chartData(chart, sensor.sensorName + " Data", "remove later", "");
         //let averageTotal = parseFloat(report.dataPoints.flow_rate.reduce((total, data) => total + Number(data.values), 0) / report.dataPoints.flow_rate.length).toFixed(2);
+        
         chart = drawRealTimeChartLines(chart, sensor.data_points, averageTotal=0);
-        console.log(chart);
+        
         buildChart(chart);
         
     });
@@ -82,179 +63,83 @@ const initializeRealTimeCharts = (sensors) => {
 }
 //  IN USE
 const drawRealTimeChartLines = (chart, dataPoints, averageTotal) => {
-    
-    //dataPoints = dataPoint[0];
-    let pointColor = getRandomColor();
+
     let date = "";
 
-    let dataSets = [];
-    let labelsData = [];
+    //let dataSets = [];
+    let xAxislabels = [];
     let pointData = [];
     let lineShadingColor = [];
     let lineColor = [];
 
-    //console.log(dataPoints);
-
-    //console.log(chart);
-/*
-    chartData.unit = verticalLabel;
-    chartData.label = horizontalLabel;
-    // Line Formatting
-    //chartData.flow = {labelsData : []}
-    chartData.labelsData = [];
-    chartData.data = [];
-    chartData.color = getRandomColor();
-    chartData.lineShadingColor = [];
-    chartData.lineColor = [];
-*/
-
-    //console.log(dataPoints.Fahrenheit);
-    //console.log(Object.keys(dataPoints).length);
+    let pointColor = "";
 
     for (const key of Object.keys(dataPoints)) {
-        //console.log(dataPoints[key]);
-        chart.unit = key;
-
-        
-
         
         if (Object.keys(dataPoints).length > 1) {
 
-            for (const dataPointKey of Object.keys(dataPoints[key])) {
-                console.log(dataPoints[key][dataPointKey]);
-                
-                //console.log(dataPointKey);
-                //chart.label = key;
+            xAxislabels = [];
+            pointData = [];
+            lineShadingColor = [];
+            lineColor = [];
 
-                date = new Date(dataPoints[key][dataPointKey].dateTime);
-
-                labelsData = [...labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
-
-                pointData = [...pointData, dataPoints[key][dataPointKey].value];
-
-                lineShadingColor = [...lineShadingColor, 'rgba(' + pointColor + ', 0.2)'];
-                lineColor = [...lineColor, 'rgba(' + pointColor + ', 0.7)'];
-                
-            }
-
-            chart.datasets = [...chart.datasets, {
-                label: labelsData, 
-                data: pointData,
-                backgroundColor: lineShadingColor,
-                borderColor: lineColor,
-                borderWidth: 1,
-                fill: true
-            }];
+            pointColor = getRandomColor();
 
             dataPoints[key].forEach(point => {
 
-                //console.log(point);
-                
-                
-                /*
-                console.log(point);
-
                 date = new Date(point.dateTime);
-                //console.log(dataPoint[0].dateTime);
-                chart.labelsData = [...chart.labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
-                
-                chart.data = [...chart.data, point.value];
-                chart.lineShadingColor = [...chart.lineShadingColor, 'rgba(' + pointColor + ', 0.2)'];
-                chart.lineColor = [...chart.lineColor, 'rgba(' + pointColor + ', 0.7)'];
-                
-                chart.average = [...chart.average, averageTotal];
-                chart.averageLineShadingColor = [...chart.averageLineShadingColor, 'rgba(' + chart.averageColor + ', 0.2)'];
-                chart.averageLineColor = [...chart.averageLineColor, 'rgba(' + chart.averageColor + ', 0.7)'];
-                */
-            });
-        }
-        else {
-
-/*
-label: chartData.label,
-data: chartData.data,
-backgroundColor: chartData.lineShadingColor,
-borderColor: chartData.lineColor,
-borderWidth: 1,
-fill: true
-
-chartData.datasets = []
-*/
-
-            
-
-            dataPoints[key].forEach(point => {
-                date = new Date(point.dateTime);
-
-                labelsData = [...labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
+                xAxislabels = [...xAxislabels, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
 
                 pointData = [...pointData, point.value];
 
                 lineShadingColor = [...lineShadingColor, 'rgba(' + pointColor + ', 0.2)'];
                 lineColor = [...lineColor, 'rgba(' + pointColor + ', 0.7)'];
 
-                
+            });
+
+            chart.datasets = [...chart.datasets, {
+                label: key 
+                , data: pointData
+                , backgroundColor: lineShadingColor
+                , borderColor: lineColor
+                , borderWidth: 1
+                , fill: true
+            }];
+
+        }
+        else {
+
+            pointColor = getRandomColor();
+
+            dataPoints[key].forEach(point => {
+
+                date = new Date(point.dateTime);
+                xAxislabels = [...xAxislabels, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
+
+                pointData = [...pointData, point.value];
+
+                lineShadingColor = [...lineShadingColor, 'rgba(' + pointColor + ', 0.2)'];
+                lineColor = [...lineColor, 'rgba(' + pointColor + ', 0.7)'];
 
             });
 
             chart.datasets = [...chart.datasets, {
-                label: labelsData, 
-                data: pointData,
-                backgroundColor: lineShadingColor,
-                borderColor: lineColor,
-                borderWidth: 1,
-                fill: true
+                label: key 
+                , data: pointData
+                , backgroundColor: lineShadingColor
+                , borderColor: lineColor
+                , borderWidth: 1
+                , fill: true
             }];
-/*
-            datasets = {
-                label: labelsData, 
-                data: pointData,
-                backgroundColor: lineShadingColor,
-                borderColor: lineColor,
-                borderWidth: 1,
-                fill: true
-            };
-*/
             
-
-            
-
-            
-
-            //console.log(chartData.datasets);
-            
-            /*
-            date = new Date(dataPoint[0].dateTime);
-            //console.log(dataPoint[0].dateTime);
-            chart.labelsData = [...chart.labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
-            
-            chart.data = [...chart.data, dataPoint[0].value];
-            chart.lineShadingColor = [...chart.lineShadingColor, 'rgba(' + pointColor + ', 0.2)'];
-            chart.lineColor = [...chart.lineColor, 'rgba(' + chart.color + ', 0.7)'];
-            
-            chart.average = [...chart.average, averageTotal];
-            chart.averageLineShadingColor = [...chart.averageLineShadingColor, 'rgba(' + chart.averageColor + ', 0.2)'];
-            chart.averageLineColor = [...chart.averageLineColor, 'rgba(' + chart.averageColor + ', 0.7)'];
-            */
         }
-        
+
     }
 
-    
-    /*
-    dataPoints.forEach(dataPoint => {
-        let date = new Date(dataPoint.messageDate);
-        chart.labelsData = [...chart.labelsData, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
-        
-        chart.data = [...chart.data, dataPoint.plotValues.includes('|') ? dataPoint.plotValues.split('|')[1] : dataPoint.plotValues];
-        chart.lineShadingColor = [...chart.lineShadingColor, 'rgba(' + chart.color + ', 0.2)'];
-        chart.lineColor = [...chart.lineColor, 'rgba(' + chart.color + ', 0.7)'];
-        
-        chart.average = [...chart.average, averageTotal];
-        chart.averageLineShadingColor = [...chart.averageLineShadingColor, 'rgba(' + chart.averageColor + ', 0.2)'];
-        chart.averageLineColor = [...chart.averageLineColor, 'rgba(' + chart.averageColor + ', 0.7)'];
-    });
-    */
+//    console.log(chart.datasets);
+
+    chart.label = xAxislabels; // x-axis labels
+
     return chart;
 }
 
@@ -351,7 +236,7 @@ const getCompanies = () => {
     getApi("Reports", "getCompanies", null)
     .then(data => {
 
-        console.log(data);
+        //console.log(data);
         
         data.forEach(company => {
             //const companyList = document.querySelector("#accordion");
@@ -422,7 +307,7 @@ const getReportDatapoints = (event) => {
 
     getApi("Reports", "getReportDatapoints", "reportId=" + event.target.value)
     .then(data => {
-        console.log(data);
+        //console.log(data);
         const responsiveTable = document.createElement('div');
         responsiveTable.setAttribute("class", "table-responsive");
 
@@ -452,7 +337,6 @@ const getReportDatapoints = (event) => {
 
             data.forEach(dataPoints => {
                 //console.log(Object.keys(dataPoints[0]));
-                console.log(dataPoints);
                 const tableRow = document.createElement('tr');
 
                 formFields.forEach(name => {
@@ -514,19 +398,6 @@ const getMinMaxDates = () => {
 const getRandomColor = () => {
     return (Math.floor(Math.random() * 200) + 1) + ", " + (Math.floor(Math.random() * 200) + 1) + ", " + (Math.floor(Math.random() * 200) + 1);
 }
-
-/*
-data_point: "1"
-date_time: "2018-12-12 08:45:24"
-error: "0"
-feedwater: "0"
-flow_rate: "1.02"
-id: "1"
-report_id: "1"
-steam: "499.80"
-time_lapse: "0.02"
-total_volume: "96.00"
-*/
 /**
  * Creates a chart canvas with an ID.  IN USE
  */
@@ -547,9 +418,6 @@ const createChart = (chartId) => {
  * @returns json of data points
  */
 const getDataPoints = async (deviceName, formJSON) => {
-
-    console.log("test");
-
     formJSON.device = deviceName; // Data type based on device.
     formJSON.class = "Reports";
     formJSON.method = "getDeviceReportData";
@@ -561,31 +429,16 @@ const getDataPoints = async (deviceName, formJSON) => {
  * @returns json of chart information
  */
 const chartData = (chart, title, verticalLabel, horizontalLabel) => {
-
-    console.log(horizontalLabel);
-
+    //console.log(verticalLabel);
     let chartData = {};
     chartData.canvas = chart;
     chartData.canvas.innerHTML = "";
     chartData.chartTitle = title;
     chartData.unit = verticalLabel;
-    chartData.label = horizontalLabel; // Duration / bottom label
     // Line Formatting
     //chartData.flow = {labelsData : []}
-
     chartData.datasets = [];
-
     chartData.labelsData = [];
-    chartData.data = [];
-    chartData.color = getRandomColor();
-    chartData.lineShadingColor = [];
-    chartData.lineColor = [];
-    // Average Line Formatting
-    chartData.average = [];
-    chartData.averageColor = "175, 175, 175";
-    chartData.averageLineShadingColor = [];
-    chartData.averageLineColor = [];
-    
     return chartData;
 }
 // IN USE
@@ -623,98 +476,13 @@ const getCharts = async (formJSON) => {
  */
 const buildChart = (chartData) => {
 
-    console.log(chartData.datasets);
+    //console.log(chartData.datasets);
 
     const myChart = new Chart(chartData.canvas, {
         type: 'line',
         data: {
-            labels: chartData.labelsData,
-            datasets: [
-                {
-                    label: chartData.label,
-                    data: chartData.data,
-                    backgroundColor: chartData.lineShadingColor,
-                    borderColor: chartData.lineColor,
-                    borderWidth: 1,
-                    fill: true
-                },
-                {
-                    label: 'Average ' + chartData.unit,
-                    data: chartData.average,
-                    backgroundColor: chartData.averageLineShadingColor,
-                    borderColor: chartData.averageLineColor,
-                    borderWidth: 1,
-                    fill: true
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            title: {
-                display: true,
-                text: chartData.chartTitle
-            },
-            hover: {
-                mode: 'nearest',
-                intersect: true
-            },
-            scales: {
-                xAxes: [{
-                    display: true,
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Time'
-                    }
-                }],
-                yAxes: [{
-                    display: true,
-                    scaleLabel: {
-                        display: true,
-                        labelString: chartData.unit
-                    }
-                }]
-            }
-            /*
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }]
-            }
-            */
-        }
-    });
-
-}
-
-
-const buildChartOLD = (chartData) => {
-
-    console.log(chartData.datasets);
-
-    const myChart = new Chart(chartData.canvas, {
-        type: 'line',
-        data: {
-            labels: chartData.labelsData,
-            datasets: [
-                {
-                    label: chartData.label,
-                    data: chartData.data,
-                    backgroundColor: chartData.lineShadingColor,
-                    borderColor: chartData.lineColor,
-                    borderWidth: 1,
-                    fill: true
-                },
-                {
-                    label: 'Average ' + chartData.unit,
-                    data: chartData.average,
-                    backgroundColor: chartData.averageLineShadingColor,
-                    borderColor: chartData.averageLineColor,
-                    borderWidth: 1,
-                    fill: true
-                }
-            ]
+            labels: chartData.label
+            , datasets: chartData.datasets
         },
         options: {
             responsive: true,
