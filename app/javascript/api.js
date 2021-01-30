@@ -51,7 +51,7 @@ const initializeRealTimeCharts = (sensors) => {
         chart = createChart(chartId);
         // Title the Chart and Label the Chart's Axes
         // REMOVE chart = chartData(chart, sensor.sensorName + " Data", sensor.unitType, dataPoint.dataType + " (" + sensor.unitType + ")");
-        chart = chartData(chart, sensor.sensorName + " Data", "remove later", "");
+        chart = chartData(chart, sensor.sensorName + " Data", "", "");
         //let averageTotal = parseFloat(report.dataPoints.flow_rate.reduce((total, data) => total + Number(data.values), 0) / report.dataPoints.flow_rate.length).toFixed(2);
         
         chart = drawRealTimeChartLines(chart, sensor.data_points, averageTotal=0);
@@ -201,6 +201,13 @@ const getFormFields = () => {
 */
 const createAdminHeader = (headerType, reportId) => {
     const adminButtons = document.createElement('div');
+
+    const dashboardButton = document.createElement('a');
+    dashboardButton.setAttribute("href", "index.php");
+    dashboardButton.setAttribute("class", "btn btn-md btn-secondary m-1");
+    dashboardButton.innerText = "Dashboard";
+    adminButtons.appendChild(dashboardButton);
+
     const createReportButton = document.createElement('a');
     createReportButton.setAttribute("href", "createReport.php");
     createReportButton.setAttribute("class", "btn btn-md btn-secondary m-1");

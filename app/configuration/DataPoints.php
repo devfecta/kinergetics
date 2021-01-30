@@ -81,6 +81,164 @@ class DataPoints {
         */
     }
     /**
+     * Processes the data received from the webhook.
+     *
+     * @param   string  $webhookData  Data received from the webhook.
+     *
+     * @return  null  Returns nothing.
+     */
+    public function processWebhook($webhookData) {
+        // Loops through each data point.
+        foreach($webhookData as $sensor) {
+            
+            if (isset($sensor['sensorName']) && strpos($sensor['sensorName'], " | ") != false) {
+                // Gets the user ID from the sensor name property.
+                $userId = (int)explode(' | ', $sensor['sensorName'])[0];
+                
+                if ($this->companyExists($userId) > 0) {
+                    // Needed to convert the time stamp from UTC to CST
+                    $utcDateTime = new DateTime($sensor['messageDate'], new DateTimeZone('UTC'));
+                    $utcDateTime->setTimezone(new DateTimeZone('America/Chicago'));
+                    $sensor['messageDate'] = $utcDateTime->format('Y-m-d H:i:s');
+                    //error_log("\n".$sensor['messageDate'], 0);
+                    
+                    $result = $this->insertDataPoint($userId, $sensor);
+                    
+                }
+                else {
+                    error_log(date('Y-m-d H:i:s') . " Sensor ID: " . $sensor['sensorID'] . " - User does NOT exist.\n", 3, "/var/www/html/app/php-errors.log");
+                }
+
+            }
+            else {
+                error_log(date('Y-m-d H:i:s') . " Sensor ID: " . $sensor['sensorID'] . " - Sensor Name NOT Formatted Properly\n", 3, "/var/www/html/app/php-errors.log");
+                //return false;
+            }
+
+        }
+
+    }
+    /**
+     * Checks to see if a user exists based on the user ID.
+     *
+     * @param   int  $userId  User ID
+     *
+     * @return  boolean  Returns true if user exists.
+     */
+    public function companyExists($userId) {
+
+        $result = false;
+
+        try {
+
+            $connection = Configuration::openConnection();
+
+            $statement = $connection->prepare("SELECT * FROM `users` WHERE `id`=:id");
+            $statement->bindParam(":id", $userId, PDO::PARAM_INT);
+            $statement->execute();
+
+            $result = $statement->rowCount() > 0 ? $statement->fetch(PDO::FETCH_ASSOC)["id"] : false;
+
+        }
+        catch (PDOException $pdo) {
+            error_log(date('Y-m-d H:i:s') . " " . $pdo->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
+            //return json_encode(array('error'=> $pdo->getMessage()), JSON_PRETTY_PRINT);
+        }
+        catch (Exception $e) {
+            error_log(date('Y-m-d H:i:s') . " " . $e->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
+            //return json_encode(array('error'=> $e->getMessage()), JSON_PRETTY_PRINT);
+        }
+        finally {
+            Configuration::closeConnection();
+        }
+
+        return $result;
+
+    }
+    /**
+     * This inserts the data point information from the webhook.
+     *
+     * @param   int  $userId  User ID
+     * @param   json  $sensor  Specific sensor data from the webhook.
+     *
+     * @return  boolean  Returns the last boolean of the last inserted data point.
+     */
+    public function insertDataPoint($userId, $sensor) {
+
+        $result = false;
+
+        try {
+            
+            $connection = Configuration::openConnection();
+
+            $sensorName =  explode(' | ', $sensor['sensorName'])[2];
+
+            $plotLabels = $sensor['plotLabels'];
+            $plotValues = $sensor['plotValues'];
+
+            $statement = $connection->prepare("INSERT INTO `dataPoints` (
+                `user_id`,
+                `sensor_id`,
+                `sensor_name`,
+                `date_time`,
+                `data_type`,
+                `data_value`
+            ) 
+            VALUES (
+                :user_id,
+                :sensor_id,
+                :sensor_name,
+                :date_time,
+                :data_type,
+                :data_value
+            )");
+
+
+            if (strpos($plotLabels, '|')) {
+                
+                $plotLabelArray = explode('|', $plotLabels);
+                $plotValueArray = explode('|', $plotValues);
+
+                for ($i = 0; $i < count($plotLabelArray); $i++) {
+
+                    $statement->bindValue(":user_id", (int)$userId, PDO::PARAM_INT); 
+                    $statement->bindValue(":sensor_id", (int)$sensor['sensorID'], PDO::PARAM_INT); 
+                    $statement->bindParam(":sensor_name", $sensorName, PDO::PARAM_STR); 
+                    $statement->bindParam(":date_time", $sensor['messageDate'], PDO::PARAM_STR); 
+                    $statement->bindParam(":data_type", $plotLabelArray[$i]);
+                    $statement->bindValue(":data_value", $plotValueArray[$i]); 
+                    $result = $statement->execute() ? true : false;
+                    
+                }
+            }
+            else {
+
+                $statement->bindValue(":user_id", (int)$userId, PDO::PARAM_INT); 
+                $statement->bindValue(":sensor_id", (int)$sensor['sensorID'], PDO::PARAM_INT); 
+                $statement->bindParam(":sensor_name", $sensorName, PDO::PARAM_STR); 
+                $statement->bindParam(":date_time", $sensor['messageDate'], PDO::PARAM_STR); 
+                $statement->bindParam(":data_type", $plotLabels);
+                $statement->bindValue(":data_value", $plotValues); 
+                $result = $statement->execute() ? true : false;
+                
+            }
+
+        }
+        catch(PDOException $pdo) {
+            error_log(date('Y-m-d H:i:s') . " " . $pdo->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
+        }
+        catch (Exception $e) {
+            error_log(date('Y-m-d H:i:s') . " " . $e->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
+        }
+        finally {
+            Configuration::closeConnection();
+        }
+
+        return $result;
+    }
+
+
+    /**
      * Gets the data points for a specific company/user based on a start and end datetime.
      *
      * @param   int  $userId         User ID

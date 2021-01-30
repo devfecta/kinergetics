@@ -155,6 +155,8 @@
     
             return json_encode($userInfo, JSON_PRETTY_PRINT);
         }
+
+        
     }
  
  ?>
