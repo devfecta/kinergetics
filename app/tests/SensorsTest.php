@@ -1,20 +1,20 @@
 <?php 
 declare(strict_types=1);
 require_once('./configuration/Configuration.php');
-require_once('./configuration/DataPoints.php');
+require_once('./configuration/Sensors.php');
 use PHPUnit\Framework\TestCase;
 
-final class DataPointsTest extends TestCase
+final class SensorsTest extends TestCase
 {
-    private $dataPoints;
+    private $sensors;
     
 
-    public function testCompanyExists(): void
+    public function testGetUserSensors(): void
     {
-        $dataPoints = new DataPoints();
-        $this->assertEquals(2, $dataPoints->companyExists(2));
+        $sensors = new Sensors();
+        $this->assertIsArray($sensors->getUserSensors(2));
     }
-
+    /*
     public function testProcessWebhook(): void
     {
         $dataPoints = new DataPoints();
@@ -39,37 +39,7 @@ final class DataPointsTest extends TestCase
 
         $this->assertNull($dataPoints->processWebhook($sensorMessages));
     }
-
-    public function testInsertDataPoint(): void
-    {
-        $dataPoints = new DataPoints();
-        
-        $sensor = json_decode('{
-                "sensorID":"111111","sensorName":"2 | Test Company | Temperature | 111111","applicationID":"2","networkID":"3","dataMessageGUID":"51d54ec3-c19e-4e06-803c-9f4776948efd","state":"17","messageDate":"2020-11-19 20:50:43","rawData":"24.7","dataType":"TemperatureData","dataValue":"24.7","plotValues":"76.46","plotLabels":"Fahrenheit","batteryLevel":"100","signalStrength":"94","pendingChange":"True","voltage":"3.15"
-        }', true);
-
-        $this->assertEquals(
-            true,
-            $dataPoints->insertDataPoint(2, $sensor)
-        );
-        
-        $sensor = json_decode('{
-                "sensorID":"222222" , "sensorName":"2 | Test Company | Current Meter 20 Amp | 222222", "applicationID":"93", "networkID":"3", "dataMessageGUID":"fa8bebb7-6e48-4a08-afb8-9846b926585d", "state": "0", "messageDate": "2020-10-14 22:18:03", "rawData":"0.05%2c0.16%2c0.17%2c0.16", "dataType": "AmpHours|Amps|Amps|Amps", "dataValue": "0.05|0.16|0.17|0.16", "plotValues": "0.05|0.16|0.17|0.16", "plotLabels": "Amp Hours|AvgCurrent|MaxCurrent|MinCurrent", "batteryLevel": "100", "signalStrength": "0", "pendingChange": "False", "voltage": "2.94"
-            }', true);
-
-        $this->assertEquals(
-            true,
-            $dataPoints->insertDataPoint(2, $sensor)
-        );
-        
-    }
-
-    public function testGetSensorDataPoints()
-    {
-        $dataPoints = new DataPoints();
-        $this->assertIsArray($dataPoints->getSensorDataPoints(2, 528889, "2020-10-1", "null"));
-    }
-    
+    */
     /*
     public function testCannotBeCreatedFromInvalidEmailAddress(): void
     {

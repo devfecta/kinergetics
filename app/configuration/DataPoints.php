@@ -171,7 +171,30 @@ class DataPoints {
             
             $connection = Configuration::openConnection();
 
-            $sensorName =  explode(' | ', $sensor['sensorName'])[2];
+            $statement = $connection->prepare("SELECT * FROM `sensors` WHERE `id`=:sensor_id");
+            $statement->bindParam(":sensor_id", $sensor['sensorID'], PDO::PARAM_INT);
+            $statement->execute();
+
+            if ($statement->rowCount() < 1) {
+
+                $sensorName =  explode(' | ', $sensor['sensorName'])[2];
+
+                $statement = $connection->prepare("INSERT INTO `sensors` (
+                    `id`,
+                    `user_id`,
+                    `sensor_name`
+                ) 
+                VALUES (
+                    :sensor_id,
+                    :user_id,
+                    :sensor_name
+                )");
+                $statement->bindParam(":sensor_id", $sensor['sensorID'], PDO::PARAM_INT);
+                $statement->bindValue(":user_id", $userId, PDO::PARAM_INT);
+                $statement->bindParam(":sensor_name", $sensorName, PDO::PARAM_STR);
+                $statement->execute();
+
+            }
 
             $plotLabels = $sensor['plotLabels'];
             $plotValues = $sensor['plotValues'];
@@ -179,7 +202,6 @@ class DataPoints {
             $statement = $connection->prepare("INSERT INTO `dataPoints` (
                 `user_id`,
                 `sensor_id`,
-                `sensor_name`,
                 `date_time`,
                 `data_type`,
                 `data_value`
@@ -187,7 +209,6 @@ class DataPoints {
             VALUES (
                 :user_id,
                 :sensor_id,
-                :sensor_name,
                 :date_time,
                 :data_type,
                 :data_value
@@ -201,21 +222,19 @@ class DataPoints {
 
                 for ($i = 0; $i < count($plotLabelArray); $i++) {
 
-                    $statement->bindValue(":user_id", (int)$userId, PDO::PARAM_INT); 
-                    $statement->bindValue(":sensor_id", (int)$sensor['sensorID'], PDO::PARAM_INT); 
-                    $statement->bindParam(":sensor_name", $sensorName, PDO::PARAM_STR); 
-                    $statement->bindParam(":date_time", $sensor['messageDate'], PDO::PARAM_STR); 
+                    $statement->bindValue(":user_id", $userId, PDO::PARAM_INT);
+                    $statement->bindValue(":sensor_id", $sensor['sensorID'], PDO::PARAM_INT);
+                    $statement->bindParam(":date_time", $sensor['messageDate'], PDO::PARAM_STR);
                     $statement->bindParam(":data_type", $plotLabelArray[$i]);
-                    $statement->bindValue(":data_value", $plotValueArray[$i]); 
+                    $statement->bindValue(":data_value", $plotValueArray[$i]);
                     $result = $statement->execute() ? true : false;
                     
                 }
             }
             else {
 
-                $statement->bindValue(":user_id", (int)$userId, PDO::PARAM_INT); 
-                $statement->bindValue(":sensor_id", (int)$sensor['sensorID'], PDO::PARAM_INT); 
-                $statement->bindParam(":sensor_name", $sensorName, PDO::PARAM_STR); 
+                $statement->bindValue(":user_id", $userId, PDO::PARAM_INT); 
+                $statement->bindValue(":sensor_id", $sensor['sensorID'], PDO::PARAM_INT);
                 $statement->bindParam(":date_time", $sensor['messageDate'], PDO::PARAM_STR); 
                 $statement->bindParam(":data_type", $plotLabels);
                 $statement->bindValue(":data_value", $plotValues); 
@@ -237,6 +256,45 @@ class DataPoints {
         return $result;
     }
 
+    public function getSensorDataPoints($userId, $sensorId, $startDateTime, $endDateTime) {
+
+        try {
+            
+            $connection = Configuration::openConnection();
+
+            if ($endDateTime != "null") {
+                $statement = $connection->prepare("SELECT `sensors`.`sensor_name`, `dataPoints`.* FROM `sensors` INNER JOIN `dataPoints` ON `sensors`.`id`=`dataPoints`.`sensor_id` WHERE `sensors`.`id`=:sensor_id AND `dataPoints`.`user_id`=:user_id AND `date_time`>=:startDateTime AND `date_time`<=:endDateTime ORDER BY `date_time` ASC");
+                $statement->bindParam(":user_id", $userId, PDO::PARAM_INT);
+                $statement->bindParam(":sensor_id", $sensorId, PDO::PARAM_INT);
+                $statement->bindParam(":startDateTime", $startDateTime, PDO::PARAM_STR); 
+                $statement->bindParam(":endDateTime", $endDateTime, PDO::PARAM_STR); 
+            }
+            else {
+                $statement = $connection->prepare("SELECT `sensors`.`sensor_name`, `dataPoints`.* FROM `sensors` INNER JOIN `dataPoints` ON `sensors`.`id`=`dataPoints`.`sensor_id` WHERE `sensors`.`id`=:sensor_id AND `dataPoints`.`user_id`=:user_id AND `date_time`>=:startDateTime ORDER BY `date_time` ASC LIMIT 0, 50");
+                $statement->bindParam(":user_id", $userId, PDO::PARAM_INT);
+                $statement->bindParam(":sensor_id", $sensorId, PDO::PARAM_INT);
+                $statement->bindParam(":startDateTime", $startDateTime, PDO::PARAM_STR); 
+            }
+            
+            $statement->execute();
+
+            $dataPoints = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+            //error_log(var_dump($dataPoints), 0);
+        }
+        catch(PDOException $pdo) {
+            error_log(date('Y-m-d H:i:s') . " " . $pdo->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
+        }
+        catch (Exception $e) {
+            error_log(date('Y-m-d H:i:s') . " " . $e->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
+        }
+        finally {
+            Configuration::closeConnection();
+        }
+
+        return $dataPoints;
+
+    }
 
     /**
      * Gets the data points for a specific company/user based on a start and end datetime.
@@ -247,7 +305,7 @@ class DataPoints {
      *
      * @return  json                  Datapoint JSON
      */
-    public function getDataPoints($userId, $startDateTime, $endDateTime) {
+    public function getDataPointsOLD($userId, $startDateTime, $endDateTime) {
         //return json_encode(array($userId, $dateTime), JSON_PRETTY_PRINT);
         $result = array();
 

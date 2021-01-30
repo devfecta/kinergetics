@@ -1,36 +1,37 @@
 <?php
-class Sensor {
+    require_once('Configuration.php');
 
-    function __construct() {}
+    class Sensor {
 
-    public function getSensors() {
+        private $sensorId;
+        private $userId;
+        private $sensorName;
 
-        try {
-            $connection = Configuration::openConnection();
+        function __construct() {}
 
-            $statement = $connection->prepare("SELECT * FROM `sensors`");
-
-            $statement->execute();
-
-            $options = '';
-    
-            if ($statement->rowCount() > 0) {
-                $results = $statement->fetchAll(PDO::FETCH_ASSOC);
-                foreach ($results as &$result) {
-                    $options .= '<option value="'.$result['id'].'">'.$result['sensor'].'</option>';
-                }
-            }
-
-            Configuration::closeConnection();
-    
-            return $options;
-
+        public function getSensorId() {
+            return $this->sensorId;
         }
-        catch (PDOException $pdo) {
-            return "PDO Error: " . $pdo->getMessage();
+
+        public function setSensorId($id) {
+            $this->sensorId = $id;
+        }
+
+        public function getUserId() {
+            return $this->userId;
+        }
+
+        public function setUserId($id) {
+            $this->userId = $id;
+        }
+
+        public function getSensorName() {
+            return $this->sensorName;
+        }
+
+        public function setSensorName($name) {
+            $this->sensorName = $name;
         }
 
     }
-
-}
 ?>

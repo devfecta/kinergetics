@@ -21,6 +21,51 @@ const init = () => {
  * @param {string} dateTime 
  */
 // await
+const getUserSensors = () => {
+    // Logs out after idle for 1 hour.
+    const userSensors = document.querySelector("#userSensors");
+    //userSensors.appendChild(createAdminHeader(null, null));
+    const sensorList = document.createElement('div');
+    sensorList.setAttribute("class", "d-flex justify-content-around row");
+    sensorList.id = "sensors";
+    userSensors.appendChild(sensorList);
+
+    if (document.cookie.includes('; ') && document.cookie.includes('userId')) {
+        const userId = document.cookie.split('; ').find(c => c.startsWith('userId')).split('=')[1];
+        //console.log(dateTime);
+        getApi("Sensors", "getUserSensors", "userId=" + userId)
+        .then(sensors => {
+
+            console.log(sensors);
+
+            sensors.forEach(sensor => {
+    
+                const sensorButton = document.createElement('button');
+                sensorButton.setAttribute("class", "btn btn-primary m-2 py-3 col-md-3");
+                sensorButton.onclick = () => {window.location.href = "sensor.php?sensorId="+sensor.id};
+                sensorButton.setAttribute("data-toggle", "collapse");
+                sensorButton.setAttribute("data-target", "#sensorBody" + sensor.id);
+                sensorButton.setAttribute("aria-expanded", "false");
+                sensorButton.setAttribute("aria-controls", "sensorBody" + sensor.id);
+                sensorButton.innerHTML = '<span class="fas fa-satellite-dish"></span> ' + sensor.sensor_name;
+                sensorList.appendChild(sensorButton);
+
+            });
+
+        })
+        .catch(error => console.log(error));
+    }
+    else {
+        alert("logging out");
+        location.href = './logout.php';
+    }
+}
+
+/**
+ * Get initial real time data, and start at the current date and time. IN USE
+ * @param {string} dateTime 
+ */
+// await
 const initializeRealTimeData = (dateTime) => {
     // Logs out after idle for 1 hour.
     if (document.cookie.includes('; ') && document.cookie.includes('userId')) {
@@ -376,30 +421,40 @@ const getReportDatapoints = (event) => {
 
 const getMinMaxDates = () => {
 
-    let searchButton = document.querySelector("#getData");
-    searchButton.addEventListener("click", getData);
+    if (document.cookie.includes('; ') && document.cookie.includes('userId')) {
 
-    const startDate = document.querySelector("#startDate");
-    const startTime = document.querySelector("#startTime");
+        const userId = document.cookie.split('; ').find(c => c.startsWith('userId')).split('=')[1];
+        const urlParams = new URLSearchParams(window.location.search);
+
+        let searchButton = document.querySelector("#getData");
+        searchButton.addEventListener("click", getData);
+
+        const startDate = document.querySelector("#startDate");
+        const startTime = document.querySelector("#startTime");
+        
+        const endDate = document.querySelector("#endDate");
+        const endTime = document.querySelector("#endTime");
+
+        getApi("Reports", "getMinMaxDates", "userId=" + userId + "&sensorId=" + urlParams.get('sensorId'))
+        .then(data => {
+            console.log(data);
+            let minimumDate = new Date(data.minimum);
+            startDate.value = minimumDate.toISOString().slice(0,10);
+            minimumDate.setFullYear(minimumDate.getFullYear() - 5);
+            startDate.min = minimumDate.toISOString().slice(0,10);
+            startTime.value = ("0" + minimumDate.getHours()).slice(-2) + ":" + ("0" + minimumDate.getMinutes()).slice(-2);
+
+            let maximumDate = new Date(data.maximum);
+            endDate.value = maximumDate.toISOString().slice(0,10);
+            maximumDate.setFullYear(maximumDate.getFullYear() - 5);
+            endDate.min = maximumDate.toISOString().slice(0,10);
+            endTime.value = ("0" + maximumDate.getHours()).slice(-2) + ":" + ("0" + maximumDate.getMinutes()).slice(-2);
+        })
+        .catch(error => console.log(error));
+
+    }
+
     
-    const endDate = document.querySelector("#endDate");
-    const endTime = document.querySelector("#endTime");
-
-    getApi("Reports", "getMinMaxDates", null)
-    .then(data => {
-        let minimumDate = new Date(data.minimum);
-        startDate.value = minimumDate.toISOString().slice(0,10);
-        minimumDate.setFullYear(minimumDate.getFullYear() - 5);
-        startDate.min = minimumDate.toISOString().slice(0,10);
-        startTime.value = ("0" + minimumDate.getHours()).slice(-2) + ":" + ("0" + minimumDate.getMinutes()).slice(-2);
-
-        let maximumDate = new Date(data.maximum);
-        endDate.value = maximumDate.toISOString().slice(0,10);
-        maximumDate.setFullYear(maximumDate.getFullYear() - 5);
-        endDate.min = maximumDate.toISOString().slice(0,10);
-        endTime.value = ("0" + maximumDate.getHours()).slice(-2) + ":" + ("0" + maximumDate.getMinutes()).slice(-2);
-    })
-    .catch(error => console.log(error));
 }
 
 const getRandomColor = () => {

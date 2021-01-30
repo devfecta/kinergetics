@@ -12,6 +12,8 @@ require('configuration/User.php');
 require('configuration/Device.php');
 require("configuration/Reports.php");
 require("configuration/Devices.php");
+
+require("configuration/Sensors.php");
 require("configuration/DataPoints.php");
 
 //$requestMethod = $_SERVER['REQUEST_METHOD'];
@@ -21,6 +23,7 @@ $encodedJSON = null;
 //echo json_encode(array("type" => "API Call", "request-method" => $_SERVER['REQUEST_METHOD'], "post" => $_POST, "get" => $_GET));
 ////$test = json_encode($_POST, false);
 ////echo json_encode(array("type" => $_POST["sensor"]));
+//echo json_encode($_GET, false);
 //exit();
 
 switch ($_SERVER['REQUEST_METHOD']) {
@@ -175,6 +178,18 @@ switch ($_SERVER['REQUEST_METHOD']) {
         // Reads
         if (isset($_GET['class'])) {
             switch ($_GET['class']) {
+                case "Sensors":
+                    $Sensors = new Sensors();
+                    switch ($_GET['method']) {
+                        case "getUserSensors":
+                            echo json_encode($Sensors->getUserSensors($_GET['userId']));
+                            break;
+                        default:
+                            echo json_encode(array("error" => 'GET METHOD ERROR: The '.$_GET['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
+                            break;
+                    }
+                    break;
+                /*
                 case "FlowMeter":
                     $FlowMeter = new FlowMeter();
                     switch ($_GET['method']) {
@@ -192,6 +207,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                             break;
                     }
                     break;
+                */
                 case "Reports":
                     $Reports = new Reports();
                     switch ($_GET['method']) {
@@ -199,7 +215,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
                             echo $Reports->getFormFields();
                             break;
                         case "getMinMaxDates":
-                            echo $Reports->getMinMaxDates();
+                            echo $Reports->getMinMaxDates($_GET['userId'], $_GET['sensorId']);
                             break;
                         case "getCompanies":
                             echo $Reports->getCompanies();

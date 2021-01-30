@@ -377,7 +377,31 @@ class Reports {
         return json_encode($result, JSON_PRETTY_PRINT);
     }
 
-    public function getMinMaxDates() {
+    public function getMinMaxDates($userId, $sensorId) {
+        try {
+
+            $connection = Configuration::openConnection();
+
+            $statement = $connection->prepare("SELECT MIN(date_time) AS minDate, MAX(date_time) AS maxDate FROM dataPoints WHERE user_id=:userId AND sensor_id=:sensorId");
+            $statement->bindParam(":userId", $userId, PDO::PARAM_INT);
+            $statement->bindParam(":sensorId", $sensorId, PDO::PARAM_INT);
+            $statement->execute();
+            $results = $statement->fetch(PDO::FETCH_ASSOC);
+
+            $dates['minimum'] = $results['minDate'];
+            $dates['maximum'] = $results['maxDate'];
+
+            return json_encode($dates, JSON_PRETTY_PRINT);
+        }
+        catch (PDOException $pdo) {
+            return json_encode(array('error' => $pdo->getMessage()), JSON_PRETTY_PRINT);
+        }
+        finally {
+            Configuration::closeConnection();
+        }
+    }
+
+    public function getMinMaxDatesOLD() {
         try {
 
             $connection = Configuration::openConnection();
