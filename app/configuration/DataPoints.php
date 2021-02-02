@@ -225,7 +225,7 @@ class DataPoints extends DataPoint {
             
             $connection = Configuration::openConnection();
 
-            if ($endDateTime != "null") {
+            if ($endDateTime != null) {
                 $statement = $connection->prepare("SELECT * FROM `dataPoints` WHERE `dataPoints`.`sensor_id`=:sensor_id AND `dataPoints`.`user_id`=:user_id AND `date_time`>=:startDateTime AND `date_time`<=:endDateTime ORDER BY `date_time` ASC");
                 $statement->bindParam(":user_id", $userId, PDO::PARAM_INT);
                 $statement->bindParam(":sensor_id", $sensorId, PDO::PARAM_INT);

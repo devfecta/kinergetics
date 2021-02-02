@@ -32,12 +32,12 @@
         
         <div class="col-md-3 mx-2 justify-content-center align-items-center">
             <label for="startDate">Start Date: </label>
-            <input type="date" class="form-control m-2" id="startDate" name="startDate" 
+            <input type="date" class="form-control m-2" id="startDate" name="startDateName" 
                 value=""
                 min="" 
                 max="<?php echo date("Y-m-d"); ?>">
         
-            <input type="time" class="form-control m-2" id="startTime" name="startTime"
+            <input type="time" class="form-control m-2" id="startTime" name="startTimeName"
                 value="<?php echo date("H:m"); ?>"
                 min="00:00" 
                 max="23:59">

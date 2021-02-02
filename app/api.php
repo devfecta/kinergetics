@@ -15,6 +15,7 @@ require("configuration/Devices.php");
 
 require("configuration/Sensor.php");
 require("configuration/Sensors.php");
+//require("configuration/DataPoint.php");
 require("configuration/DataPoints.php");
 
 //$requestMethod = $_SERVER['REQUEST_METHOD'];
@@ -238,8 +239,29 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     break;
                 case "DataPoints":
                     $dataPoints = new DataPoints();
-                    
                     switch ($_GET['method']) {
+                        case "getSensorDataPoints":
+                            $dataPointArray = array();
+                            
+                            $dataPointsArray = $dataPoints->getSensorDataPoints($_GET['userId'], $_GET['sensorId'], $_GET['startDateTime'], $_GET['endDateTime']);
+                            foreach($dataPointsArray as $dataPoint) {
+
+                                array_push($dataPointArray, 
+                                    array(
+                                        "id" => $dataPoint->getDataPointId()
+                                        , "user_id" => $dataPoint->getUserId()
+                                        , "sensor_id" => $dataPoint->getSensorId()
+                                        , "date_time" => $dataPoint->getDate()
+                                        , "data_type" => $dataPoint->getDataType()
+                                        , "data_value" => $dataPoint->getDataValue()
+                                        , "custom_value" => $dataPoint->getCustomValue()
+                                    )
+                                );
+                                
+                            }
+                            
+                            echo json_encode($dataPointArray);
+                            break;
                         case "getDataPoints":
                             //echo json_encode(array("message" => $_GET['userId'].' = '.$_GET['dateTime']), JSON_PRETTY_PRINT);
                             echo $dataPoints->getDataPoints((int)$_GET['userId'], $_GET['startDateTime'], 'null');

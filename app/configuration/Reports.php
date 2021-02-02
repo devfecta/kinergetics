@@ -390,8 +390,8 @@ class Reports {
             $connection = Configuration::openConnection();
 
             $statement = $connection->prepare("SELECT MIN(date_time) AS minDate, MAX(date_time) AS maxDate FROM dataPoints WHERE user_id=:userId AND sensor_id=:sensorId");
-            $statement->bindParam(":userId", $userId, PDO::PARAM_INT);
-            $statement->bindParam(":sensorId", $sensorId, PDO::PARAM_INT);
+            $statement->bindParam(":userId", $userId, PDO::PARAM_STR);
+            $statement->bindParam(":sensorId", $sensorId, PDO::PARAM_STR);
             $statement->execute();
             $results = $statement->fetch(PDO::FETCH_ASSOC);
 

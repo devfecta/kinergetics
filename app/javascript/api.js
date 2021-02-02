@@ -63,22 +63,10 @@ const getUserSensors = () => {
 
 const getSensorChart = () => {
 
-    const currentDataTime = new Date();
-    let initialDateTime = 
-    currentDataTime.getFullYear() + 
-    "-" + (currentDataTime.getMonth() + 1) + 
-    "-" + currentDataTime.getDate() + 
-    " " + currentDataTime.getHours() + 
-    ":" + currentDataTime.getMinutes() + 
-    ":" + currentDataTime.getSeconds();
-
     if (document.cookie.includes('; ') && document.cookie.includes('userId')) {
         const userId = document.cookie.split('; ').find(c => c.startsWith('userId')).split('=')[1];
         const urlParams = new URLSearchParams(window.location.search);
         
-        
-
-
         getApi("Sensor", "getSensor", "userId=" + userId + "&sensorId=" + urlParams.get("sensorId"))
         .then(sensor => {
 
@@ -91,10 +79,10 @@ const getSensorChart = () => {
             chart = createChart(chartId);
             // Title the Chart and Label the Chart's Axes
             // REMOVE chart = chartData(chart, sensor.sensorName + " Data", sensor.unitType, dataPoint.dataType + " (" + sensor.unitType + ")");
-            chart = chartData(chart, sensor.sensor_name + " Data", "test", "");
+            chart = chartData(chart, sensor.sensor_name + " Data", "test", ""); // REMOVE parameter 3 and 4
 
-            //chart = drawRealTimeChartLines(chart, sensor.data_points, averageTotal=0);
-        
+            
+            //return plotDataPoints(chart, sensor.data_points);
             
             return chart;
             /*
@@ -114,9 +102,59 @@ const getSensorChart = () => {
             */
         })
         .then(chart => {
+            const currentDataTime = new Date();
+            let initialDateTime = 
+            currentDataTime.getFullYear() + 
+            "-" + (currentDataTime.getMonth() + 1) + 
+            "-" + currentDataTime.getDate() + 
+            " " + currentDataTime.getHours() + 
+            ":" + currentDataTime.getMinutes() + 
+            ":" + currentDataTime.getSeconds();
+
+            //console.log(userId + " - " + urlParams.get("sensorId") + " - " + initialDateTime);
+            
+            return getApi("DataPoints", "getSensorDataPoints", "userId=" + userId + "&sensorId=" + urlParams.get("sensorId") + "&startDateTime=" + initialDateTime + "&endDateTime=null")
+            .then(dataPoints => {
+
+                console.log(dataPoints);
+                
+                return chart;
+                //return plotDataPoints(chart, dataPoints);
+                
+            })
+            .catch(error => console.log(error));
+
+            
+        })
+        .then(chart => {
             buildChart(chart);
         })
         .catch(error => console.log(error));
+
+        //getSensorDataPoints($userId, $sensorId, $startDateTime, $endDateTime)
+/*
+        const startDate = document.querySelector("#startDate");
+        const startTime = document.querySelector("#startTime");
+        
+        const endDate = document.querySelector("#endDate");
+        const endTime = document.querySelector("#endTime");
+
+        console.log(startDate.value + " " + startTime.value);
+        console.log(endDate.value + " " + endTime.value);
+*/
+        
+/*
+        chart = getApi("DataPoints", "getSensorDataPoints", "userId=" + userId + "&sensorId=" + urlParams.get("sensorId"))
+        .then(dataPoints => {
+
+            console.log(dataPoints);
+
+            
+            return plotDataPoints(chart, dataPoints);
+            
+        })
+        .catch(error => console.log(error));
+*/
 
         
 
@@ -133,7 +171,85 @@ const getSensorChart = () => {
 }
 
 
+const plotDataPoints = (chart, dataPoints) => {
 
+    let date = "";
+
+    //let dataSets = [];
+    let xAxislabels = []; // Time line
+    let pointData = [];
+    let lineShadingColor = [];
+    let lineColor = [];
+    let pointColor = "";
+
+    for (const key of Object.keys(dataPoints)) {
+        
+        if (Object.keys(dataPoints).length > 1) {
+
+            xAxislabels = [];
+            pointData = [];
+            lineShadingColor = [];
+            lineColor = [];
+
+            pointColor = getRandomColor();
+
+            dataPoints[key].forEach(point => {
+
+                date = new Date(point.dateTime);
+                xAxislabels = [...xAxislabels, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
+
+                pointData = [...pointData, point.value];
+
+                lineShadingColor = [...lineShadingColor, 'rgba(' + pointColor + ', 0.2)'];
+                lineColor = [...lineColor, 'rgba(' + pointColor + ', 0.7)'];
+
+            });
+
+            chart.datasets = [...chart.datasets, {
+                label: key 
+                , data: pointData
+                , backgroundColor: lineShadingColor
+                , borderColor: lineColor
+                , borderWidth: 1
+                , fill: true
+            }];
+
+        }
+        else {
+
+            pointColor = getRandomColor();
+
+            dataPoints[key].forEach(point => {
+
+                date = new Date(point.dateTime);
+                xAxislabels = [...xAxislabels, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
+
+                pointData = [...pointData, point.value];
+
+                lineShadingColor = [...lineShadingColor, 'rgba(' + pointColor + ', 0.2)'];
+                lineColor = [...lineColor, 'rgba(' + pointColor + ', 0.7)'];
+
+            });
+
+            chart.datasets = [...chart.datasets, {
+                label: key 
+                , data: pointData
+                , backgroundColor: lineShadingColor
+                , borderColor: lineColor
+                , borderWidth: 1
+                , fill: true
+            }];
+            
+        }
+
+    }
+
+//    console.log(chart.datasets);
+
+    chart.label = xAxislabels; // x-axis labels
+
+    return chart;
+}
 
 
 
@@ -516,24 +632,27 @@ const getMinMaxDates = () => {
         let searchButton = document.querySelector("#getData");
         searchButton.addEventListener("click", getData);
 
-        const startDate = document.querySelector("#startDate");
-        const startTime = document.querySelector("#startTime");
         
-        const endDate = document.querySelector("#endDate");
-        const endTime = document.querySelector("#endTime");
 
         getApi("Reports", "getMinMaxDates", "userId=" + userId + "&sensorId=" + urlParams.get('sensorId'))
         .then(data => {
+
+            const startDate = document.querySelector("#startDate");
+            const startTime = document.querySelector("#startTime");
+            
+            const endDate = document.querySelector("#endDate");
+            const endTime = document.querySelector("#endTime");
+            
             let minimumDate = new Date(data.minimum);
-            startDate.value = minimumDate.toISOString().slice(0,10);
+            startDate.value = minimumDate.toLocaleDateString("fr-CA");
             minimumDate.setFullYear(minimumDate.getFullYear() - 5);
-            startDate.min = minimumDate.toISOString().slice(0,10);
+            startDate.min = minimumDate.toLocaleDateString("fr-CA");
             startTime.value = ("0" + minimumDate.getHours()).slice(-2) + ":" + ("0" + minimumDate.getMinutes()).slice(-2);
 
             let maximumDate = new Date(data.maximum);
-            endDate.value = maximumDate.toISOString().slice(0,10);
+            endDate.value = maximumDate.toLocaleDateString("fr-CA");
             maximumDate.setFullYear(maximumDate.getFullYear() - 5);
-            endDate.min = maximumDate.toISOString().slice(0,10);
+            endDate.min = maximumDate.toLocaleDateString("fr-CA");
             endTime.value = ("0" + maximumDate.getHours()).slice(-2) + ":" + ("0" + maximumDate.getMinutes()).slice(-2);
         })
         .catch(error => console.log(error));
