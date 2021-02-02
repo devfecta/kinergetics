@@ -5,7 +5,7 @@ require_once('DataPoint.php');
 class Reports {
 
     function __construct() {}
-
+    // OLD
     public function getUserReports($formData) {
         
         try {
@@ -105,7 +105,7 @@ class Reports {
         }
         return json_encode($result, JSON_PRETTY_PRINT);
     }
-
+    // OLD
     public function getFormFields() {
         // For creating the report
         try {
@@ -125,7 +125,7 @@ class Reports {
         }
         return json_encode($result, JSON_PRETTY_PRINT);
     }
-
+    // OLD
     public function createReport($formData) {
 
         try {
@@ -149,7 +149,7 @@ class Reports {
         }
         return json_encode($result, JSON_PRETTY_PRINT);
     }
-
+    // OLD
     public function getCompanies() {
 
         try {
@@ -197,7 +197,7 @@ class Reports {
 
         return json_encode($result, JSON_PRETTY_PRINT);
     }
-
+    // OLD
     public function getReportDatapoints($reportId) {
         try {
             $connection = Configuration::openConnection();
@@ -238,7 +238,7 @@ class Reports {
 
         return json_encode($result, JSON_PRETTY_PRINT);
     }
-
+    // OLD
     public function getDeviceReportData($formData) {
 
         try {
@@ -291,7 +291,7 @@ class Reports {
     }
 
     
-
+    // OLD
     public function addDataPoint($formData) {
         try {
             $connection = Configuration::openConnection();
@@ -376,7 +376,14 @@ class Reports {
 
         return json_encode($result, JSON_PRETTY_PRINT);
     }
-
+    /**
+     * Returns the minimum and maximum dates based on a specific sensor's data points.
+     *
+     * @param   int  $userId    Logged in user ID
+     * @param   int  $sensorId  Selected sensor ID
+     *
+     * @return  json  JSON string containing the minimum and maximum dates based on a specific sensor's data points.
+     */
     public function getMinMaxDates($userId, $sensorId) {
         try {
 
@@ -400,7 +407,7 @@ class Reports {
             Configuration::closeConnection();
         }
     }
-
+    // OLD
     public function getMinMaxDatesOLD() {
         try {
 

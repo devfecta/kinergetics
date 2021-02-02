@@ -17,8 +17,7 @@ const init = () => {
 }
 
 /**
- * Get initial real time data, and start at the current date and time. IN USE
- * @param {string} dateTime 
+ * NEW
  */
 // await
 const getUserSensors = () => {
@@ -60,6 +59,91 @@ const getUserSensors = () => {
         location.href = './logout.php';
     }
 }
+
+
+const getSensorChart = () => {
+
+    const currentDataTime = new Date();
+    let initialDateTime = 
+    currentDataTime.getFullYear() + 
+    "-" + (currentDataTime.getMonth() + 1) + 
+    "-" + currentDataTime.getDate() + 
+    " " + currentDataTime.getHours() + 
+    ":" + currentDataTime.getMinutes() + 
+    ":" + currentDataTime.getSeconds();
+
+    if (document.cookie.includes('; ') && document.cookie.includes('userId')) {
+        const userId = document.cookie.split('; ').find(c => c.startsWith('userId')).split('=')[1];
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        
+
+
+        getApi("Sensor", "getSensor", "userId=" + userId + "&sensorId=" + urlParams.get("sensorId"))
+        .then(sensor => {
+
+            console.log(sensor);
+
+            let chart = null;
+            
+            let chartId = sensor.id;
+            // Create the Chart
+            chart = createChart(chartId);
+            // Title the Chart and Label the Chart's Axes
+            // REMOVE chart = chartData(chart, sensor.sensorName + " Data", sensor.unitType, dataPoint.dataType + " (" + sensor.unitType + ")");
+            chart = chartData(chart, sensor.sensor_name + " Data", "test", "");
+
+            //chart = drawRealTimeChartLines(chart, sensor.data_points, averageTotal=0);
+        
+            
+            return chart;
+            /*
+            sensors.forEach(sensor => {
+    
+                const sensorButton = document.createElement('button');
+                sensorButton.setAttribute("class", "btn btn-primary m-2 py-3 col-md-3");
+                sensorButton.onclick = () => {window.location.href = "sensor.php?sensorId="+sensor.id};
+                sensorButton.setAttribute("data-toggle", "collapse");
+                sensorButton.setAttribute("data-target", "#sensorBody" + sensor.id);
+                sensorButton.setAttribute("aria-expanded", "false");
+                sensorButton.setAttribute("aria-controls", "sensorBody" + sensor.id);
+                sensorButton.innerHTML = '<span class="fas fa-satellite-dish"></span> ' + sensor.sensor_name;
+                sensorList.appendChild(sensorButton);
+
+            });
+            */
+        })
+        .then(chart => {
+            buildChart(chart);
+        })
+        .catch(error => console.log(error));
+
+        
+
+    }
+
+    
+    /*
+    initializeRealTimeData(initialDateTime)
+    .then(sensors => {
+        const charts = initializeRealTimeCharts(sensors);
+    })
+    .catch(error => console.log(error));
+    */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Get initial real time data, and start at the current date and time. IN USE
@@ -418,7 +502,10 @@ const getReportDatapoints = (event) => {
     })
     .catch(error => console.log(error));
 }
-
+/**
+ * Gets the minimum and maximum dates based on a specific sensor's data points.
+ * Then assigns them to the appropriate HTML date elements.
+ */
 const getMinMaxDates = () => {
 
     if (document.cookie.includes('; ') && document.cookie.includes('userId')) {
@@ -437,7 +524,6 @@ const getMinMaxDates = () => {
 
         getApi("Reports", "getMinMaxDates", "userId=" + userId + "&sensorId=" + urlParams.get('sensorId'))
         .then(data => {
-            console.log(data);
             let minimumDate = new Date(data.minimum);
             startDate.value = minimumDate.toISOString().slice(0,10);
             minimumDate.setFullYear(minimumDate.getFullYear() - 5);
@@ -454,7 +540,6 @@ const getMinMaxDates = () => {
 
     }
 
-    
 }
 
 const getRandomColor = () => {

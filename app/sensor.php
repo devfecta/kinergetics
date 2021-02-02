@@ -71,6 +71,10 @@
 </section>
 
 <script>
+    getSensorChart();
+</script>
+
+<script>
     getMinMaxDates();
 </script>
 

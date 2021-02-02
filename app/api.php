@@ -13,6 +13,7 @@ require('configuration/Device.php');
 require("configuration/Reports.php");
 require("configuration/Devices.php");
 
+require("configuration/Sensor.php");
 require("configuration/Sensors.php");
 require("configuration/DataPoints.php");
 
@@ -179,35 +180,42 @@ switch ($_SERVER['REQUEST_METHOD']) {
         if (isset($_GET['class'])) {
             switch ($_GET['class']) {
                 case "Sensors":
-                    $Sensors = new Sensors();
+                    $sensors = new Sensors();
                     switch ($_GET['method']) {
                         case "getUserSensors":
-                            echo json_encode($Sensors->getUserSensors($_GET['userId']));
+                            
+                            $userSensors = $sensors->getUserSensors($_GET['userId']);
+
+                            $sensorArray = array();
+                            
+                            foreach($userSensors as $sensor) {
+                                array_push($sensorArray, array("id" => $sensor->getSensorId(), "sensor_name" => $sensor->getSensorName()));    
+                            }
+
+                            echo json_encode($sensorArray);
+
                             break;
                         default:
                             echo json_encode(array("error" => 'GET METHOD ERROR: The '.$_GET['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
                             break;
                     }
                     break;
-                /*
-                case "FlowMeter":
-                    $FlowMeter = new FlowMeter();
+                case "Sensor":
+                    $sensor = new Sensor();
                     switch ($_GET['method']) {
-                        case "flowRate":
-                            echo $FlowMeter->getFlowRate($_GET['formData']);
-                            break;
-                        case "totalVolume":
-                            echo $FlowMeter->getTotalVolume($_GET['formData']);
-                            break;
-                        case "steam":
-                            echo $FlowMeter->getSteam($_GET['formData']);
+                        case "getSensor":
+                            $sensor = Sensor::getSensor($_GET['sensorId']);
+
+                            $sensorArray = array("id" => $sensor->getSensorId(), "sensor_name" => $sensor->getSensorName());
+
+                            echo json_encode($sensorArray);
+
                             break;
                         default:
                             echo json_encode(array("error" => 'GET METHOD ERROR: The '.$_GET['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
                             break;
                     }
                     break;
-                */
                 case "Reports":
                     $Reports = new Reports();
                     switch ($_GET['method']) {

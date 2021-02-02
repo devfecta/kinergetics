@@ -1,8 +1,9 @@
 <?php
 
 require_once('Configuration.php');
+require_once('DataPoint.php');
 
-class DataPoints {
+class DataPoints extends DataPoint {
 
     private $id;
     private $report_id;
@@ -30,56 +31,7 @@ class DataPoints {
     private $pressure_ma;
     private $psig;
 
-    function __construct() {
-        /*
-        if ($pointId != null) {
-
-            try {
-
-                $connection = Configuration::openConnection();
-
-                $statement = $connection->prepare("SELECT * FROM `data_points` WHERE JSON_CONTAINS(`departments`, :businessId)");
-                $statement->bindParam(":id", $pointId);
-                $statement->execute();
-
-                $results = $statement->fetch(PDO::FETCH_ASSOC);
-
-                $this->setId($results['id']);
-                $this->setReportId($results['report_id']);
-                $this->setDate($results['date_time']);
-                $this->setFlowRate($results['flow_rate']);
-                $this->setTotalVolume($results['total_volume']);
-                $this->setSteam($results['flow_rate']);
-                $this->setFeedWater($results['flow_rate']);
-                $this->setFahrenheit($results['fahrenheit']);
-                $this->setCelsius($results['fahrenheit']);
-                $this->setCurrent($results['current']);
-                $this->setRelativeHumidity($results['relative_humidity']);
-                $this->setVoltageDetected($results['voltage_detected']);
-                $this->setError($results['error']);
-                $this->setVelocityReading($results['velocity_reading']);
-                $this->setVelocityLowLimit($results['velocity_low_limit']);
-                $this->setVelocityHighLimit($results['velocity_high_limit']);
-                $this->setVelocityCustomMa($results['velocity_ma_custom']);
-                $this->setVelocityMa($results['velocity_reading'], $results['velocity_low_limit'], $results['velocity_high_limit'], $results['velocity_ma_custom']);
-                $this->setInwc($this->velocity_ma);
-                $this->setPressureReading($results['pressure_reading']);
-                $this->setPressureLowLimit($results['pressure_low_limit']);
-                $this->setPressureHighLimit($results['pressure_high_limit']);
-                $this->setPressureCustomMa($results['pressure_ma_custom']);
-                $this->setPressureMa($results['pressure_reading'], $results['pressure_low_limit'], $results['pressure_high_limit'], $results['pressure_ma_custom']);
-                $this->setPsig($this->pressure_ma);
-                
-            }
-            catch (PDOException $e) {
-                return "Error: " . $e->getMessage();
-            }
-            finally {
-                Configuration::closeConnection();
-            }
-        }
-        */
-    }
+    function __construct() {}
     /**
      * Processes the data received from the webhook.
      *
@@ -255,22 +207,33 @@ class DataPoints {
 
         return $result;
     }
-
+    /**
+     * Gets specific user and sensor data points based off of a selected start and end date.
+     *
+     * @param   int  $userId         Logged in user ID
+     * @param   int  $sensorId       Specific user's sensor ID
+     * @param   string  $startDateTime  Selected start search date
+     * @param   string  $endDateTime    Selected end search date
+     *
+     * @return  array  Returns an array of DataPoint objects
+     */
     public function getSensorDataPoints($userId, $sensorId, $startDateTime, $endDateTime) {
+
+        $dataPoints = array();
 
         try {
             
             $connection = Configuration::openConnection();
 
             if ($endDateTime != "null") {
-                $statement = $connection->prepare("SELECT `sensors`.`sensor_name`, `dataPoints`.* FROM `sensors` INNER JOIN `dataPoints` ON `sensors`.`id`=`dataPoints`.`sensor_id` WHERE `sensors`.`id`=:sensor_id AND `dataPoints`.`user_id`=:user_id AND `date_time`>=:startDateTime AND `date_time`<=:endDateTime ORDER BY `date_time` ASC");
+                $statement = $connection->prepare("SELECT * FROM `dataPoints` WHERE `dataPoints`.`sensor_id`=:sensor_id AND `dataPoints`.`user_id`=:user_id AND `date_time`>=:startDateTime AND `date_time`<=:endDateTime ORDER BY `date_time` ASC");
                 $statement->bindParam(":user_id", $userId, PDO::PARAM_INT);
                 $statement->bindParam(":sensor_id", $sensorId, PDO::PARAM_INT);
                 $statement->bindParam(":startDateTime", $startDateTime, PDO::PARAM_STR); 
                 $statement->bindParam(":endDateTime", $endDateTime, PDO::PARAM_STR); 
             }
             else {
-                $statement = $connection->prepare("SELECT `sensors`.`sensor_name`, `dataPoints`.* FROM `sensors` INNER JOIN `dataPoints` ON `sensors`.`id`=`dataPoints`.`sensor_id` WHERE `sensors`.`id`=:sensor_id AND `dataPoints`.`user_id`=:user_id AND `date_time`>=:startDateTime ORDER BY `date_time` ASC LIMIT 0, 50");
+                $statement = $connection->prepare("SELECT * FROM `dataPoints` WHERE `dataPoints`.`sensor_id`=:sensor_id AND `dataPoints`.`user_id`=:user_id AND `date_time`>=:startDateTime ORDER BY `date_time` ASC LIMIT 0, 50");
                 $statement->bindParam(":user_id", $userId, PDO::PARAM_INT);
                 $statement->bindParam(":sensor_id", $sensorId, PDO::PARAM_INT);
                 $statement->bindParam(":startDateTime", $startDateTime, PDO::PARAM_STR); 
@@ -278,7 +241,22 @@ class DataPoints {
             
             $statement->execute();
 
-            $dataPoints = $statement->fetchAll(PDO::FETCH_ASSOC);
+            $results = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($results as $result) {
+
+                $dataPoint = new DataPoint();
+
+                $dataPoint->setDataPointId($result['id']);
+                $dataPoint->setUserId($result['user_id']);
+                $dataPoint->setSensorId($result['sensor_id']);
+                $dataPoint->setDate($result['date_time']);
+                $dataPoint->setDataType($result['data_type']);
+                $dataPoint->setDataValue($result['data_value']);
+                $dataPoint->setCustomValue($result['custom_value']);
+
+                array_push($dataPoints, $dataPoint);
+            }
 
             //error_log(var_dump($dataPoints), 0);
         }

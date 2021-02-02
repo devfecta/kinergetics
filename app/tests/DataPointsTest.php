@@ -1,6 +1,6 @@
 <?php 
 declare(strict_types=1);
-require_once('./configuration/Configuration.php');
+require_once('./configuration/DataPoint.php');
 require_once('./configuration/DataPoints.php');
 use PHPUnit\Framework\TestCase;
 
@@ -67,7 +67,11 @@ final class DataPointsTest extends TestCase
     public function testGetSensorDataPoints()
     {
         $dataPoints = new DataPoints();
-        $this->assertIsArray($dataPoints->getSensorDataPoints(2, 528889, "2020-10-1", "null"));
+        $this->assertIsArray($dataPoints->getSensorDataPoints(2, 528889, "2020-09-01", "null"));
+
+        //var_dump($dataPoints->getSensorDataPoints(2, 528889, "2020-09-01", "null"));
+
+        $this->assertInstanceOf(DataPoint::class, $dataPoints->getSensorDataPoints(2, 528889, "2020-10-1", "null")[0]);
     }
     
     /*
