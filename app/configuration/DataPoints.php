@@ -231,9 +231,10 @@ class DataPoints extends DataPoint {
             foreach ($dataTypes as $dataType) {
                 
             }
-*/
+*/          
+
             if ($endDateTime != "null") {
-                $statement = $connection->prepare("SELECT * FROM `dataPoints` WHERE `dataPoints`.`sensor_id`=:sensor_id AND `dataPoints`.`user_id`=:user_id AND `date_time`>=:startDateTime AND `date_time`<=:endDateTime ORDER BY `date_time` ASC");
+                $statement = $connection->prepare("SELECT * FROM `dataPoints` WHERE `dataPoints`.`sensor_id`=:sensor_id AND `dataPoints`.`user_id`=:user_id AND `dataPoints`.`date_time`>=:startDateTime AND `dataPoints`.`date_time`<=:endDateTime ORDER BY `date_time` ASC");
                 $statement->bindParam(":user_id", $userId, PDO::PARAM_INT);
                 $statement->bindParam(":sensor_id", $sensorId, PDO::PARAM_INT);
                 $statement->bindParam(":startDateTime", $startDateTime, PDO::PARAM_STR); 

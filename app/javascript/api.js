@@ -42,10 +42,10 @@ const getUserSensors = () => {
                 const sensorButton = document.createElement('button');
                 sensorButton.setAttribute("class", "btn btn-primary m-2 py-3 col-md-3");
                 sensorButton.onclick = () => {window.location.href = "sensor.php?sensorId="+sensor.id};
-                sensorButton.setAttribute("data-toggle", "collapse");
-                sensorButton.setAttribute("data-target", "#sensorBody" + sensor.id);
-                sensorButton.setAttribute("aria-expanded", "false");
-                sensorButton.setAttribute("aria-controls", "sensorBody" + sensor.id);
+                //sensorButton.setAttribute("data-toggle", "collapse");
+                //sensorButton.setAttribute("data-target", "#sensorBody" + sensor.id);
+                //sensorButton.setAttribute("aria-expanded", "false");
+                //sensorButton.setAttribute("aria-controls", "sensorBody" + sensor.id);
                 sensorButton.innerHTML = '<span class="fas fa-satellite-dish"></span> ' + sensor.sensor_name;
                 sensorList.appendChild(sensorButton);
 
@@ -110,6 +110,8 @@ const getSensorChart = (startDateTime, endDateTime) => {
         })
         .then(sensor => {
             console.log(sensor);
+            startDateTime = (startDateTime === null) ? "null" : startDateTime + ":00";
+            endDateTime = (endDateTime === null) ? "null" : endDateTime + ":59";
             
             return getApi("DataPoints", "getSensorDataPoints", "userId=" + userId + "&sensorId=" + urlParams.get("sensorId") + "&startDateTime=" + startDateTime + "&endDateTime=" + endDateTime)
             .then(dataPoints => {
@@ -292,16 +294,17 @@ const getData = async () => {
     const json = {};
 
     let formData = new FormData(searchForm);
+
     formData.forEach((entry, index) => {
         json[index] = entry;
     });
 
-    json.startDateTime = json.startDate + " "+ json.startTime;
-    json.endDateTime = json.endDate + " "+ json.endTime;
+    json.startDateTime = searchForm.querySelector("#startDate").value + " "+ searchForm.querySelector("#startTime").value;
+    json.endDateTime = searchForm.querySelector("#endDate").value + " "+ searchForm.querySelector("#startTime").value;
 
-    console.log(json.startDateTime + " = " + json.endDateTime);
+    //console.log(json.startDateTime + " = " + json.endDateTime);
 
-//    getSensorChart(json.startDateTime, json.endDateTime);
+    getSensorChart(json.startDateTime, json.endDateTime);
 
 //    getCharts(json);
 
@@ -309,6 +312,7 @@ const getData = async () => {
 
 
 
+// Admin Functions
 
 
 
@@ -545,12 +549,12 @@ const getCompanies = () => {
             companyHeader.setAttribute("class", "mb-0");
 
             const companyHeaderButton = document.createElement('button');
-            companyHeaderButton.setAttribute("class", "btn btn-primary py-3 w-100");
+            companyHeaderButton.setAttribute("class", "btn btn-primary py-4 w-100");
             companyHeaderButton.setAttribute("data-toggle", "collapse");
             companyHeaderButton.setAttribute("data-target", "#companyBody" + company.id);
             companyHeaderButton.setAttribute("aria-expanded", "false");
             companyHeaderButton.setAttribute("aria-controls", "companyBody" + company.id);
-            companyHeaderButton.innerText = company.company;
+            companyHeaderButton.innerHTML = '<span class="fas fa-building"></span> ' + company.company;
 
             companyHeader.appendChild(companyHeaderButton);
             companyCardHeader.appendChild(companyHeader);
