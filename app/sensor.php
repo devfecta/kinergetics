@@ -71,11 +71,7 @@
 </section>
 
 <script>
-    getSensorChart();
-</script>
-
-<script>
-    getMinMaxDates();
+    getSensorChart(null, null);
 </script>
 
 <?php } ?>

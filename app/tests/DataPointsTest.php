@@ -69,9 +69,15 @@ final class DataPointsTest extends TestCase
         $dataPoints = new DataPoints();
         $this->assertIsArray($dataPoints->getSensorDataPoints(2, 528889, "2020-09-01", "null"));
 
-        //var_dump($dataPoints->getSensorDataPoints(2, 528889, "2020-09-01", "null"));
+        var_dump($dataPoints->getSensorDataPoints(2, 528889, "2020-09-01", "null"));
 
-        $this->assertInstanceOf(DataPoint::class, $dataPoints->getSensorDataPoints(2, 528889, "2020-10-1", "null")[0]);
+        //$this->assertInstanceOf(DataPoint::class, $dataPoints->getSensorDataPoints(2, 528889, "2020-10-1", "null")[0]);
+    }
+
+    public function testGetSensorDataTypes() {
+        $dataPoints = new DataPoints();
+        $this->assertIsArray($dataPoints->getSensorDataTypes(528889));
+        var_dump($dataPoints->getSensorDataTypes(528889));
     }
     
     /*

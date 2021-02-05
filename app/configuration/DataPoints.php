@@ -224,8 +224,15 @@ class DataPoints extends DataPoint {
         try {
             
             $connection = Configuration::openConnection();
+/*
+            $dataTypes = getSensorDataTypes($sensorId);
 
-            if ($endDateTime != null) {
+            //str_replace(" ", "_", $dataType)
+            foreach ($dataTypes as $dataType) {
+                
+            }
+*/
+            if ($endDateTime != "null") {
                 $statement = $connection->prepare("SELECT * FROM `dataPoints` WHERE `dataPoints`.`sensor_id`=:sensor_id AND `dataPoints`.`user_id`=:user_id AND `date_time`>=:startDateTime AND `date_time`<=:endDateTime ORDER BY `date_time` ASC");
                 $statement->bindParam(":user_id", $userId, PDO::PARAM_INT);
                 $statement->bindParam(":sensor_id", $sensorId, PDO::PARAM_INT);
@@ -233,10 +240,9 @@ class DataPoints extends DataPoint {
                 $statement->bindParam(":endDateTime", $endDateTime, PDO::PARAM_STR); 
             }
             else {
-                $statement = $connection->prepare("SELECT * FROM `dataPoints` WHERE `dataPoints`.`sensor_id`=:sensor_id AND `dataPoints`.`user_id`=:user_id AND `date_time`>=:startDateTime ORDER BY `date_time` ASC LIMIT 0, 50");
+                $statement = $connection->prepare("SELECT * FROM `dataPoints` WHERE `dataPoints`.`sensor_id`=:sensor_id AND `dataPoints`.`user_id`=:user_id ORDER BY `date_time` ASC LIMIT 0, 50");
                 $statement->bindParam(":user_id", $userId, PDO::PARAM_INT);
                 $statement->bindParam(":sensor_id", $sensorId, PDO::PARAM_INT);
-                $statement->bindParam(":startDateTime", $startDateTime, PDO::PARAM_STR); 
             }
             
             $statement->execute();
@@ -273,6 +279,47 @@ class DataPoints extends DataPoint {
         return $dataPoints;
 
     }
+
+    public function getSensorDataTypes($sensorId) {
+
+        $dataTypes = array();
+
+        try {
+            
+            $connection = Configuration::openConnection();
+
+            $statement = $connection->prepare("SELECT `dataPoints`.`data_type` FROM `dataPoints` WHERE `dataPoints`.`sensor_id`=:sensor_id GROUP BY `dataPoints`.`data_type`");
+            $statement->bindParam(":sensor_id", $sensorId, PDO::PARAM_INT);
+            
+            $statement->execute();
+
+            $results = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach($results as $dataType) {
+                array_push($dataTypes, $dataType);
+            }
+            //error_log(var_dump($dataPoints), 0);
+        }
+        catch(PDOException $pdo) {
+            error_log(date('Y-m-d H:i:s') . " " . $pdo->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
+        }
+        catch (Exception $e) {
+            error_log(date('Y-m-d H:i:s') . " " . $e->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
+        }
+        finally {
+            Configuration::closeConnection();
+        }
+
+        return $dataTypes;
+
+    }
+
+
+
+
+
+
+
 
     /**
      * Gets the data points for a specific company/user based on a start and end datetime.

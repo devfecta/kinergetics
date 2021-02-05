@@ -242,10 +242,14 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     switch ($_GET['method']) {
                         case "getSensorDataPoints":
                             $dataPointArray = array();
+
+                            //$dataPointArray = array($_GET['userId'], $_GET['sensorId'], $_GET['startDateTime'], $_GET['endDateTime']);
                             
                             $dataPointsArray = $dataPoints->getSensorDataPoints($_GET['userId'], $_GET['sensorId'], $_GET['startDateTime'], $_GET['endDateTime']);
-                            foreach($dataPointsArray as $dataPoint) {
 
+                            //$dataPointArray = $dataPointsArray;
+                            foreach($dataPointsArray as $dataPoint) {
+                                
                                 array_push($dataPointArray, 
                                     array(
                                         "id" => $dataPoint->getDataPointId()
@@ -261,6 +265,10 @@ switch ($_SERVER['REQUEST_METHOD']) {
                             }
                             
                             echo json_encode($dataPointArray);
+                            break;
+                        case "getSensorDataTypes":
+                            $dataTypessArray = $dataPoints->getSensorDataTypes($_GET['sensorId']);
+                            echo json_encode($dataTypessArray);
                             break;
                         case "getDataPoints":
                             //echo json_encode(array("message" => $_GET['userId'].' = '.$_GET['dateTime']), JSON_PRETTY_PRINT);

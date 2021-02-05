@@ -1,5 +1,6 @@
 const init = () => {
-
+   // 
+    /*
     const currentDataTime = new Date();
     let initialDateTime = 
     currentDataTime.getFullYear() + 
@@ -14,6 +15,7 @@ const init = () => {
         const charts = initializeRealTimeCharts(sensors);
     })
     .catch(error => console.log(error));
+    */
 }
 
 /**
@@ -60,8 +62,12 @@ const getUserSensors = () => {
     }
 }
 
-
-const getSensorChart = () => {
+/**
+ * NEW
+ */
+const getSensorChart = (startDateTime, endDateTime) => {
+    // Sets the date picker values.
+    getMinMaxDates();
 
     if (document.cookie.includes('; ') && document.cookie.includes('userId')) {
         const userId = document.cookie.split('; ').find(c => c.startsWith('userId')).split('=')[1];
@@ -71,6 +77,7 @@ const getSensorChart = () => {
         .then(sensor => {
 
             console.log(sensor);
+            return sensor;
 
             let chart = null;
             
@@ -101,24 +108,52 @@ const getSensorChart = () => {
             });
             */
         })
-        .then(chart => {
-            const currentDataTime = new Date();
-            let initialDateTime = 
-            currentDataTime.getFullYear() + 
-            "-" + (currentDataTime.getMonth() + 1) + 
-            "-" + currentDataTime.getDate() + 
-            " " + currentDataTime.getHours() + 
-            ":" + currentDataTime.getMinutes() + 
-            ":" + currentDataTime.getSeconds();
+        .then(sensor => {
 
-            //console.log(userId + " - " + urlParams.get("sensorId") + " - " + initialDateTime);
+            return getApi("DataPoints", "getSensorDataTypes", "sensorId=" + urlParams.get("sensorId"))
+            .then(dataTypes => {
+
+                console.log(dataTypes);
+                sensor.dataTypes = dataTypes;
+                
+                return sensor;
+                //return plotDataPoints(chart, dataPoints);
+                
+            })
+            .catch(error => console.log(error));
+
+        })
+        .then(sensor => {
+            console.log(sensor);
             
-            return getApi("DataPoints", "getSensorDataPoints", "userId=" + userId + "&sensorId=" + urlParams.get("sensorId") + "&startDateTime=" + initialDateTime + "&endDateTime=null")
+            return getApi("DataPoints", "getSensorDataPoints", "userId=" + userId + "&sensorId=" + urlParams.get("sensorId") + "&startDateTime=" + startDateTime + "&endDateTime=" + endDateTime)
             .then(dataPoints => {
 
                 console.log(dataPoints);
+
                 
-                return chart;
+
+                sensor.dataTypes.forEach(dataType => {
+                    
+                    let chart = null;
+
+                    let points = dataPoints.filter(function(dataPoint) {
+                        return dataPoint.data_type == dataType.data_type;
+                    });
+                    // Create charts here
+                    console.log(points);
+                    let chartId = sensor.id + "-" + dataType.data_type.replace(" ", "_");
+                    chart = createChart(chartId);
+                    // Title the Chart and Label the Chart's Axes
+                    chart = chartData(chart, sensor.sensor_name + " Data", dataType.data_type, "");
+                    
+                    plotDataPoints(chart, points);
+                    
+                    buildChart(chart);
+
+                });
+                
+                //return chart;
                 //return plotDataPoints(chart, dataPoints);
                 
             })
@@ -126,9 +161,11 @@ const getSensorChart = () => {
 
             
         })
+        /*
         .then(chart => {
             buildChart(chart);
         })
+        */
         .catch(error => console.log(error));
 
         //getSensorDataPoints($userId, $sensorId, $startDateTime, $endDateTime)
@@ -182,6 +219,30 @@ const plotDataPoints = (chart, dataPoints) => {
     let lineColor = [];
     let pointColor = "";
 
+    pointColor = getRandomColor();
+
+    dataPoints.forEach(point => {
+
+        date = new Date(point.date_time);
+        xAxislabels = [...xAxislabels, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
+
+        pointData = [...pointData, point.data_value];
+
+        lineShadingColor = [...lineShadingColor, 'rgba(' + pointColor + ', 0.2)'];
+        lineColor = [...lineColor, 'rgba(' + pointColor + ', 0.7)'];
+
+    });
+
+    chart.datasets = [...chart.datasets, {
+        label: dataPoints[0].data_type
+        , data: pointData
+        , backgroundColor: lineShadingColor
+        , borderColor: lineColor
+        , borderWidth: 1
+        , fill: true
+    }];
+
+/*
     for (const key of Object.keys(dataPoints)) {
         
         if (Object.keys(dataPoints).length > 1) {
@@ -241,9 +302,9 @@ const plotDataPoints = (chart, dataPoints) => {
             }];
             
         }
-
+        
     }
-
+*/
 //    console.log(chart.datasets);
 
     chart.label = xAxislabels; // x-axis labels

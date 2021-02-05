@@ -31,10 +31,6 @@
     getUserSensors();
 </script>
 
-<script>
-    getMinMaxDates();
-</script>
-
 <?php } ?>
 
 <?php
