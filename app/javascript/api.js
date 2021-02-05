@@ -17,11 +17,9 @@ const init = () => {
     .catch(error => console.log(error));
     */
 }
-
 /**
- * NEW
+ * Gets and creates the HTML button elements for a specific user's sensors.
  */
-// await
 const getUserSensors = () => {
     // Logs out after idle for 1 hour.
     const userSensors = document.querySelector("#userSensors");
@@ -33,7 +31,7 @@ const getUserSensors = () => {
 
     if (document.cookie.includes('; ') && document.cookie.includes('userId')) {
         const userId = document.cookie.split('; ').find(c => c.startsWith('userId')).split('=')[1];
-        //console.log(dateTime);
+
         getApi("Sensors", "getUserSensors", "userId=" + userId)
         .then(sensors => {
 
@@ -61,9 +59,11 @@ const getUserSensors = () => {
         location.href = './logout.php';
     }
 }
-
 /**
- * NEW
+ * Gets the chart(s) for a specific sensor, and can be used to get data points within a specific time frame.
+ *
+ * @param   {string}  startDateTime  Start date and time
+ * @param   {string}  endDateTime  End date and time
  */
 const getSensorChart = (startDateTime, endDateTime) => {
     // Sets the date picker values.
@@ -79,19 +79,6 @@ const getSensorChart = (startDateTime, endDateTime) => {
             console.log(sensor);
             return sensor;
 
-            let chart = null;
-            
-            let chartId = sensor.id;
-            // Create the Chart
-            chart = createChart(chartId);
-            // Title the Chart and Label the Chart's Axes
-            // REMOVE chart = chartData(chart, sensor.sensorName + " Data", sensor.unitType, dataPoint.dataType + " (" + sensor.unitType + ")");
-            chart = chartData(chart, sensor.sensor_name + " Data", "test", ""); // REMOVE parameter 3 and 4
-
-            
-            //return plotDataPoints(chart, sensor.data_points);
-            
-            return chart;
             /*
             sensors.forEach(sensor => {
     
@@ -115,9 +102,7 @@ const getSensorChart = (startDateTime, endDateTime) => {
 
                 console.log(dataTypes);
                 sensor.dataTypes = dataTypes;
-                
                 return sensor;
-                //return plotDataPoints(chart, dataPoints);
                 
             })
             .catch(error => console.log(error));
@@ -131,8 +116,6 @@ const getSensorChart = (startDateTime, endDateTime) => {
 
                 console.log(dataPoints);
 
-                
-
                 sensor.dataTypes.forEach(dataType => {
                     
                     let chart = null;
@@ -145,7 +128,7 @@ const getSensorChart = (startDateTime, endDateTime) => {
                     let chartId = sensor.id + "-" + dataType.data_type.replace(" ", "_");
                     chart = createChart(chartId);
                     // Title the Chart and Label the Chart's Axes
-                    chart = chartData(chart, sensor.sensor_name + " Data", dataType.data_type, "");
+                    chart = chartData(chart, sensor.sensor_name + " Data", dataType.data_type);
                     
                     plotDataPoints(chart, points);
                     
@@ -153,77 +136,70 @@ const getSensorChart = (startDateTime, endDateTime) => {
 
                 });
                 
-                //return chart;
-                //return plotDataPoints(chart, dataPoints);
-                
             })
             .catch(error => console.log(error));
-
-            
-        })
-        /*
-        .then(chart => {
-            buildChart(chart);
-        })
-        */
-        .catch(error => console.log(error));
-
-        //getSensorDataPoints($userId, $sensorId, $startDateTime, $endDateTime)
-/*
-        const startDate = document.querySelector("#startDate");
-        const startTime = document.querySelector("#startTime");
-        
-        const endDate = document.querySelector("#endDate");
-        const endTime = document.querySelector("#endTime");
-
-        console.log(startDate.value + " " + startTime.value);
-        console.log(endDate.value + " " + endTime.value);
-*/
-        
-/*
-        chart = getApi("DataPoints", "getSensorDataPoints", "userId=" + userId + "&sensorId=" + urlParams.get("sensorId"))
-        .then(dataPoints => {
-
-            console.log(dataPoints);
-
-            
-            return plotDataPoints(chart, dataPoints);
             
         })
         .catch(error => console.log(error));
-*/
-
-        
 
     }
 
-    
-    /*
-    initializeRealTimeData(initialDateTime)
-    .then(sensors => {
-        const charts = initializeRealTimeCharts(sensors);
-    })
-    .catch(error => console.log(error));
-    */
 }
+/**
+ * Creates the HTML element for a chart and returns JSON of the chart data.
+ *
+ * @param   {string}  chartId  The ID of the the HTML element for the chart.
+ *
+ * @return  {json}  JSON of chart data.
+ */
+const createChart = (chartId) => {
+    // Remove the old chart
+    (document.getElementById(chartId)) ? document.getElementById(chartId).remove() : '';
 
+    const charts = document.querySelector('#charts');
+    const chart = document.createElement('canvas');
+    chart.setAttribute("class", "col-lg-6 col-md");
 
+    chart.id = chartId;
+    charts.appendChild(chart);
+    return chart;
+}
+/**
+ * Sets chart specific information.
+ * @returns  {json}  JSON of chart information.
+ */
+const chartData = (chart, title, verticalLabel) => {
+    //console.log(verticalLabel);
+    let chartData = {};
+    chartData.canvas = chart;
+    chartData.canvas.innerHTML = "";
+    chartData.chartTitle = title;
+    chartData.unit = verticalLabel;
+    // Line Formatting
+    //chartData.flow = {labelsData : []}
+    chartData.datasets = [];
+    chartData.labelsData = [];
+    return chartData;
+}
+/**
+ * Adds the data points to the chart, along with x-axis information and returns JSON of the chart data.
+ *
+ * @param   {json}  chart  JSON of chart data.
+ * @param   {json}  dataPoints  JSON of data point information.
+ *
+ * @return  {json}  JSON of chart data.
+ */
 const plotDataPoints = (chart, dataPoints) => {
 
-    let date = "";
-
-    //let dataSets = [];
     let xAxislabels = []; // Time line
-    let pointData = [];
-    let lineShadingColor = [];
-    let lineColor = [];
-    let pointColor = "";
-
-    pointColor = getRandomColor();
+    let pointData = []; // Data points
+    let lineShadingColor = []; // Line background color
+    let lineColor = []; // Line color
+    const pointColor = getRandomColor(); // Color for the line and background
 
     dataPoints.forEach(point => {
 
-        date = new Date(point.date_time);
+        const date = new Date(point.date_time);
         xAxislabels = [...xAxislabels, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
 
         pointData = [...pointData, point.data_value];
@@ -232,6 +208,15 @@ const plotDataPoints = (chart, dataPoints) => {
         lineColor = [...lineColor, 'rgba(' + pointColor + ', 0.7)'];
 
     });
+
+    /**
+     * label: Colored key at the top of the chart and in the data point pop-up label.
+     * data: Array of data points.
+     * backgroundColor: Array of color for the background color of the data points.
+     * borderColor: Array of color for the line color of the data points.
+     * borderWidth: Width of the line for the data points.
+     * fill: Show the background color for the line of the data points.
+     */
 
     chart.datasets = [...chart.datasets, {
         label: dataPoints[0].data_type
@@ -242,74 +227,84 @@ const plotDataPoints = (chart, dataPoints) => {
         , fill: true
     }];
 
-/*
-    for (const key of Object.keys(dataPoints)) {
-        
-        if (Object.keys(dataPoints).length > 1) {
-
-            xAxislabels = [];
-            pointData = [];
-            lineShadingColor = [];
-            lineColor = [];
-
-            pointColor = getRandomColor();
-
-            dataPoints[key].forEach(point => {
-
-                date = new Date(point.dateTime);
-                xAxislabels = [...xAxislabels, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
-
-                pointData = [...pointData, point.value];
-
-                lineShadingColor = [...lineShadingColor, 'rgba(' + pointColor + ', 0.2)'];
-                lineColor = [...lineColor, 'rgba(' + pointColor + ', 0.7)'];
-
-            });
-
-            chart.datasets = [...chart.datasets, {
-                label: key 
-                , data: pointData
-                , backgroundColor: lineShadingColor
-                , borderColor: lineColor
-                , borderWidth: 1
-                , fill: true
-            }];
-
-        }
-        else {
-
-            pointColor = getRandomColor();
-
-            dataPoints[key].forEach(point => {
-
-                date = new Date(point.dateTime);
-                xAxislabels = [...xAxislabels, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
-
-                pointData = [...pointData, point.value];
-
-                lineShadingColor = [...lineShadingColor, 'rgba(' + pointColor + ', 0.2)'];
-                lineColor = [...lineColor, 'rgba(' + pointColor + ', 0.7)'];
-
-            });
-
-            chart.datasets = [...chart.datasets, {
-                label: key 
-                , data: pointData
-                , backgroundColor: lineShadingColor
-                , borderColor: lineColor
-                , borderWidth: 1
-                , fill: true
-            }];
-            
-        }
-        
-    }
-*/
-//    console.log(chart.datasets);
-
     chart.label = xAxislabels; // x-axis labels
 
     return chart;
+}
+/**
+ * Adds property values to the chart.
+ * @param {json}  chartData  JSON of chart information
+ */
+const buildChart = (chartData) => {
+
+    //console.log(chartData.datasets);
+
+    const myChart = new Chart(chartData.canvas, {
+        type: 'line',
+        data: {
+            labels: chartData.label
+            , datasets: chartData.datasets
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: chartData.chartTitle
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            },
+            scales: {
+                xAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Time'
+                    }
+                }],
+                yAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: chartData.unit
+                    }
+                }]
+            }
+            /*
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+            */
+        }
+    });
+
+}
+
+const getData = async () => {
+    // Select form
+    let searchForm = document.querySelector("#searchForm");
+    // Convert form data to JSON
+    const json = {};
+
+    let formData = new FormData(searchForm);
+    formData.forEach((entry, index) => {
+        json[index] = entry;
+    });
+
+    json.startDateTime = json.startDate + " "+ json.startTime;
+    json.endDateTime = json.endDate + " "+ json.endTime;
+
+    console.log(json.startDateTime + " = " + json.endDateTime);
+
+//    getSensorChart(json.startDateTime, json.endDateTime);
+
+//    getCharts(json);
+
 }
 
 
@@ -320,13 +315,11 @@ const plotDataPoints = (chart, dataPoints) => {
 
 
 
-
-
 /**
- * Get initial real time data, and start at the current date and time. IN USE
+ * Get initial real time data, and start at the current date and time.
+ * OLD
  * @param {string} dateTime 
  */
-// await
 const initializeRealTimeData = (dateTime) => {
     // Logs out after idle for 1 hour.
     if (document.cookie.includes('; ') && document.cookie.includes('userId')) {
@@ -342,7 +335,8 @@ const initializeRealTimeData = (dateTime) => {
     }
 }
 /**
- * Creates blank charts  IN USE
+ * Creates blank charts
+ * OLD
  * @param {array} dataPoints 
  */
 const initializeRealTimeCharts = (sensors) => {
@@ -367,7 +361,7 @@ const initializeRealTimeCharts = (sensors) => {
     });
 
 }
-//  IN USE
+//  OLD
 const drawRealTimeChartLines = (chart, dataPoints, averageTotal) => {
 
     let date = "";
@@ -449,20 +443,7 @@ const drawRealTimeChartLines = (chart, dataPoints, averageTotal) => {
     return chart;
 }
 
-const getData = async () => {
-    // Select form
-    let searchForm = document.querySelector("#searchForm");
-    // Convert form data to JSON
-    const json = {};
 
-    let formData = new FormData(searchForm);
-    formData.forEach((entry, index) => {
-        json[index] = entry;
-    });
-
-    getCharts(json);
-
-}
 /** REMOVE IF NOT NEEDED
 const getFormFields = () => {
     // For creating the report
@@ -725,21 +706,7 @@ const getMinMaxDates = () => {
 const getRandomColor = () => {
     return (Math.floor(Math.random() * 200) + 1) + ", " + (Math.floor(Math.random() * 200) + 1) + ", " + (Math.floor(Math.random() * 200) + 1);
 }
-/**
- * Creates a chart canvas with an ID.  IN USE
- */
-const createChart = (chartId) => {
-    // Remove the old chart
-    (document.getElementById(chartId)) ? document.getElementById(chartId).remove() : '';
 
-    const charts = document.querySelector('#charts');
-    const chart = document.createElement('canvas');
-    chart.setAttribute("class", "col-lg-6 col-md");
-
-    chart.id = chartId;
-    charts.appendChild(chart);
-    return chart;
-}
 /**
  * Get data points for the chart. NOT IN USE
  * @returns json of data points
@@ -751,23 +718,7 @@ const getDataPoints = async (deviceName, formJSON) => {
     //console.log(responseJSON);
     return await postApi(formJSON);
 }
-/**
- * Chart specific information. IN USE
- * @returns json of chart information
- */
-const chartData = (chart, title, verticalLabel, horizontalLabel) => {
-    //console.log(verticalLabel);
-    let chartData = {};
-    chartData.canvas = chart;
-    chartData.canvas.innerHTML = "";
-    chartData.chartTitle = title;
-    chartData.unit = verticalLabel;
-    // Line Formatting
-    //chartData.flow = {labelsData : []}
-    chartData.datasets = [];
-    chartData.labelsData = [];
-    return chartData;
-}
+
 // IN USE
 const getCharts = async (formJSON) => {
 
@@ -797,59 +748,11 @@ const getCharts = async (formJSON) => {
 
 }
 
-/**
- * Add property values to the chart.  IN USE
- * @param {json} chartData 
- */
-const buildChart = (chartData) => {
 
-    //console.log(chartData.datasets);
 
-    const myChart = new Chart(chartData.canvas, {
-        type: 'line',
-        data: {
-            labels: chartData.label
-            , datasets: chartData.datasets
-        },
-        options: {
-            responsive: true,
-            title: {
-                display: true,
-                text: chartData.chartTitle
-            },
-            hover: {
-                mode: 'nearest',
-                intersect: true
-            },
-            scales: {
-                xAxes: [{
-                    display: true,
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Time'
-                    }
-                }],
-                yAxes: [{
-                    display: true,
-                    scaleLabel: {
-                        display: true,
-                        labelString: chartData.unit
-                    }
-                }]
-            }
-            /*
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }]
-            }
-            */
-        }
-    });
 
-}
+
+
 
 const postApi = async (formData) => {
 
