@@ -8,10 +8,13 @@ ob_start();
 session_start();
 
 require('configuration/Configuration.php');
-require('configuration/User.php');
+
 require('configuration/Device.php');
 require("configuration/Reports.php");
 require("configuration/Devices.php");
+
+require('configuration/User.php');
+require("configuration/Users.php");
 
 require("configuration/Sensor.php");
 require("configuration/Sensors.php");
@@ -26,6 +29,7 @@ $encodedJSON = null;
 ////$test = json_encode($_POST, false);
 ////echo json_encode(array("type" => $_POST["sensor"]));
 //echo json_encode($_GET, false);
+//echo json_encode($_POST, false);
 //exit();
 
 switch ($_SERVER['REQUEST_METHOD']) {
@@ -37,7 +41,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
         if (isset($_GET['class']) && !empty($_GET['class'])) {
             switch ($_GET['class']) {
                 case "User":
-                    $User = new User(null);
+                    $User = new User();
                     switch ($_GET['method']) {
                         case "register":
                             // Return JSON of the registrants
@@ -54,14 +58,21 @@ switch ($_SERVER['REQUEST_METHOD']) {
                             
                             break;
                         case "login":
-                            // Return JSON of the registrants
                             $result = json_decode($User->login($_POST), false);
                             if ($result->authenticated) {
                                 $_SESSION['userId'] = $result->id;
                                 $_SESSION['company'] = $result->company;
                                 $_SESSION['type'] = $result->type;
-                                setcookie("userId", $result->id, time()+3600);
-                                header("Location: index.php");
+
+                                if ($result->type > 0) {
+                                    setcookie("adminId", $result->id, time()+3600);
+                                    header("Location: dashboard.php");
+                                }
+                                else {
+                                    setcookie("userId", $result->id, time()+3600);
+                                    header("Location: index.php");
+                                }
+
                             }
                             else {
                                 header("Location: login.php");
@@ -180,6 +191,29 @@ switch ($_SERVER['REQUEST_METHOD']) {
         // Reads
         if (isset($_GET['class'])) {
             switch ($_GET['class']) {
+                case "Users":
+                    $users = new Users();
+                    switch ($_GET['method']) {
+                        case "getCompanies":
+
+                            
+                            
+                            $companies = $users->getCompanies();
+
+                            $companiesArray = array();
+                            
+                            foreach($companies as $company) {
+                                array_push($companiesArray, array("id" => $company->getId(), "company" => $company->getCompany(), "type" => $company->getType()));    
+                            }
+
+                            echo json_encode($companiesArray);
+
+                            break;
+                        default:
+                            echo json_encode(array("error" => 'GET METHOD ERROR: The '.$_GET['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
+                            break;
+                    }
+                    break;
                 case "Sensors":
                     $sensors = new Sensors();
                     switch ($_GET['method']) {
@@ -225,9 +259,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
                             break;
                         case "getMinMaxDates":
                             echo $Reports->getMinMaxDates($_GET['userId'], $_GET['sensorId']);
-                            break;
-                        case "getCompanies":
-                            echo $Reports->getCompanies();
                             break;
                         case "getReportDatapoints":
                             echo $Reports->getReportDatapoints($_GET['reportId']);

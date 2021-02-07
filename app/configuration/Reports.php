@@ -149,54 +149,7 @@ class Reports {
         }
         return json_encode($result, JSON_PRETTY_PRINT);
     }
-    // OLD
-    public function getCompanies() {
-
-        try {
-            $connection = Configuration::openConnection();
-
-            $statement = $connection->prepare("SELECT `users`.`id`, `users`.`company` FROM `users` 
-            WHERE `users`.`type`=0 
-            ORDER BY `users`.`company`");
-            $statement->execute();
-            $companies = $statement->rowCount() > 0 ? $statement->fetchAll(PDO::FETCH_ASSOC) : false;
-
-            if (sizeof($companies)) {
-                foreach($companies as $companyIndex => $company) {
-                    
-                    $result[$companyIndex] = $company;
-                    
-                    $statement = $connection->prepare("SELECT `reports`.`id` AS `reportId`, `devices`.* FROM `users` 
-                    INNER JOIN `reports` ON `reports`.`user_id`=`users`.`id`
-                    INNER JOIN `devices` ON `devices`.`id`=`reports`.`device_id` 
-                    WHERE `users`.`id`=:companyId 
-                    ORDER BY `users`.`company`");
-                    $statement->bindParam(":companyId", $company['id'] , PDO::PARAM_STR);
-                    $statement->execute();
-
-                    $reports = $statement->rowCount() > 0 ? $statement->fetchAll(PDO::FETCH_ASSOC) : false;
-                    if (sizeof($reports)) {
-                        foreach($reports as $reportIndex => $report) {
-                            $result[$companyIndex]['reports'][$reportIndex] = $report;
-                        }
-                    }
-                    else {}
-                    
-                }
-            }
-            else {
-                $result = $companies;
-            }
-        }
-        catch (PDOException $pdo) {
-            $result = array('error' => $pdo->getMessage());
-        }
-        finally {
-            Configuration::closeConnection();
-        }
-
-        return json_encode($result, JSON_PRETTY_PRINT);
-    }
+    
     // OLD
     public function getReportDatapoints($reportId) {
         try {

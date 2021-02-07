@@ -8,33 +8,40 @@
         private $password;
         private $type;
 
-        public function __construct($userId) {
+        public function __construct() {}
 
-            if ($userId != null) {
+        public static function getUser($userId) {
 
-                try {
+            $user = new static();
 
-                    $connection = Configuration::openConnection();
+            try {
 
-                    $statement = $connection->prepare("SELECT * FROM users WHERE id=:id");
-                    $statement->bindParam(":id", $userId);
-                    $statement->execute();
+                $connection = Configuration::openConnection();
 
-                    $results = $statement->fetch(PDO::FETCH_ASSOC);
+                $statement = $connection->prepare("SELECT * FROM users WHERE id=:id");
+                $statement->bindParam(":id", $userId);
+                $statement->execute();
 
-                    $this->setId($results['id']);
-                    $this->setCompany($results['company']);
-                    $this->setUsername($results['username']);
-                    $this->setPassword($results['password']);
-                    $this->setType($results['type']);
+                $results = $statement->fetch(PDO::FETCH_ASSOC);
 
-                    Configuration::closeConnection();
-                }
-                catch (PDOException $e) {
-                    return "Error: " . $e->getMessage();
-                }
+                $user->setId($results['id']);
+                $user->setCompany($results['company']);
+                $user->setUsername($results['username']);
+                $user->setPassword($results['password']);
+                $user->setType($results['type']);
 
             }
+            catch (PDOException $pdo) {
+                error_log(date('Y-m-d H:i:s') . " " . $pdo->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
+            }
+            catch (Exception $e) {
+                error_log(date('Y-m-d H:i:s') . " " . $e->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
+            }
+            finally {
+                Configuration::closeConnection();
+            }
+
+            return $user;
 
         }
 

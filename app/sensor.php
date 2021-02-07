@@ -16,15 +16,6 @@
 
 </style>
 
-<section class="row">
-    <div class="col-md-12">
-        <h1><?php echo $_SESSION['company']; ?> - Energy Matrix</h1>
-    </div>
-</section>
-
-<?php if ((float)$_SESSION['type'] > 0) { ?>
-
-<?php } else { ?>
 <!-- User Section -->
 <section id="userSectionSearch" class="row" style="background-color: #ddd">
 
@@ -66,7 +57,7 @@
 
 
 </section>
-<section id="userSectionResults" class="container-fluid">
+<section id="userSectionResults" class="container-fluid row">
     <div id="charts" class="d-flex justify-content-around row"></div>
 </section>
 
@@ -74,7 +65,7 @@
     getSensorChart(null, null);
 </script>
 
-<?php } ?>
+
 
 <?php
     include("template/footer.php");
