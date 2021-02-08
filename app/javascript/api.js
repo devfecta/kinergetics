@@ -56,61 +56,74 @@ const getUserSidebar = () => {
 
 const getAdminSidebar = () => {
 
-    console.log(document.cookie);
-
-    const adminCompanies = document.querySelector("#adminCompanies");
+    const adminCompanies = document.querySelector("#companiesMenu");
 
     getApi("Users", "getCompanies")
     .then(companies => {
-
-        //console.log(companies);
         
         companies.forEach(company => {
-            const menuLink = document.createElement('button');
-            menuLink.setAttribute("class", "btn btn-light text-nowrap");
-            menuLink.setAttribute("style", "text-align: left");
-            //menuLink.onclick = () => {window.location.href = "sensor.php?sensorId="+company.id};
-            menuLink.innerHTML = company.company;
+            const companiesMenu = document.createElement('div');
+            companiesMenu.setAttribute("class", "accordion-item");
+            //companiesMenu.setAttribute("id","companyMenu" + company.id);
 
-            adminCompanies.append(menuLink);
-            adminCompanies.append(document.createElement('br'));
+            const companyHeader = document.createElement('h2');
+            companyHeader.setAttribute("class", "accordion-header");
+            companyHeader.setAttribute("id", "#companyHeader" + company.id);
 
+            const companyLink = document.createElement('button');
+            companyLink.setAttribute("class", "accordion-button collapsed");
+            companyLink.setAttribute("type", "button");
+            companyLink.setAttribute("data-bs-toggle", "collapse");
+            companyLink.setAttribute("data-bs-target", "#companiesMenuItems" + company.id);
+            companyLink.setAttribute("aria-expanded", "false");
+            companyLink.setAttribute("aria-controls", "companiesMenuItems" + company.id);
+            companyLink.innerHTML = company.company;
 
+            companyHeader.append(companyLink);
+            companiesMenu.append(companyHeader);
 
-            const sensorMenu = document.createElement('div');
-            sensorMenu.setAttribute("class", "accordion-item");
+            const companiesMenuItems = document.createElement('div');
+            companiesMenuItems.setAttribute("id", "companiesMenuItems" + company.id);
+            companiesMenuItems.setAttribute("class", "accordion-collapse collapse");
+            companiesMenuItems.setAttribute("aria-labelledby", "#companyHeader" + company.id);
+            companiesMenuItems.setAttribute("data-bs-parent", "sidebarMenu");
 
-            const sensorHeader = document.createElement('h2');
-            sensorHeader.setAttribute("class", "accordion-header");
+            const companiesMenuItem = document.createElement('div');
+            companiesMenuItem.setAttribute("id", "companiesMenuItem" + company.id);
+            companiesMenuItem.setAttribute("class", "accordion-body");
 
-            const sensorButton = document.createElement('button');
-            sensorButton.setAttribute("class", "accordion-button collapsed");
-            sensorButton.setAttribute("type", "button");
-            sensorButton.setAttribute("data-bs-toggle", "collapse");
-            sensorButton.setAttribute("data-bs-target", "#sensorMenuItems");
-            sensorButton.setAttribute("aria-expanded", "false");
-            sensorButton.setAttribute("aria-controls", "sensorMenuItems");
-            sensorButton.innerHTML = '<span class="fas fa-satellite-dish pe-1"></span> Sensors';
+            //Sensors
+            const sensorsMenu = document.createElement('div');
+            sensorsMenu.setAttribute("class", "accordion-item");
 
-            sensorHeader.append(sensorButton);
-            sensorMenu.append(sensorHeader);
+            const sensorsHeader = document.createElement('h2');
+            sensorsHeader.setAttribute("class", "accordion-header");
+            sensorsHeader.setAttribute("id", "#sensorHeader" + company.id);
 
-            const sensorMenuItems = document.createElement('div');
-            sensorMenuItems.setAttribute("id", "sensorMenuItems");
-            sensorMenuItems.setAttribute("class", "accordion-collapse collapse");
-            sensorMenuItems.setAttribute("aria-labelledby", "sensorsHeader");
-            sensorMenuItems.setAttribute("data-bs-parent", "#companyMenuItems");
+            const sensorLink = document.createElement('button');
+            sensorLink.setAttribute("class", "accordion-button collapsed");
+            sensorLink.setAttribute("type", "button");
+            sensorLink.setAttribute("data-bs-toggle", "collapse");
+            sensorLink.setAttribute("data-bs-target", "#sensorsMenuItems" + company.id);
+            sensorLink.setAttribute("aria-expanded", "false");
+            sensorLink.setAttribute("aria-controls", "sensorsMenuItems" + company.id);
+            sensorLink.innerHTML = '<span class="fas fa-satellite-dish pe-1"></span> Sensors';
 
-            const sensorSensors = document.createElement('div');
-            sensorSensors.setAttribute("id", "userSensors");
-            sensorSensors.setAttribute("class", "accordion-body p-0");
+            sensorsHeader.append(sensorLink);
+            sensorsMenu.append(sensorsHeader);
 
-            
+            const sensorsMenuItems = document.createElement('div');
+            sensorsMenuItems.setAttribute("id", "sensorsMenuItems" + company.id);
+            sensorsMenuItems.setAttribute("class", "accordion-collapse collapse");
+            sensorsMenuItems.setAttribute("aria-labelledby", "#sensorHeader" + company.id);
+            sensorsMenuItems.setAttribute("data-bs-parent", "sidebarMenu");
+
+            const sensorsMenuItem = document.createElement('div');
+            sensorsMenuItem.setAttribute("id", "sensorsMenuItem" + company.id);
+            sensorsMenuItem.setAttribute("class", "accordion-body");
 
             getApi("Sensors", "getUserSensors", "userId=" + company.id)
             .then(sensors => {
-
-                console.log(sensors);
 
                 sensors.forEach(sensor => {
 
@@ -122,23 +135,31 @@ const getAdminSidebar = () => {
                         document.cookie = "userId="+e.target.value;
                         window.location.href = "sensor.php?sensorId="+sensor.id
                     }, false);
-                    //menuLink.onclick = () => {window.location.href = "sensor.php?sensorId="+sensor.id};
+
                     menuLink.innerHTML = sensor.sensor_name;
 
-                    sensorSensors.append(menuLink);
-                    sensorSensors.append(document.createElement('br'));
-
-                    
+                    sensorsMenuItem.append(menuLink);
+                    sensorsMenuItem.append(document.createElement('br'));
                     
                 });
 
             })
             .catch(error => console.log(error));
 
-            sensorMenuItems.append(sensorSensors);
-            sensorMenu.append(sensorMenuItems);
-            adminCompanies.append(sensorMenu);
+            sensorsMenuItems.append(sensorsMenuItem);
+
+            sensorsMenu.append(sensorsMenuItems);
+
+            companiesMenuItem.append(sensorsMenu);
+
+            companiesMenuItems.append(companiesMenuItem);
+
+            companiesMenu.append(companiesMenuItems);
+
+            adminCompanies.append(companiesMenu);
+            
         });
+        
     })
     .catch(error => console.log(error));
 }

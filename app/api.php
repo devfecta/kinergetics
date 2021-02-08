@@ -66,12 +66,14 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
                                 if ($result->type > 0) {
                                     setcookie("adminId", $result->id, time()+3600);
-                                    header("Location: dashboard.php");
+                                    //header("Location: dashboard.php");
                                 }
                                 else {
                                     setcookie("userId", $result->id, time()+3600);
-                                    header("Location: index.php");
+                                    
                                 }
+
+                                header("Location: index.php");
 
                             }
                             else {
