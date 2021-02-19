@@ -3,7 +3,7 @@ declare(strict_types=1);
 require_once('./configuration/User.php');
 use PHPUnit\Framework\TestCase;
 
-final class UsersTest extends TestCase
+final class UserTest extends TestCase
 {
     private $user;
 

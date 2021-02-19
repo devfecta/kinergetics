@@ -45,7 +45,7 @@ class DataPoints extends DataPoint {
             
             if (isset($sensor['sensorName']) && strpos($sensor['sensorName'], " | ") != false) {
                 // Gets the user ID from the sensor name property.
-                $userId = (int)explode(' | ', $sensor['sensorName'])[0];
+                $userId = (int)explode(' | ', $sensor['sensorName'])[2];
                 
                 if ($this->companyExists($userId) > 0) {
                     // Needed to convert the time stamp from UTC to CST
@@ -129,7 +129,7 @@ class DataPoints extends DataPoint {
 
             if ($statement->rowCount() < 1) {
 
-                $sensorName =  explode(' | ', $sensor['sensorName'])[2];
+                $sensorName =  explode(' | ', $sensor['sensorName'])[1];
 
                 $statement = $connection->prepare("INSERT INTO `sensors` (
                     `id`,
@@ -223,15 +223,7 @@ class DataPoints extends DataPoint {
 
         try {
             
-            $connection = Configuration::openConnection();
-/*
-            $dataTypes = getSensorDataTypes($sensorId);
-
-            //str_replace(" ", "_", $dataType)
-            foreach ($dataTypes as $dataType) {
-                
-            }
-*/          
+            $connection = Configuration::openConnection();  
 
             if ($endDateTime != "null") {
                 $statement = $connection->prepare("SELECT * FROM `dataPoints` WHERE `dataPoints`.`sensor_id`=:sensor_id AND `dataPoints`.`user_id`=:user_id AND `dataPoints`.`date_time`>=:startDateTime AND `dataPoints`.`date_time`<=:endDateTime ORDER BY `date_time` ASC");
@@ -314,134 +306,6 @@ class DataPoints extends DataPoint {
         return $dataTypes;
 
     }
-
-
-
-
-
-
-
-
-    /**
-     * Gets the data points for a specific company/user based on a start and end datetime.
-     *
-     * @param   int  $userId         User ID
-     * @param   string  $startDateTime  Start DateTime of the data point search.
-     * @param   string  $endDateTime    End DateTime of the data point search.
-     *
-     * @return  json                  Datapoint JSON
-     */
-    public function getDataPointsOLD($userId, $startDateTime, $endDateTime) {
-        //return json_encode(array($userId, $dateTime), JSON_PRETTY_PRINT);
-        $result = array();
-
-        try {
-            
-            $connection = Configuration::openConnection();
-
-            if ($endDateTime != "null") {
-                $statement = $connection->prepare("SELECT `sensor_id`, `data_point` FROM `data_points` WHERE `user_id`=:user_id AND `date_time`>=:startDateTime AND `date_time`<=:endDateTime ORDER BY `sensor_id`, `date_time` ASC");
-                $statement->bindParam(":user_id", $userId, PDO::PARAM_INT); 
-                $statement->bindParam(":startDateTime", $startDateTime, PDO::PARAM_STR); 
-                $statement->bindParam(":endDateTime", $endDateTime, PDO::PARAM_STR); 
-            }
-            else {
-                $statement = $connection->prepare("SELECT `sensor_id`, `data_point` FROM `data_points` WHERE `user_id`=:user_id AND `date_time`<=:startDateTime ORDER BY `sensor_id`, `date_time` ASC LIMIT 0, 50");
-                $statement->bindParam(":user_id", $userId, PDO::PARAM_INT); 
-                $statement->bindParam(":startDateTime", $startDateTime, PDO::PARAM_STR); 
-            }
-            
-            $statement->execute();
-
-            $dataPoints = $statement->fetchAll(PDO::FETCH_ASSOC);
-            
-            //return json_encode($dataPoints, JSON_PRETTY_PRINT);
-
-            $results = array();
-
-            /**
-             * Data point manipulation here for charts
-             */
-
-            foreach($dataPoints as $dataPoint) {
-                // Set Sensor ID Property from Database Column
-                $results[$dataPoint['sensor_id']]['sensorID'] = $dataPoint['sensor_id'];
-                // Set Sensor Name Property from JSON in the Database Column
-                $sensorName = json_decode($dataPoint['data_point'])->sensorName;
-                $results[$dataPoint['sensor_id']]['sensorName'] =  strpos($sensorName, '|') ? explode(' | ', $sensorName)[2] : $sensorName;
-                
-
-
-                // Set Data Type Property from JSON in the Database Column
-                //$dataType = json_decode($dataPoint['data_point'])->dataType;
-                // Get Plot Labels and Values for the Data Points from JSON in the Database Column
-                $plotLabels = json_decode($dataPoint['data_point'])->plotLabels;
-                $plotValues = json_decode($dataPoint['data_point'])->plotValues;
-
-                
-
-                if (strpos($plotLabels, '|')) {
-                    //$dataTypeArray = explode('|', $dataType);
-                    $plotLabelArray = explode('|', $plotLabels);
-                    $plotValueArray = explode('|', $plotValues);
-
-                    //return json_encode(array("test" => "0"), JSON_PRETTY_PRINT);
-
-                    for ($i = 0; $i < count($plotLabelArray); $i++) {
-
-                        //$plotLabelNames[] = str_replace(' ', '', $plotLabelArray[$i]);
-                        $count = count($results[$dataPoint['sensor_id']]['data_points'][$plotLabelArray[$i]]);
-
-                        $results[$dataPoint['sensor_id']]['data_points'][$plotLabelArray[$i]][$count]['value'] = floatval($plotValueArray[$i]);
-                        
-                        //$results[$dataPoint['sensor_id']]['data_points'][$sensorDataPointIndex][$i]['value'] = floatval($plotValueArray[$i]);
-                        // Set Datetime Property from Database Column
-                        $results[$dataPoint['sensor_id']]['data_points'][$plotLabelArray[$i]][$count]['dateTime'] = json_decode($dataPoint['data_point'])->messageDate;
-                    }
-
-                   // $results[$dataPoint['sensor_id']]['dataType'] = explode('|', $dataType)[0];
-
-                }
-                else {
-                    $sensorDataPointIndex = count($results[$dataPoint['sensor_id']]['data_points'][empty($plotLabels) ? 0 : $plotLabels]);
-
-                    $results[$dataPoint['sensor_id']]['data_points'][empty($plotLabels) ? 0 : $plotLabels][$sensorDataPointIndex]['value'] = empty($plotValues) ? 0 : floatval($plotValues);
-                    $results[$dataPoint['sensor_id']]['data_points'][empty($plotLabels) ? 0 : $plotLabels][$sensorDataPointIndex]['dateTime'] = json_decode($dataPoint['data_point'])->messageDate;
-                    /*
-                    $results[$dataPoint['sensor_id']]['data_points'][$sensorDataPointIndex][0]['label'] = empty($plotLabels) ? 0 : $plotLabels;
-                    $results[$dataPoint['sensor_id']]['data_points'][$sensorDataPointIndex][0]['value'] = empty($plotValues) ? 0 : floatval($plotValues);
-                    $results[$dataPoint['sensor_id']]['data_points'][$sensorDataPointIndex][0]['dateTime'] = json_decode($dataPoint['data_point'])->messageDate;
-                    */
-                    //$results[$dataPoint['sensor_id']]['dataType'] = $dataType;
-                }
-
-                
-                
-/*
-                // Set Unit Type Property from JSON in the Database Column
-                $plotLabels = json_decode($dataPoint['data_point'])->plotLabels;
-                $results[$dataPoint['sensor_id']]['unitType'] =  strpos($plotLabels, '|') ? explode('|', $plotLabels)[1] : $plotLabels;
-*/
-/* MAYBE DELETE
-                // Set Specific Sensor Data Points Property from JSON in the Database Column
-                $results[$dataPoint['sensor_id']]['default'][] = json_decode($dataPoint['data_point']);
-*/
-            }
-            // Re-indexes the array of data points.
-            foreach($results as $sensor) {
-                $result[] = $sensor;
-            }
-
-        }
-        catch(PDOException $pdo) {
-            $result['error'] =  $pdo->getMessage();
-        }
-        finally {
-            Configuration::closeConnection();
-        }
-
-        return json_encode($result, JSON_PRETTY_PRINT);
-    }
     /**
      * This inserts the data point JSON from the webhook, along with the sensor ID, 
      * company/user ID, and the datetime of the sensor reading.
@@ -489,6 +353,40 @@ class DataPoints extends DataPoint {
         }
 
         return json_encode($result, JSON_PRETTY_PRINT);
+    }
+    /**
+     * Returns the minimum and maximum dates based on a specific sensor's data points.
+     *
+     * @param   int  $userId    Logged in user ID
+     * @param   int  $sensorId  Selected sensor ID
+     *
+     * @return  json  JSON string containing the minimum and maximum dates based on a specific sensor's data points.
+     */
+    public function getMinMaxDates($userId, $sensorId) {
+        try {
+
+            $connection = Configuration::openConnection();
+
+            $statement = $connection->prepare("SELECT MIN(date_time) AS minDate, MAX(date_time) AS maxDate FROM dataPoints WHERE user_id=:userId AND sensor_id=:sensorId");
+            $statement->bindParam(":userId", $userId, PDO::PARAM_STR);
+            $statement->bindParam(":sensorId", $sensorId, PDO::PARAM_STR);
+            $statement->execute();
+            $results = $statement->fetch(PDO::FETCH_ASSOC);
+
+            $dates['minimum'] = $results['minDate'];
+            $dates['maximum'] = $results['maxDate'];
+
+            return json_encode($dates, JSON_PRETTY_PRINT);
+        }
+        catch(PDOException $pdo) {
+            error_log(date('Y-m-d H:i:s') . " " . $pdo->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
+        }
+        catch (Exception $e) {
+            error_log(date('Y-m-d H:i:s') . " " . $e->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
+        }
+        finally {
+            Configuration::closeConnection();
+        }
     }
 
 }

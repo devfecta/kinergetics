@@ -53,10 +53,18 @@ const getUserSidebar = () => {
         location.href = './logout.php';
     }
 }
-
+/**
+ * Creates the sidebar for an admin user.
+ */
 const getAdminSidebar = () => {
 
-    const adminCompanies = document.querySelector("#companiesMenu");
+    getCompaniesMenu(document.querySelector("#companiesMenu"));
+    getSensorsMenu(document.querySelector("#sensorsMenu"));
+}
+/**
+ * Appends the companies menus to the admin sidebar.
+ */
+const getCompaniesMenu = (menu) => {
 
     getApi("Users", "getCompanies")
     .then(companies => {
@@ -64,7 +72,7 @@ const getAdminSidebar = () => {
         companies.forEach(company => {
             const companiesMenu = document.createElement('div');
             companiesMenu.setAttribute("class", "accordion-item");
-            //companiesMenu.setAttribute("id","companyMenu" + company.id);
+            companiesMenu.setAttribute("id","companyMenu" + company.id);
 
             const companyHeader = document.createElement('h2');
             companyHeader.setAttribute("class", "accordion-header");
@@ -85,8 +93,8 @@ const getAdminSidebar = () => {
             const companiesMenuItems = document.createElement('div');
             companiesMenuItems.setAttribute("id", "companiesMenuItems" + company.id);
             companiesMenuItems.setAttribute("class", "accordion-collapse collapse");
-            companiesMenuItems.setAttribute("aria-labelledby", "#companyHeader" + company.id);
-            companiesMenuItems.setAttribute("data-bs-parent", "sidebarMenu");
+            companiesMenuItems.setAttribute("aria-labelledby", "companyHeader" + company.id);
+            companiesMenuItems.setAttribute("data-bs-parent", "#companyMenu" + company.id);
 
             const companiesMenuItem = document.createElement('div');
             companiesMenuItem.setAttribute("id", "companiesMenuItem" + company.id);
@@ -95,6 +103,7 @@ const getAdminSidebar = () => {
             //Sensors
             const sensorsMenu = document.createElement('div');
             sensorsMenu.setAttribute("class", "accordion-item");
+            sensorsMenu.setAttribute("id", "sensorsMenu" + company.id);
 
             const sensorsHeader = document.createElement('h2');
             sensorsHeader.setAttribute("class", "accordion-header");
@@ -116,7 +125,7 @@ const getAdminSidebar = () => {
             sensorsMenuItems.setAttribute("id", "sensorsMenuItems" + company.id);
             sensorsMenuItems.setAttribute("class", "accordion-collapse collapse");
             sensorsMenuItems.setAttribute("aria-labelledby", "#sensorHeader" + company.id);
-            sensorsMenuItems.setAttribute("data-bs-parent", "sidebarMenu");
+            sensorsMenuItems.setAttribute("data-bs-parent", "#sensorsMenu" + company.id);
 
             const sensorsMenuItem = document.createElement('div');
             sensorsMenuItem.setAttribute("id", "sensorsMenuItem" + company.id);
@@ -147,22 +156,68 @@ const getAdminSidebar = () => {
             .catch(error => console.log(error));
 
             sensorsMenuItems.append(sensorsMenuItem);
-
             sensorsMenu.append(sensorsMenuItems);
-
             companiesMenuItem.append(sensorsMenu);
-
             companiesMenuItems.append(companiesMenuItem);
-
             companiesMenu.append(companiesMenuItems);
-
-            adminCompanies.append(companiesMenu);
-            
-        });
-        
+            menu.append(companiesMenu); 
+        });        
     })
     .catch(error => console.log(error));
 }
+/**
+ * Appends the sensors menu to the admin sidebar.
+ */
+const getSensorsMenu = (menu) => {
+
+    const addSensorMenu = document.createElement('div');
+    addSensorMenu.setAttribute("class", "accordion-item");
+    addSensorMenu.setAttribute("id","addSensorMenuItem");
+
+    const addSensorHeader = document.createElement('h2');
+    addSensorHeader.setAttribute("class", "accordion-header");
+    addSensorHeader.setAttribute("id", "#addSensorHeader");
+
+    const addSensorLink = document.createElement('button');
+    addSensorLink.setAttribute("class", "btn btn-light mx-2 text-nowrap");
+    addSensorLink.setAttribute("style", "text-align: left");
+    addSensorLink.onclick = () => {window.location.href = "addSensor.php"};
+    addSensorLink.innerHTML = '<span class="fas fa-plus-square"></span> Add Sensor';
+
+    addSensorHeader.append(addSensorLink);
+    addSensorMenu.append(addSensorHeader);
+    menu.append(addSensorMenu); 
+
+    getApi("Sensors", "getSensors")
+    .then(sensors => {
+        
+        sensors.forEach(sensor => {
+            const sensorsMenu = document.createElement('div');
+            sensorsMenu.setAttribute("class", "accordion-item");
+            sensorsMenu.setAttribute("id","sensorMenu" + sensor.id);
+
+            const sensorHeader = document.createElement('h2');
+            sensorHeader.setAttribute("class", "accordion-header");
+            sensorHeader.setAttribute("id", "#sensorHeader" + sensor.id);
+
+            const menuLink = document.createElement('button');
+            menuLink.setAttribute("class", "btn btn-light text-nowrap");
+            menuLink.setAttribute("style", "text-align: left");
+            menuLink.onclick = () => {window.location.href = "sensor.php?sensorId="+sensor.id};
+            menuLink.innerHTML = sensor.sensor_name;
+
+            sensorHeader.append(menuLink);
+            sensorHeader.append(document.createElement('br'));
+            sensorsMenu.append(sensorHeader);
+
+            menu.append(sensorsMenu); 
+        });        
+    })
+    .catch(error => console.log(error));
+}
+
+
+
 /**
  * Gets the chart(s) for a specific sensor, and can be used to get data points within a specific time frame.
  *
@@ -180,24 +235,8 @@ const getSensorChart = (startDateTime, endDateTime) => {
         getApi("Sensor", "getSensor", "userId=" + userId + "&sensorId=" + urlParams.get("sensorId"))
         .then(sensor => {
 
-            //console.log(sensor);
             return sensor;
 
-            /*
-            sensors.forEach(sensor => {
-    
-                const sensorButton = document.createElement('button');
-                sensorButton.setAttribute("class", "btn btn-primary m-2 py-3 col-md-3");
-                sensorButton.onclick = () => {window.location.href = "sensor.php?sensorId="+sensor.id};
-                sensorButton.setAttribute("data-toggle", "collapse");
-                sensorButton.setAttribute("data-target", "#sensorBody" + sensor.id);
-                sensorButton.setAttribute("aria-expanded", "false");
-                sensorButton.setAttribute("aria-controls", "sensorBody" + sensor.id);
-                sensorButton.innerHTML = '<span class="fas fa-satellite-dish"></span> ' + sensor.sensor_name;
-                sensorList.appendChild(sensorButton);
-
-            });
-            */
         })
         .then(sensor => {
 
@@ -406,152 +445,9 @@ const getData = async () => {
     json.startDateTime = searchForm.querySelector("#startDate").value + " "+ searchForm.querySelector("#startTime").value;
     json.endDateTime = searchForm.querySelector("#endDate").value + " "+ searchForm.querySelector("#startTime").value;
 
-    //console.log(json.startDateTime + " = " + json.endDateTime);
-
     getSensorChart(json.startDateTime, json.endDateTime);
 
-//    getCharts(json);
-
 }
-
-
-
-// Admin Functions
-
-
-
-
-
-
-/**
- * Get initial real time data, and start at the current date and time.
- * OLD
- * @param {string} dateTime 
- */
-const initializeRealTimeData = (dateTime) => {
-    // Logs out after idle for 1 hour.
-    if (document.cookie.includes('; ') && document.cookie.includes('userId')) {
-        const id = document.cookie.split('; ').find(c => c.startsWith('userId')).split('=')[1];
-        //console.log(dateTime);
-        return getApi("DataPoints", "getDataPoints", "userId=" + id + "&startDateTime=" + dateTime)
-        .then(dataPoints => dataPoints)
-        .catch(error => console.log(error));
-    }
-    else {
-        alert("logging out");
-        location.href = './logout.php';
-    }
-}
-/**
- * Creates blank charts
- * OLD
- * @param {array} dataPoints 
- */
-const initializeRealTimeCharts = (sensors) => {
-
-    sensors.forEach((sensor, index) => {
-        //console.log(sensor);
-        // console.log(Object.entries(report.dataPoints));
-        let chart = null;
-        //let chartId = dataPoint.dataType + index;
-        let chartId = sensor.sensorID + "-" + index;
-        // Create the Chart
-        chart = createChart(chartId);
-        // Title the Chart and Label the Chart's Axes
-        // REMOVE chart = chartData(chart, sensor.sensorName + " Data", sensor.unitType, dataPoint.dataType + " (" + sensor.unitType + ")");
-        chart = chartData(chart, sensor.sensorName + " Data", "", "");
-        //let averageTotal = parseFloat(report.dataPoints.flow_rate.reduce((total, data) => total + Number(data.values), 0) / report.dataPoints.flow_rate.length).toFixed(2);
-        
-        chart = drawRealTimeChartLines(chart, sensor.data_points, averageTotal=0);
-        
-        buildChart(chart);
-        
-    });
-
-}
-//  OLD
-const drawRealTimeChartLines = (chart, dataPoints, averageTotal) => {
-
-    let date = "";
-
-    //let dataSets = [];
-    let xAxislabels = [];
-    let pointData = [];
-    let lineShadingColor = [];
-    let lineColor = [];
-
-    let pointColor = "";
-
-    for (const key of Object.keys(dataPoints)) {
-        
-        if (Object.keys(dataPoints).length > 1) {
-
-            xAxislabels = [];
-            pointData = [];
-            lineShadingColor = [];
-            lineColor = [];
-
-            pointColor = getRandomColor();
-
-            dataPoints[key].forEach(point => {
-
-                date = new Date(point.dateTime);
-                xAxislabels = [...xAxislabels, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
-
-                pointData = [...pointData, point.value];
-
-                lineShadingColor = [...lineShadingColor, 'rgba(' + pointColor + ', 0.2)'];
-                lineColor = [...lineColor, 'rgba(' + pointColor + ', 0.7)'];
-
-            });
-
-            chart.datasets = [...chart.datasets, {
-                label: key 
-                , data: pointData
-                , backgroundColor: lineShadingColor
-                , borderColor: lineColor
-                , borderWidth: 1
-                , fill: true
-            }];
-
-        }
-        else {
-
-            pointColor = getRandomColor();
-
-            dataPoints[key].forEach(point => {
-
-                date = new Date(point.dateTime);
-                xAxislabels = [...xAxislabels, date.getHours() +":"+ ("0" + date.getMinutes()).slice(-2)];
-
-                pointData = [...pointData, point.value];
-
-                lineShadingColor = [...lineShadingColor, 'rgba(' + pointColor + ', 0.2)'];
-                lineColor = [...lineColor, 'rgba(' + pointColor + ', 0.7)'];
-
-            });
-
-            chart.datasets = [...chart.datasets, {
-                label: key 
-                , data: pointData
-                , backgroundColor: lineShadingColor
-                , borderColor: lineColor
-                , borderWidth: 1
-                , fill: true
-            }];
-            
-        }
-
-    }
-
-//    console.log(chart.datasets);
-
-    chart.label = xAxislabels; // x-axis labels
-
-    return chart;
-}
-
-
 /** REMOVE IF NOT NEEDED
 const getFormFields = () => {
     // For creating the report
@@ -594,213 +490,6 @@ const getFormFields = () => {
     .catch(error => console.log(error));
 }
 */
-const createAdminHeader = () => {
-    const adminButtons = document.createElement('div');
-    adminButtons.setAttribute("class", "border-bottom border-dark border-2");
-    
-    adminButtons.setAttribute("style", "text-align: left");
-
-    const dashboardButton = document.createElement('a');
-    dashboardButton.setAttribute("href", "dashboard.php");
-    dashboardButton.setAttribute("class", "btn btn-md btn-secondary m-1");
-    dashboardButton.innerText = "Dashboard";
-    adminButtons.appendChild(dashboardButton);
-
-    const createReportButton = document.createElement('a');
-    createReportButton.setAttribute("href", "addUser.php");
-    createReportButton.setAttribute("class", "btn btn-md btn-secondary m-1");
-    createReportButton.innerText = "Add User";
-    adminButtons.appendChild(createReportButton);
-    /*
-    switch (headerType) {
-        case "dataPoints":
-            const addDataPointButton = document.createElement('a');
-            addDataPointButton.setAttribute("href", "addDataPoint.php?reportId=" + reportId);
-            addDataPointButton.setAttribute("class", "btn btn-md btn-secondary m-1");
-            addDataPointButton.innerText = "Add Data Point";
-            adminButtons.appendChild(addDataPointButton);
-            break;
-        default:
-            break;
-    }
-    */
-    return adminButtons;
-    
-}
-// OLD
-const getCompaniesOLD = () => {
-
-    const adminSection = document.querySelector("#adminSection");
-    adminSection.appendChild(createAdminHeader());
-    //<div id="accordion" class="w-100"></div>
-    const companyList = document.createElement('div');
-    companyList.setAttribute("class", "w-100");
-    companyList.id = "accordion";
-    adminSection.appendChild(companyList);
-
-    getApi("Reports", "getCompanies", null)
-    .then(data => {
-
-        //console.log(data);
-        
-        data.forEach(company => {
-            //const companyList = document.querySelector("#accordion");
-            const companyCard = document.createElement('div');
-            companyCard.setAttribute("class", "card");
-            // Card Header START
-            const companyCardHeader = document.createElement('div');
-            companyCardHeader.setAttribute("class", "card-header p-0");
-            companyCardHeader.setAttribute("id", "companyHeader" + company.id);
-
-            const companyHeader = document.createElement('h5');
-            companyHeader.setAttribute("class", "mb-0");
-
-            const companyHeaderButton = document.createElement('a');
-            companyHeaderButton.setAttribute("class", "btn btn-light py-1 w-100");
-            companyHeaderButton.setAttribute("style", "text-align: left");
-            companyHeaderButton.setAttribute("data-toggle", "collapse");
-            companyHeaderButton.setAttribute("data-target", "#companyBody" + company.id);
-            companyHeaderButton.setAttribute("aria-expanded", "false");
-            companyHeaderButton.setAttribute("aria-controls", "companyBody" + company.id);
-            companyHeaderButton.innerHTML = '<span class="fas fa-building"></span> ' + company.company;
-
-            companyHeader.appendChild(companyHeaderButton);
-            companyCardHeader.appendChild(companyHeader);
-            
-            companyCard.appendChild(companyCardHeader);
-
-            companyList.appendChild(companyCard);
-            // Card Header END
-            // Card Body START
-            const companyCardBody = document.createElement('div');
-            companyCardBody.setAttribute("class", "collapse");
-            companyCardBody.setAttribute("id", "companyBody" + company.id);
-            companyCardBody.setAttribute("aria-labelledby", "companyHeader" + company.id);
-            companyCardBody.setAttribute("data-parent", "#accordion");
-
-            const companyBody = document.createElement('div');
-            companyBody.setAttribute("class", "card-body p-0 border-0");
-
-            const sensorList = document.createElement('div');
-            sensorList.setAttribute("class", "list-group");
-            sensorList.setAttribute("style", "text-align: left");
-
-            getApi("Sensors", "getUserSensors", "userId=" + company.id)
-            .then(sensors => {
-
-                sensors.forEach(sensor => {
-        
-                    const sensorButton = document.createElement('button');
-                    sensorButton.setAttribute("class", "btn btn-light ml-4 py-1");
-                    sensorButton.setAttribute("style", "text-align: left");
-                    sensorButton.setAttribute("value", company.id);
-                    sensorButton.addEventListener("click", (e) => {
-                        document.cookie = "userId="+e.target.value;
-                        window.location.href = "sensor.php?sensorId="+sensor.id
-                    }, false);
-                    sensorButton.innerHTML = '<span class="fas fa-satellite-dish"></span> ' + sensor.sensor_name;
-                    sensorList.appendChild(sensorButton);
-
-                });
-
-                companyBody.appendChild(sensorList);
-
-            })
-            .catch(error => console.log(error));
-
-
-            /*
-            const deviceList = document.createElement('div');
-            deviceList.setAttribute("class", "list-group");
-            
-            company.reports.forEach(report => {
-                const deviceLink = document.createElement('button');
-                //deviceLink.setAttribute("href", "/api.php?class=Reports&method=getUserReports&report=" + report.reportId);
-                //deviceLink.setAttribute("class", "list-group-item list-group-item-action");
-                deviceLink.setAttribute("class", "btn btn-light py-3 w-100");
-                deviceLink.setAttribute("value", report.reportId);
-                deviceLink.addEventListener("click", getReportDatapoints, event);
-                deviceLink.innerHTML = "<em style=\"font-size:80%\">( Report ID: " + report.reportId + " )</em> " + report.name;
-                deviceList.appendChild(deviceLink);
-            });
-            companyBody.appendChild(deviceList);
-            */
-            companyCardBody.appendChild(companyBody);
-            companyCard.appendChild(companyCardBody);
-            // Card Body END
-        });
-    })
-    .catch(error => console.log(error));
-}
-
-const getReportDatapoints = (event) => {
-
-    const adminSection = document.querySelector("#adminSection");
-    adminSection.innerHTML = "";
-
-    adminSection.appendChild(createAdminHeader("dataPoints", event.target.value));
-
-    getApi("Reports", "getReportDatapoints", "reportId=" + event.target.value)
-    .then(data => {
-        //console.log(data);
-        const responsiveTable = document.createElement('div');
-        responsiveTable.setAttribute("class", "table-responsive");
-
-        const dataPointTable = document.createElement('table');
-        dataPointTable.setAttribute("class", "table");
-
-        if (data) {
-
-            const tableHeader = document.createElement('thead');
-
-            const tableHeaderRow = document.createElement('tr');
-
-            let formFields = JSON.parse(data[0]['form_fields']);
-            //console.log(formFields);
-
-            formFields.forEach(name => {
-                //console.log(name);
-                const tableHeaderColumn = document.createElement('th');
-                tableHeaderColumn.setAttribute("scope", "col");
-                tableHeaderColumn.setAttribute("class", "text-nowrap text-capitalize border-0");
-                tableHeaderColumn.innerText = name.replace(/_/g, " ");
-                tableHeaderRow.appendChild(tableHeaderColumn);
-                tableHeader.appendChild(tableHeaderRow);
-            });
-
-            dataPointTable.appendChild(tableHeader);
-
-            data.forEach(dataPoints => {
-                //console.log(Object.keys(dataPoints[0]));
-                const tableRow = document.createElement('tr');
-
-                formFields.forEach(name => {
-                    // console.log(dataPoints[name]);
-                    const tableColumn = document.createElement('td');
-                    tableColumn.innerText = dataPoints[name];
-                    tableRow.appendChild(tableColumn);
-                    
-                });
-
-                dataPointTable.appendChild(tableRow);
-
-            });
-        }
-        else {
-            const notFoundRow = document.createElement('tr');
-            const notFoundColumn = document.createElement('td');
-            notFoundColumn.setAttribute("class", "border-0");
-            notFoundColumn.innerText = "No Records Found";
-            notFoundRow.appendChild(notFoundColumn);
-            dataPointTable.appendChild(notFoundRow);
-        }
-
-        responsiveTable.appendChild(dataPointTable);
-        adminSection.appendChild(responsiveTable);
-        
-    })
-    .catch(error => console.log(error));
-}
 /**
  * Gets the minimum and maximum dates based on a specific sensor's data points.
  * Then assigns them to the appropriate HTML date elements.
@@ -815,9 +504,7 @@ const getMinMaxDates = () => {
         let searchButton = document.querySelector("#getData");
         searchButton.addEventListener("click", getData);
 
-        
-
-        getApi("Reports", "getMinMaxDates", "userId=" + userId + "&sensorId=" + urlParams.get('sensorId'))
+        getApi("DataPoints", "getMinMaxDates", "userId=" + userId + "&sensorId=" + urlParams.get('sensorId'))
         .then(data => {
 
             const startDate = document.querySelector("#startDate");
@@ -847,51 +534,6 @@ const getMinMaxDates = () => {
 const getRandomColor = () => {
     return (Math.floor(Math.random() * 200) + 1) + ", " + (Math.floor(Math.random() * 200) + 1) + ", " + (Math.floor(Math.random() * 200) + 1);
 }
-
-/**
- * Get data points for the chart. NOT IN USE
- * @returns json of data points
- */
-const getDataPoints = async (deviceName, formJSON) => {
-    formJSON.device = deviceName; // Data type based on device.
-    formJSON.class = "Reports";
-    formJSON.method = "getDeviceReportData";
-    //console.log(responseJSON);
-    return await postApi(formJSON);
-}
-
-// IN USE
-const getCharts = async (formJSON) => {
-
-    if (document.cookie.includes('; ')) {
-        const id = document.cookie.split('; ').find(c => c.startsWith('userId')).split('=')[1];
-        formJSON.userId = id;
-        formJSON.startDateTime = formJSON.startDate + " "+ formJSON.startTime;
-        formJSON.endDateTime = formJSON.endDate + " "+ formJSON.endTime;
-        //console.log(id);
-        formJSON.class = "DataPoints";
-        formJSON.method = "getDataPoints";
-
-        //console.log(formJSON);
-        document.getElementById('charts').innerHTML = '';
-
-        return postApi(formJSON)
-        .then(sensors => {
-            //console.log(sensors);
-            initializeRealTimeCharts(sensors);
-        })
-        .catch(error => console.log(error));
-    }
-    else {
-        alert("logging out");
-        location.href = './logout.php';
-    }
-
-}
-
-
-
-
 
 
 

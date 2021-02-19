@@ -10,7 +10,6 @@ session_start();
 require('configuration/Configuration.php');
 
 require('configuration/Device.php');
-require("configuration/Reports.php");
 require("configuration/Devices.php");
 
 require('configuration/User.php');
@@ -18,6 +17,7 @@ require("configuration/Users.php");
 
 require("configuration/Sensor.php");
 require("configuration/Sensors.php");
+
 //require("configuration/DataPoint.php");
 require("configuration/DataPoints.php");
 
@@ -66,7 +66,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
                                 if ($result->type > 0) {
                                     setcookie("adminId", $result->id, time()+3600);
-                                    //header("Location: dashboard.php");
                                 }
                                 else {
                                     setcookie("userId", $result->id, time()+3600);
@@ -85,37 +84,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
                             break;
                     }
                     break;
-                case "Reports":
-                    $Reports = new Reports();
-                    switch ($_GET['method']) {
-                        case "createReport":
-                            $_SESSION['report'] = $Reports->createReport($_POST);
-                            header("Location: index.php");
-                            break;
-                        case "addDataPoint":
-                            $_SESSION['dataPoint'] = $Reports->addDataPoint($_POST);
-                            header("Location: addDataPoint.php?reportId=" . $_POST['reportId']);
-                            break;
-                        case "addDevice":
-                            echo $Reports->addDevice($_POST);
-                            break;
-                        default:
-                            echo json_encode(array("error" => 'METHOD ERROR: The '.$_POST['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
-                        break;
-                    }
-                    break;
-                case "Devices":
-                    $Devices = new Devices();
-                    switch ($_GET['method']) {
-                        case "addDevice":
-                            $_SESSION['device'] = $Devices->addDevice($_POST);
-                            header("Location: addDevice.php");
-                            break;
-                        default:
-                            echo json_encode(array("error" => 'METHOD ERROR: The '.$_GET['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
-                        break;
-                    }
-                    break;
                 default;
                     echo json_encode(array("error" => 'CLASS ERROR: The '.$_GET['class'].' class does not exist.\n'), JSON_PRETTY_PRINT);
                     break;
@@ -124,28 +92,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
         
         if (isset($_POST["class"])) {
             switch ($_POST['class']) {
-                case "Reports":
-                    $Reports = new Reports();
-                    switch ($_POST['method']) {
-                        case "getDeviceReportData":
-                                // class: "Reports"
-                                // device: "flowMeter"
-                                // endDate: "2020-06-07"
-                                // endTime: "13:06"
-                                // method: "getDeviceReportData"
-                                // startDate: "2019-05-03"
-                                // startTime: "16:05"
-                                // user: "2"   
-                            echo $Reports->getDeviceReportData($_POST);
-                            break;
-                        case "getUserReports":
-                            echo $Reports->getUserReports($_POST);
-                            break;
-                        default:
-                            echo json_encode(array("error" => 'METHOD ERROR: The '.$_POST['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
-                            break;
-                    }
-                    break;
                 case "DataPoints":
                     $dataPoints = new DataPoints();
                     
@@ -164,32 +110,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     break;
             }
         }
-        
-
-        if (isset($_POST["dataType"])) {
-            
-            $Reports = new Reports();
-
-            switch ($_POST['dataType']) {
-                case "steam":
-                    //echo json_encode(array("error" => $_POST));
-                    //exit();
-                    echo $Reports->getSteamData($_POST);
-                    break;
-                case "totalVolume":
-                    echo $FlowMeter->getTotalVolume($_POST);
-                    break;
-                case "steam":
-                    echo $FlowMeter->getSteam($_POST);
-                    break;
-                default:
-                    echo json_encode(array("error" => 'POST METHOD ERROR: The '.$_POST['dataType'].' method does not exist.\n'), JSON_PRETTY_PRINT);
-                    break;
-            }
-        }
         break;
     case "GET":
-        //echo "REQUEST_METHOD Get";
         // Reads
         if (isset($_GET['class'])) {
             switch ($_GET['class']) {
@@ -198,8 +120,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     switch ($_GET['method']) {
                         case "getCompanies":
 
-                            
-                            
                             $companies = $users->getCompanies();
 
                             $companiesArray = array();
@@ -217,11 +137,11 @@ switch ($_SERVER['REQUEST_METHOD']) {
                     }
                     break;
                 case "Sensors":
-                    $sensors = new Sensors();
+                    $Sensors = new Sensors();
                     switch ($_GET['method']) {
                         case "getUserSensors":
                             
-                            $userSensors = $sensors->getUserSensors($_GET['userId']);
+                            $userSensors = $Sensors->getUserSensors($_GET['userId']);
 
                             $sensorArray = array();
                             
@@ -231,6 +151,17 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
                             echo json_encode($sensorArray);
 
+                            break;
+                        case "getSensors":
+                            $sensors = $Sensors->getSensors();
+
+                            $sensorsArray = array();
+                            
+                            foreach($sensors as $sensor) {
+                                array_push($sensorsArray, array("id" => $sensor->getSensorId(), "sensor_name" => $sensor->getSensorName()));    
+                            }
+
+                            echo json_encode($sensorsArray);
                             break;
                         default:
                             echo json_encode(array("error" => 'GET METHOD ERROR: The '.$_GET['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
@@ -253,34 +184,17 @@ switch ($_SERVER['REQUEST_METHOD']) {
                             break;
                     }
                     break;
-                case "Reports":
-                    $Reports = new Reports();
-                    switch ($_GET['method']) {
-                        case "getFormFields":
-                            echo $Reports->getFormFields();
-                            break;
-                        case "getMinMaxDates":
-                            echo $Reports->getMinMaxDates($_GET['userId'], $_GET['sensorId']);
-                            break;
-                        case "getReportDatapoints":
-                            echo $Reports->getReportDatapoints($_GET['reportId']);
-                            break;
-                        default:
-                            echo json_encode(array("error" => 'GET METHOD ERROR: The '.$_GET['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
-                            break;
-                    }
-                    break;
                 case "DataPoints":
                     $dataPoints = new DataPoints();
                     switch ($_GET['method']) {
+                        case "getMinMaxDates":
+                            echo $dataPoints->getMinMaxDates($_GET['userId'], $_GET['sensorId']);
+                            break;
                         case "getSensorDataPoints":
                             $dataPointArray = array();
 
-                            //$dataPointArray = array($_GET['userId'], $_GET['sensorId'], $_GET['startDateTime'], $_GET['endDateTime']);
-                            
                             $dataPointsArray = $dataPoints->getSensorDataPoints($_GET['userId'], $_GET['sensorId'], $_GET['startDateTime'], $_GET['endDateTime']);
 
-                            //$dataPointArray = $dataPointsArray;
                             foreach($dataPointsArray as $dataPoint) {
                                 
                                 array_push($dataPointArray, 
@@ -319,67 +233,29 @@ switch ($_SERVER['REQUEST_METHOD']) {
         } else {
            // echo json_encode(array("error" => 'GET ERROR: Form type not set.\n'), JSON_PRETTY_PRINT);
         }
-        
         break;
         
     case "PUT":
-    //echo "REQUEST_METHOD Put";
+        //echo "REQUEST_METHOD Put";
         // Updates
         if (isset($_REQUEST['formType'])) {
-            switch ($_REQUEST['formType']) {
-                case "UpdateMember":
-
-                    $registration = new Membership();
-
-                    if (isset($_REQUEST['memberId'])) {
-                        
-                        echo $registration->updateRegistration($_REQUEST);
-
-                    } else {
-                        echo json_encode(array("error" => 'PUT ERROR: Member ID not set.\n'), JSON_PRETTY_PRINT);
-                    }
-                        
-                    break;
-                default:
-                    
-                    break;
-            }
+            
         } else {
             echo json_encode(array("error" => 'PUT ERROR: Form type not set.\n'), JSON_PRETTY_PRINT);
         }
         break;
         
     case "DELETE":
-    //echo "REQUEST_METHOD Delete";
+        //echo "REQUEST_METHOD Delete";
         // Deletes
-        
         if (isset($_GET['formType'])) {
-            switch ($_GET['formType']) {
-                case "unregisterMembership":
-
-                    $registration = new Membership();
-
-                    if (isset($_GET['id'])) {
-                        
-                        //echo json_decode($registration->unRegister($_GET['id']));
-                        echo $registration->unRegister($_GET['id']);
-
-                        //echo json_encode(array("rowsAffected2" => 'testing'), JSON_PRETTY_PRINT);;
-                    } else {
-                        echo json_encode(array("error" => 'DELETE ERROR: ID not set.\n'), JSON_PRETTY_PRINT);
-                    }
-                        
-                    break;
-                default:
-                    
-                    break;
-            }
+            
         } else {
             echo json_encode(array("error" => 'DELETE ERROR: Form type not set.\n'), JSON_PRETTY_PRINT);
         }
         break;
     default:
-    //echo "REQUEST_METHOD Default";
+        //echo "REQUEST_METHOD Default";
         break;
 }
 

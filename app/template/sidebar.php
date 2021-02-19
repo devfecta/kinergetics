@@ -1,8 +1,8 @@
-<nav id="sidebarMenu" class="col-md-3 col-lg-3 d-md-block bg-light sidebar collapse">
+<nav class="col-md-3 col-lg-3 d-md-block bg-light sidebar collapse">
 
     <div class="position-sticky pt-3">
         <div class="nav flex-column">
-            <div class="accordion">
+            <div class="accordion" id="sidebarMenu">
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="dashboardHeader">
                     <button onclick="window.location.href='index.php'" class="btn btn-light m-2 text-nowrap" type="button">
@@ -43,16 +43,29 @@
                 <?php } else { ?>
 
                     <!-- Admin Sidebar -->
-                    <div class="accordion-item">
+                    <div class="accordion-item" id="companiesNav">
                         <h2 class="accordion-header" id="companiesHeader">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#companies" aria-expanded="false" aria-controls="companies">
                                 <span class="fas fa-building pe-1"></span> Companies
                             </button>
                         </h2>
-                        <div id="companies" class="accordion-collapse collapse" aria-labelledby="companiesHeader" data-bs-parent="#sidebarMenu">
+                        <div id="companies" class="accordion-collapse collapse" aria-labelledby="companiesHeader" data-bs-parent="#companiesNav">
                             <div id="companiesMenu" class="accordion-body p-0"></div>
                         </div>
                     </div>
+
+                    <div class="accordion-item" id="sensorsNav">
+                        <h2 class="accordion-header" id="sensorsHeader">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sensors" aria-expanded="false" aria-controls="sensors">
+                                <span class="fas fa-satellite-dish pe-1"></span> Sensors
+                            </button>
+                        </h2>
+                        <div id="sensors" class="accordion-collapse collapse" aria-labelledby="sensorsHeader" data-bs-parent="#sensorsNav">
+                            <div id="sensorsMenu" class="accordion-body p-0"></div>
+                        </div>
+                    </div>
+
+                    
                     <!--
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="placeHolderHeader">

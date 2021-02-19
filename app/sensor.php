@@ -63,6 +63,7 @@
 
 <script>
     getSensorChart(null, null);
+    getMinMaxDates();
 </script>
 
 
