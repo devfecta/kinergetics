@@ -85,7 +85,7 @@ const getCompaniesMenu = (menu) => {
             companyLink.setAttribute("data-bs-target", "#companiesMenuItems" + company.id);
             companyLink.setAttribute("aria-expanded", "false");
             companyLink.setAttribute("aria-controls", "companiesMenuItems" + company.id);
-            companyLink.innerHTML = company.company;
+            companyLink.innerHTML = company.company + ` <em class="mx-1" style="font-size: 0.75em"> (ID: ${company.id})</em>`;
 
             companyHeader.append(companyLink);
             companiesMenu.append(companyHeader);
@@ -99,6 +99,29 @@ const getCompaniesMenu = (menu) => {
             const companiesMenuItem = document.createElement('div');
             companiesMenuItem.setAttribute("id", "companiesMenuItem" + company.id);
             companiesMenuItem.setAttribute("class", "accordion-body");
+
+            // Add Sensor Button
+            const addSensor = document.createElement('div');
+            addSensor.setAttribute("class", "accordion-item");
+            addSensor.setAttribute("id", "addSensor" + company.id);
+
+            const addSensorHeader = document.createElement('h2');
+            addSensorHeader.setAttribute("class", "accordion-header");
+            addSensorHeader.setAttribute("id", "#addSensorHeader" + company.id);
+
+            const addSensorLink = document.createElement('button');
+            addSensorLink.setAttribute("class", "btn btn-light m-2 text-nowrap");
+            //addSensorLink.setAttribute("style", "text-align: left");
+            //addSensorLink.setAttribute("value", company.id)
+            addSensorLink.addEventListener("click", (e) => {
+                window.location.href = "addSensor.php?userId="+company.id
+            }, false);
+
+            addSensorLink.innerHTML = '<span class="fas fa-plus-square"></span> Add Sensor';
+
+            addSensorHeader.append(addSensorLink);
+            addSensor.append(addSensorHeader);
+            companiesMenuItem.append(addSensor);
 
             //Sensors
             const sensorsMenu = document.createElement('div');
@@ -169,25 +192,6 @@ const getCompaniesMenu = (menu) => {
  * Appends the sensors menu to the admin sidebar.
  */
 const getSensorsMenu = (menu) => {
-
-    const addSensorMenu = document.createElement('div');
-    addSensorMenu.setAttribute("class", "accordion-item");
-    addSensorMenu.setAttribute("id","addSensorMenuItem");
-
-    const addSensorHeader = document.createElement('h2');
-    addSensorHeader.setAttribute("class", "accordion-header");
-    addSensorHeader.setAttribute("id", "#addSensorHeader");
-
-    const addSensorLink = document.createElement('button');
-    addSensorLink.setAttribute("class", "btn btn-light mx-2 text-nowrap");
-    addSensorLink.setAttribute("style", "text-align: left");
-    addSensorLink.onclick = () => {window.location.href = "addSensor.php"};
-    addSensorLink.innerHTML = '<span class="fas fa-plus-square"></span> Add Sensor';
-
-    addSensorHeader.append(addSensorLink);
-    addSensorMenu.append(addSensorHeader);
-    menu.append(addSensorMenu); 
-
     getApi("Sensors", "getSensors")
     .then(sensors => {
         
@@ -204,7 +208,7 @@ const getSensorsMenu = (menu) => {
             menuLink.setAttribute("class", "btn btn-light text-nowrap");
             menuLink.setAttribute("style", "text-align: left");
             menuLink.onclick = () => {window.location.href = "sensor.php?sensorId="+sensor.id};
-            menuLink.innerHTML = sensor.sensor_name;
+            menuLink.innerHTML = sensor.sensor_name + `<em class="mx-1" style="font-size: 0.75em">(ID: ${sensor.id})</em>`;
 
             sensorHeader.append(menuLink);
             sensorHeader.append(document.createElement('br'));
@@ -217,7 +221,20 @@ const getSensorsMenu = (menu) => {
 }
 
 
+const addSensor = (sensorForm) => {
 
+    console.log(sensorForm);
+
+    let formData = new FormData();
+    formData.append("class", "Sensors");
+    formData.append("method", "addSensor");
+    formData.append("company", sensorForm.company.value);
+    formData.append("sensorId", sensorForm.sensorId.value);
+    formData.append("sensorName", sensorForm.sensorName.value);
+    formData.append("sensorAttributes", sensorForm.sensorAttributes.value);
+    
+    postApi(formData);
+}
 /**
  * Gets the chart(s) for a specific sensor, and can be used to get data points within a specific time frame.
  *
@@ -539,20 +556,18 @@ const getRandomColor = () => {
 
 const postApi = async (formData) => {
 
-    let params = new URLSearchParams(formData);
+    //let params = new URLSearchParams(formData);
+    // console.log(formData);
 
-    let url = "./api.php";
+    const url = "./api.php";
 
     return await fetch(url, {
         method: 'POST',
-        body: new URLSearchParams(formData),
-        headers: new Headers({
-            'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
-        })
+        body: formData
     })
     .then(response => {
-        //console.log(response);
-        return response.json();
+        console.log(response.json());
+        //return response.json();
     })
     .then(data => data)
     .catch(error => console.log(error.toString()));

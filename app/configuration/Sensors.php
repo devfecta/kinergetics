@@ -81,5 +81,49 @@
 
         }
 
+        public function addSensor($formData) {
+
+            $result = false;
+
+            $data = json_decode(json_encode($formData), false);
+
+            error_log($data->sensorId . " = " . $data->company . " = " . $data->sensorName . " = " . $data->sensorAttributes);
+
+            try {
+                $connection = Configuration::openConnection();
+
+                $statement = $connection->prepare("INSERT INTO `sensors` (
+                    `id`,
+                    `user_id`,
+                    `sensor_name`,
+                    `attributes`
+                ) 
+                VALUES (
+                    :sensor_id,
+                    :user_id,
+                    :sensor_name,
+                    :attribute
+                )");
+
+                $statement->bindParam(":sensor_id", $data->sensorId, PDO::PARAM_INT);
+                $statement->bindParam(":user_id", $data->company, PDO::PARAM_INT);
+                $statement->bindParam(":sensor_name", $data->sensorName, PDO::PARAM_STR);
+                $statement->bindParam(":attribute", json_encode($data->sensorAttributes), PDO::PARAM_STR);
+                $result = $statement->execute() ? true : false;
+
+            }
+            catch(PDOException $pdo) {
+                error_log(date('Y-m-d H:i:s') . " " . $pdo->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
+            }
+            catch (Exception $e) {
+                error_log(date('Y-m-d H:i:s') . " " . $e->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
+            }
+            finally {
+                Configuration::closeConnection();
+            }
+
+            return $result;
+        }
+
     }
 ?>

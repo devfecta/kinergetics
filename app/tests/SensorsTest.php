@@ -29,6 +29,25 @@ final class SensorsTest extends TestCase
         //$this->assertEquals(222222, $sensors->getUserSensors(2)[1]->getSensorId());
     }
 
+    public function testAddSensor(): void
+    {
+        $sensors = new Sensors();
+        $test = [
+            "class" => "Sensors"
+            , "method" => "addSensor"
+            , "company" => 5
+            , "sensorId" => 333
+            , "sensorName" => "Test Sensor"
+            , "sensorAttributes" => '["type" => "testType", "value" => 3]'
+        ];
+        $this->assertEquals(true, $sensors->addSensor($test));
+
+        
+
+        //$this->assertInstanceOf(Sensor::class, $sensors->getSensor());
+
+    }
+
     
     
 }

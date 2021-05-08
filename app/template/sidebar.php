@@ -50,7 +50,17 @@
                             </button>
                         </h2>
                         <div id="companies" class="accordion-collapse collapse" aria-labelledby="companiesHeader" data-bs-parent="#companiesNav">
+                            
+                            <div class="accordion-item" id="addCompanyMenuItem">
+                                <h2 class="accordion-header" id="addCompanyHeader">
+                                    <button onclick="window.location.href='register.php'" class="btn btn-light m-2 text-nowrap" type="button">
+                                        <span class="fas fa-plus-square"></span> Add Company
+                                    </button>
+                                </h2>
+                            </div>
+                            
                             <div id="companiesMenu" class="accordion-body p-0"></div>
+
                         </div>
                     </div>
 
@@ -61,7 +71,17 @@
                             </button>
                         </h2>
                         <div id="sensors" class="accordion-collapse collapse" aria-labelledby="sensorsHeader" data-bs-parent="#sensorsNav">
+                            
+                            <div class="accordion-item" id="addSensorMenuItem">
+                                <h2 class="accordion-header" id="addSensorHeader">
+                                    <button onclick="window.location.href='addSensor.php'" class="btn btn-light m-2 text-nowrap" type="button">
+                                        <span class="fas fa-plus-square"></span> Add Sensor
+                                    </button>
+                                </h2>
+                            </div>
+                            
                             <div id="sensorsMenu" class="accordion-body p-0"></div>
+
                         </div>
                     </div>
 

@@ -80,33 +80,63 @@ switch ($_SERVER['REQUEST_METHOD']) {
                             }
                             break;
                         default:
-                            echo json_encode(array("error" => 'METHOD ERROR: The '.$_GET['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
+                            echo json_encode(array("error" => 'GET METHOD ERROR: The '.$_GET['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
+                            break;
+                    }
+                    break;
+                case "Sensors":
+                    $Sensors = new Sensors();
+                    switch ($_GET['method']) {
+                        case "addSensor":
+                            $result = json_decode($Sensors->addSensor($_POST), false);
+
+                            if ($result) {
+                                header("Location: index.php");
+                            }
+                            else {
+                                header("Location: addSensor.php");
+                            }
+                            
+                            break;
+                        default:
+                            echo json_encode(array("error" => 'GET METHOD ERROR: The '.$_GET['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
                             break;
                     }
                     break;
                 default;
-                    echo json_encode(array("error" => 'CLASS ERROR: The '.$_GET['class'].' class does not exist.\n'), JSON_PRETTY_PRINT);
+                    echo json_encode(array("error" => 'GET CLASS ERROR: The '.$_GET['class'].' class does not exist.\n'), JSON_PRETTY_PRINT);
                     break;
             }
         }
         
         if (isset($_POST["class"])) {
+            
             switch ($_POST['class']) {
                 case "DataPoints":
-                    $dataPoints = new DataPoints();
-                    
+                    $DataPoints = new DataPoints();
                     switch ($_POST['method']) {
                         case "getDataPoints":
                             //echo json_encode(array("message" => $_GET['userId'].' = '.$_GET['dateTime']), JSON_PRETTY_PRINT);
-                            echo $dataPoints->getDataPoints((int)$_POST['userId'], $_POST['startDateTime'], $_POST['endDateTime']);
+                            echo $DataPoints->getDataPoints((int)$_POST['userId'], $_POST['startDateTime'], $_POST['endDateTime']);
                             break;
                         default:
-                            echo json_encode(array("error" => 'GET METHOD ERROR: The '.$_POST['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
+                            echo json_encode(array("error" => 'POST METHOD ERROR: The '.$_POST['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
+                            break;
+                    }
+                    break;
+                case "Sensors":
+                    $Sensors = new Sensors();
+                    switch ($_POST['method']) {
+                        case "addSensor":
+                            echo $Sensors->addSensor($_POST);
+                            break;
+                        default:
+                            echo json_encode(array("error" => 'POST METHOD ERROR: The '.$_POST['method'].' method does not exist.\n'), JSON_PRETTY_PRINT);
                             break;
                     }
                     break;
                 default;
-                    echo json_encode(array("error" => 'CLASS ERROR: The '.$_POST['class'].' class does not exist.\n'), JSON_PRETTY_PRINT);
+                    echo json_encode(array("error" => 'POST CLASS ERROR: The '.$_POST['class'].' class does not exist.\n'), JSON_PRETTY_PRINT);
                     break;
             }
         }
