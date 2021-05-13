@@ -105,7 +105,7 @@
                     :attribute
                 )");
                 // Convert sensor attributes to a string for the database.
-                $sensorAttributes = json_encode($data->sensorAttributes);
+                $sensorAttributes = $data->sensorAttributes;
 
                 $statement->bindParam(":sensor_id", $data->sensorId, PDO::PARAM_INT);
                 $statement->bindParam(":user_id", $data->company, PDO::PARAM_INT);

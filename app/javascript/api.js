@@ -251,7 +251,7 @@ const getSensorsMenu = (menu) => {
 
 const addSensor = (sensorForm) => {
 
-    console.log(sensorForm);
+    //console.log(sensorForm);
 
     let formData = new FormData();
     formData.append("class", "Sensors");
@@ -262,6 +262,7 @@ const addSensor = (sensorForm) => {
     formData.append("sensorAttributes", sensorForm.sensorAttributes.value);
     
     postApi(formData);
+    // Need to add some sort of confirmation
 }
 /**
  * Gets the chart(s) for a specific sensor, and can be used to get data points within a specific time frame.
@@ -603,7 +604,7 @@ const postApi = async (formData) => {
         body: formData
     })
     .then(response => {
-        console.log(response.json());
+        //console.log(response.json());
         //return response.json();
     })
     .then(data => data)
