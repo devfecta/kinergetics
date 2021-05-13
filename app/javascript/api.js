@@ -123,15 +123,15 @@ const getCompaniesMenu = (menu) => {
             addSensor.append(addSensorHeader);
             companiesMenuItem.append(addSensor);
 
-            //Sensors
+            // Sensors Menu
             const sensorsMenu = document.createElement('div');
             sensorsMenu.setAttribute("class", "accordion-item");
             sensorsMenu.setAttribute("id", "sensorsMenu" + company.id);
-
+            // Sensors Menu Header
             const sensorsHeader = document.createElement('h2');
             sensorsHeader.setAttribute("class", "accordion-header");
             sensorsHeader.setAttribute("id", "#sensorHeader" + company.id);
-
+            // Sensors Menu Button
             const sensorLink = document.createElement('button');
             sensorLink.setAttribute("class", "accordion-button collapsed");
             sensorLink.setAttribute("type", "button");
@@ -140,25 +140,30 @@ const getCompaniesMenu = (menu) => {
             sensorLink.setAttribute("aria-expanded", "false");
             sensorLink.setAttribute("aria-controls", "sensorsMenuItems" + company.id);
             sensorLink.innerHTML = '<span class="fas fa-satellite-dish pe-1"></span> Sensors';
-
+            // Adds Menu Button to the Header
             sensorsHeader.append(sensorLink);
+            // Adds the Header to the Menu
             sensorsMenu.append(sensorsHeader);
-
+            // Sensor Menu Items Group
             const sensorsMenuItems = document.createElement('div');
             sensorsMenuItems.setAttribute("id", "sensorsMenuItems" + company.id);
             sensorsMenuItems.setAttribute("class", "accordion-collapse collapse");
             sensorsMenuItems.setAttribute("aria-labelledby", "#sensorHeader" + company.id);
             sensorsMenuItems.setAttribute("data-bs-parent", "#sensorsMenu" + company.id);
-
-            const sensorsMenuItem = document.createElement('div');
-            sensorsMenuItem.setAttribute("id", "sensorsMenuItem" + company.id);
-            sensorsMenuItem.setAttribute("class", "accordion-body");
+            // Group of Menu Items
+            const sensorsMenuGroup = document.createElement('div');
+            sensorsMenuGroup.setAttribute("id", "sensorsMenuItem" + company.id);
+            sensorsMenuGroup.setAttribute("class", "accordion-body");
 
             getApi("Sensors", "getUserSensors", "userId=" + company.id)
             .then(sensors => {
 
                 sensors.forEach(sensor => {
-
+                    // Sensor Menu Item
+                    const sensorsMenuItem = document.createElement('div');
+                    sensorsMenuItem.setAttribute("id", "sensorsMenuItem" + sensor.id);
+                    sensorsMenuItem.setAttribute("class", "accordion-item d-flex justify-content-between");
+                    // View Sensor Button
                     const menuLink = document.createElement('button');
                     menuLink.setAttribute("class", "btn btn-light text-nowrap");
                     menuLink.setAttribute("style", "text-align: left");
@@ -167,20 +172,28 @@ const getCompaniesMenu = (menu) => {
                         document.cookie = "userId="+e.target.value;
                         window.location.href = "sensor.php?sensorId="+sensor.id
                     }, false);
-
                     menuLink.innerHTML = sensor.sensor_name;
-
+                    // Edit Sensor Button
+                    const editLink = document.createElement("button");
+                    editLink.setAttribute("class", "btn btn-light text-nowrap align-item-end");
+                    editLink.setAttribute("type", "button");
+                    editLink.onclick = () => { window.location.href = "editSensor.php?sensorId=" +sensor.id }
+                    editLink.innerHTML = `<span class="fas fa-pen-square"></span>`;
+                    // Add Sensor Buttons to Menu Item
                     sensorsMenuItem.append(menuLink);
-                    sensorsMenuItem.append(document.createElement('br'));
-                    
+                    sensorsMenuItem.append(editLink);
+                    // Add Menu Item to Sensor Group
+                    sensorsMenuGroup.append(sensorsMenuItem);
                 });
 
             })
             .catch(error => console.log(error));
-
-            sensorsMenuItems.append(sensorsMenuItem);
+            // Add Sensor Group to Company Specific Sensors Menu
+            sensorsMenuItems.append(sensorsMenuGroup);
+            // Add Sensors Menu to Company Specific Menu
             sensorsMenu.append(sensorsMenuItems);
             companiesMenuItem.append(sensorsMenu);
+
             companiesMenuItems.append(companiesMenuItem);
             companiesMenu.append(companiesMenuItems);
             menu.append(companiesMenu); 
@@ -197,22 +210,37 @@ const getSensorsMenu = (menu) => {
         
         sensors.forEach(sensor => {
             const sensorsMenu = document.createElement('div');
-            sensorsMenu.setAttribute("class", "accordion-item");
-            sensorsMenu.setAttribute("id","sensorMenu" + sensor.id);
+            sensorsMenu.setAttribute("class", "accordion-item d-flex justify-content-between");
+            sensorsMenu.setAttribute("id", "sensorMenu" + sensor.id);
 
-            const sensorHeader = document.createElement('h2');
-            sensorHeader.setAttribute("class", "accordion-header");
-            sensorHeader.setAttribute("id", "#sensorHeader" + sensor.id);
+           // const sensorHeader = document.createElement('h2');
+           // sensorHeader.setAttribute("class", "accordion-header");
+           // sensorHeader.setAttribute("id", "#sensorHeader" + sensor.id);
 
             const menuLink = document.createElement('button');
             menuLink.setAttribute("class", "btn btn-light text-nowrap");
-            menuLink.setAttribute("style", "text-align: left");
-            menuLink.onclick = () => {window.location.href = "sensor.php?sensorId="+sensor.id};
+            menuLink.setAttribute("id", "#sensorHeader" + sensor.id);
+           // menuLink.setAttribute("style", "text-align: left");
+            menuLink.onclick = () => { window.location.href = "sensor.php?sensorId=" + sensor.id };
             menuLink.innerHTML = sensor.sensor_name + `<em class="mx-1" style="font-size: 0.75em">(ID: ${sensor.id})</em>`;
 
-            sensorHeader.append(menuLink);
-            sensorHeader.append(document.createElement('br'));
-            sensorsMenu.append(sensorHeader);
+            // Append edit
+            /*
+            <button onclick="window.location.href='addSensor.php'" class="btn btn-light m-2 text-nowrap" type="button">
+                                        <span class="fas fa-plus-square"></span> Add Sensor
+                                    </button>
+            */
+            const editLink = document.createElement("button");
+            editLink.setAttribute("class", "btn btn-light text-nowrap align-item-end");
+            editLink.setAttribute("type", "button");
+            editLink.onclick = () => { window.location.href = "editSensor.php?sensorId=" +sensor.id }
+            editLink.innerHTML = `<span class="fas fa-pen-square"></span>`;
+            
+            sensorsMenu.append(menuLink);
+            sensorsMenu.append(editLink);
+
+            //sensorHeader.append(document.createElement('br'));
+            //sensorsMenu.append(sensorHeader);
 
             menu.append(sensorsMenu); 
         });        
@@ -283,7 +311,16 @@ const getSensorChart = (startDateTime, endDateTime) => {
                     let chart = null;
 
                     let points = dataPoints.filter(function(dataPoint) {
+
+                        if (dataType.data_type == "mA") {
+                            // Need to change the labeling on the chart
+                        }
+                        else {
+                            
+                        }
                         return dataPoint.data_type == dataType.data_type;
+                        
+                        
                     });
                     // Create charts here
                     //console.log(points);

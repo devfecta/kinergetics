@@ -3,9 +3,10 @@
 
     class Sensor {
 
-        private $sensorId;
-        private $userId;
-        private $sensorName;
+        private $sensorId = 0;
+        private $userId = 0;
+        private $sensorName = "";
+        private $sensorAttributes = [];
 
         function __construct() {}
 
@@ -33,6 +34,7 @@
                 $sensor->setSensorId($results['id']);
                 $sensor->setUserId($results['user_id']);
                 $sensor->setSensorName($results['sensor_name']);
+                $sensor->setSensorAttributes($results['attributes']);
 
             }
             catch (PDOException $pdo) {
@@ -71,6 +73,14 @@
 
         public function setSensorName($name) {
             $this->sensorName = $name;
+        }
+
+        public function getSensorAttributes() {
+            return $this->sensorAttributes;
+        }
+
+        public function setSensorAttributes($attributes) {
+            $this->sensorAttributes = $attributes;
         }
 
     }

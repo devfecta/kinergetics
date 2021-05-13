@@ -45,25 +45,24 @@ class DataPoints extends DataPoint {
             
             if (isset($sensor['sensorName']) && strpos($sensor['sensorName'], " | ") != false) {
                 // Gets the user ID from the sensor name property.
-                $userId = (int)explode(' | ', $sensor['sensorName'])[2];
+                $userId = (int)explode(' | ', $sensor['sensorName'])[3];
                 
                 if ($this->companyExists($userId) > 0) {
                     // Needed to convert the time stamp from UTC to CST
                     $utcDateTime = new DateTime($sensor['messageDate'], new DateTimeZone('UTC'));
                     $utcDateTime->setTimezone(new DateTimeZone('America/Chicago'));
                     $sensor['messageDate'] = $utcDateTime->format('Y-m-d H:i:s');
-                    //error_log("\n".$sensor['messageDate'], 0);
                     
                     $result = $this->insertDataPoint($userId, $sensor);
                     
                 }
                 else {
-                    error_log(date('Y-m-d H:i:s') . " Sensor ID: " . $sensor['sensorID'] . " - User does NOT exist.\n", 3, "/var/www/html/app/php-errors.log");
+                    error_log("Line: " . __LINE__ . " - " . date('Y-m-d H:i:s') . " Sensor ID: " . $sensor['sensorID'] . " - User does NOT exist.\n", 3, "/var/www/html/app/php-errors.log");
                 }
 
             }
             else {
-                error_log(date('Y-m-d H:i:s') . " Sensor ID: " . $sensor['sensorID'] . " - Sensor Name NOT Formatted Properly\n", 3, "/var/www/html/app/php-errors.log");
+                error_log("Line: " . __LINE__ . " - " . date('Y-m-d H:i:s') . " Sensor ID: " . $sensor['sensorID'] . " - Sensor Name NOT Formatted Properly\n", 3, "/var/www/html/app/php-errors.log");
                 //return false;
             }
 
@@ -93,12 +92,10 @@ class DataPoints extends DataPoint {
 
         }
         catch (PDOException $pdo) {
-            error_log(date('Y-m-d H:i:s') . " " . $pdo->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
-            //return json_encode(array('error'=> $pdo->getMessage()), JSON_PRETTY_PRINT);
+            error_log("Line: " . __LINE__ . " - " . date('Y-m-d H:i:s') . " " . $pdo->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
         }
         catch (Exception $e) {
-            error_log(date('Y-m-d H:i:s') . " " . $e->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
-            //return json_encode(array('error'=> $e->getMessage()), JSON_PRETTY_PRINT);
+            error_log("Line: " . __LINE__ . " - " . date('Y-m-d H:i:s') . " " . $e->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
         }
         finally {
             Configuration::closeConnection();
@@ -196,10 +193,10 @@ class DataPoints extends DataPoint {
 
         }
         catch(PDOException $pdo) {
-            error_log(date('Y-m-d H:i:s') . " " . $pdo->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
+            error_log("Line: " . __LINE__ . " - " . date('Y-m-d H:i:s') . " " . $pdo->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
         }
         catch (Exception $e) {
-            error_log(date('Y-m-d H:i:s') . " " . $e->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
+            error_log("Line: " . __LINE__ . " - " . date('Y-m-d H:i:s') . " " . $e->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
         }
         finally {
             Configuration::closeConnection();
@@ -251,7 +248,25 @@ class DataPoints extends DataPoint {
                 $dataPoint->setSensorId($result['sensor_id']);
                 $dataPoint->setDate($result['date_time']);
                 $dataPoint->setDataType($result['data_type']);
-                $dataPoint->setDataValue($result['data_value']);
+
+                /* mA - using the sensor_id and data_type to determine what sensor attributes to use.
+                    Need to use the sensor ID because the attributes can differ from sensor to sensor.
+                    Once calculated set the data value.
+                */
+
+                if ($result['data_type'] == "mA") {
+                    $sensor = Sensor::getSensor($result['sensor_id']);
+                    $attributes = json_decode($sensor->getSensorAttributes(), false);
+                    
+                    $outputProcess = $this->calculateMaProcess($sensor->getSensorAttributes(), $result['data_value']);
+
+                    $dataPoint->setDataValue($outputProcess);
+                }
+                else {
+                    
+                    $dataPoint->setDataValue($result['data_value']);
+                }
+
                 $dataPoint->setCustomValue($result['custom_value']);
 
                 array_push($dataPoints, $dataPoint);
@@ -260,10 +275,10 @@ class DataPoints extends DataPoint {
             //error_log(var_dump($dataPoints), 0);
         }
         catch(PDOException $pdo) {
-            error_log(date('Y-m-d H:i:s') . " " . $pdo->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
+            error_log("Line: " . __LINE__ . " - " . date('Y-m-d H:i:s') . " " . $pdo->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
         }
         catch (Exception $e) {
-            error_log(date('Y-m-d H:i:s') . " " . $e->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
+            error_log("Line: " . __LINE__ . " - " . date('Y-m-d H:i:s') . " " . $e->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
         }
         finally {
             Configuration::closeConnection();
@@ -271,6 +286,12 @@ class DataPoints extends DataPoint {
 
         return $dataPoints;
 
+    }
+
+    public function calculateMaProcess($attributes, $storedValue) {
+        
+        $attributes = json_decode($attributes, false);
+        return (($storedValue - $attributes->mAMin) / ($attributes->mAMax - $attributes->mAMin)) * ($attributes->processMax - $attributes->processMin);
     }
 
     public function getSensorDataTypes($sensorId) {
@@ -347,6 +368,7 @@ class DataPoints extends DataPoint {
         }
         catch(PDOException $pdo) {
             $result['error'] =  $pdo->getMessage();
+            error_log("Line: " . __LINE__ . " - " . date('Y-m-d H:i:s') . " " . $pdo->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
         }
         finally {
             Configuration::closeConnection();
@@ -379,10 +401,10 @@ class DataPoints extends DataPoint {
             return json_encode($dates, JSON_PRETTY_PRINT);
         }
         catch(PDOException $pdo) {
-            error_log(date('Y-m-d H:i:s') . " " . $pdo->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
+            error_log("Line: " . __LINE__ . " - " . date('Y-m-d H:i:s') . " " . $pdo->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
         }
         catch (Exception $e) {
-            error_log(date('Y-m-d H:i:s') . " " . $e->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
+            error_log("Line: " . __LINE__ . " - " . date('Y-m-d H:i:s') . " " . $e->getMessage() . "\n", 3, "/var/www/html/app/php-errors.log");
         }
         finally {
             Configuration::closeConnection();

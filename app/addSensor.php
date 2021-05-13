@@ -47,7 +47,7 @@
             <div class="row">
                 <div class="col-md-12 form-group">
                     <label for="sensorAttributes">Sensor Attributes: (JSON)</label>
-                    <input type="text" class="form-control" id="sensorAttributes" name="sensorAttributes" placeholder="{name: value, name: value}" maxlength="32" />
+                    <input type="text" class="form-control" id="sensorAttributes" name="sensorAttributes" placeholder='{"name": "value", "name": "value"}' maxlength="32" />
                 </div>
             </div>
 
